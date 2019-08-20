@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[car ${1:list}]]></content>
+    <tabTrigger>car</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>car</description>
+</snippet>

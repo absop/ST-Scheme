@@ -1,0 +1,8 @@
+<snippet>
+	<content><![CDATA[define-syntax ${1:name}
+	(syntax-rules ()
+		[()])]]></content>
+	<tabTrigger>define-syntax</tabTrigger>
+	<scope>source.scheme</scope>
+	<description>define-syntax</description>
+</snippet>

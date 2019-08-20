@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[bytevector-u8-ref ${1:vec} index]]></content>
+    <tabTrigger>bytevector-u8-ref</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>bytevector-u8-ref</description>
+</snippet>

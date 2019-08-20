@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[vector-set! ${1:vec} index value]]></content>
+    <tabTrigger>vector-set!</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>vector-set!</description>
+</snippet>

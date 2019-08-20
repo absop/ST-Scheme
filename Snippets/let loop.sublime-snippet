@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[let loop ([${1:variables}])
+	]]></content>
+	<tabTrigger>let loop</tabTrigger>
+	<scope>source.scheme</scope>
+	<description>let loop</description>
+</snippet>

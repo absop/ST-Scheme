@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[make-bytevector ${1:length}]]></content>
+    <tabTrigger>make-bytevector</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>make-bytevector</description>
+</snippet>

@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[begin
+	($1)]]></content>
+	<tabTrigger>begin</tabTrigger>
+	<scope>source.scheme</scope>
+	<description>begin</description>
+</snippet>

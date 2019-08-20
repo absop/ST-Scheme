@@ -1,0 +1,12 @@
+{
+    "cmd": ["scheme", "--script", "$file"],
+    "file_regex": "char [0-9]+ of (.*)$",
+    "line_regex": ".*at line ([0-9]+), char ([0-9]+)",
+    "working_dir": "${file_path}",
+    "selector": "source.scheme",
+    "variants": [
+    {
+        "name": "Petite",
+        "cmd": ["petite", "--script", "$file"],
+    }]
+}

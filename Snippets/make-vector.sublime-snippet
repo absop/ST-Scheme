@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[make-vector ${1:length}]]></content>
+    <tabTrigger>make-vector</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>make-vector</description>
+</snippet>

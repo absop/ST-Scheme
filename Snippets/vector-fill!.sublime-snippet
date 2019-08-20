@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[vector-fill! ${1:vec} value]]></content>
+    <tabTrigger>vector-fill!</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>vector-fill!</description>
+</snippet>

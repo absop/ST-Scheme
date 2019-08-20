@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[lambda (${1:args}) ${0:body}]]></content>
+    <tabTrigger>lambda</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>lambda</description>
+</snippet>

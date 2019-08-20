@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[set-cdr! ${1:list} value]]></content>
+    <tabTrigger>set-cdr!</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>set-cdr!</description>
+</snippet>

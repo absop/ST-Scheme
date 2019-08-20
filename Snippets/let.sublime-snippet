@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[let ([${1:variables}])
+	]]></content>
+	<tabTrigger>let</tabTrigger>
+	<scope>source.scheme</scope>
+	<description>let</description>
+</snippet>

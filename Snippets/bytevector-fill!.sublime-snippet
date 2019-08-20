@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[bytevector-fill! ${1:vec} value]]></content>
+    <tabTrigger>bytevector-fill!</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>bytevector-fill!</description>
+</snippet>

@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[cons ${1:value} ls]]></content>
+    <tabTrigger>cons</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>cons</description>
+</snippet>

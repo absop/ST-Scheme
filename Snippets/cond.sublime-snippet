@@ -1,0 +1,8 @@
+<snippet>
+    <content><![CDATA[cond
+  [(${1:test1}) val1]
+  [(${1:test2}) val2]]]></content>
+    <tabTrigger>cond</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>cond</description>
+</snippet>

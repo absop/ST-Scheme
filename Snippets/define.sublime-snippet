@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[define ${1:name}]]></content>
+	<tabTrigger>define</tabTrigger>
+	<scope>source.scheme</scope>
+	<description>define</description>
+</snippet>

@@ -1,0 +1,15 @@
+[
+    // Single quotes
+    {
+        "keys": ["'"],
+        "command": "insert",
+        "args": {
+            "characters": "'"
+        },
+        "context": [{
+            "key": "selector",
+            "operator": "equal",
+            "operand": "source.scheme"
+        }]
+    }
+]

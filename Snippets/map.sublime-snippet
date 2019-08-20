@@ -1,0 +1,6 @@
+<snippet>
+    <content><![CDATA[map ${1:procedure} ls]]></content>
+    <tabTrigger>map</tabTrigger>
+    <scope>source.scheme</scope>
+    <description>map</description>
+</snippet>
