@@ -136,7 +136,7 @@ contexts:
   quote:
     - match: (['`]\(\)|#t|#f)(?=[\(\[\s\]\)])
       scope: constant.language.scheme
-    - match: (['`])\s*({{identifier}})
+    - match: (['`])\s*(\\?[~!@$%^&*-+=:<>?/{}]|{{identifier}}|\\[\[(#.,`'|\"\\)\]])
       captures:
         1: keyword.control.aux.quote.scheme
         2: variable.symbol.scheme
