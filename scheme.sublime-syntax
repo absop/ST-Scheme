@@ -494,8 +494,28 @@ contexts:
         - match: '"'
           scope: punctuation.definition.string.end.scheme
           pop: true
-        - match: \\.
-          scope: constant.character.escape.scheme
+        - include: string-escaped-char
+        - include: string-placeholder
+
+  string-escaped-char:
+    - match: '(\\)$\n'
+      captures:
+        1: punctuation.separator.continuation.scheme
+    - match: \\(?:\\|[abefnrtv\'"?]|[0-3][0-9]{0,2}|[4-7][0-9]?|x[a-fA-F0-9]+|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})
+      scope: constant.character.escape.scheme
+    - match: \\.
+      scope: invalid.illegal.unknown-escape.scheme
+
+  string-placeholder:
+    - match: |-
+        (?x)~
+          ([a~$]
+          |,?(?:\d+)?@?[efg]
+          |(?:\d+)?(?:@:|:@|@|:)?[drsx]
+          |@:?\(
+          |\)
+          |:p) # conversion type
+      scope: constant.other.placeholder.scheme
 
   block-comment:
     - match: '#\|'
