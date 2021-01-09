@@ -1,3 +1,3 @@
 # Scheme
 
-Scheme syntax highlighting for Sublime Text 3.
+Scheme syntax highlighting and code formatter for Sublime Text 3.
