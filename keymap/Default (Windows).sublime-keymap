@@ -1,0 +1,13 @@
+[
+    {
+        "keys": ["ctrl+alt+f"],
+        "command": "scheme_code_formatter",
+        "context": [
+            {
+                "key": "selector",
+                "operand": "source.scheme",
+                "operator": "equal"
+            }
+        ]
+    }
+]
