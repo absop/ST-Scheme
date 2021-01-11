@@ -161,11 +161,11 @@ def pretty_packet(packet, indent_level):
         open_indent_level = indent_level + len(packet[OPENING])
         next_indent_level = open_indent_level
         is_keyword_clause = False
+        keep2_line_length = open_indent_level + clause_lengths[0] + \
+                            (1 + clause_lengths[1]) if nclauses > 1 else 0
         keepx_line_length = indent_level + packet[TEXTLEN]
-        keep2_line_length = open_indent_level + clause_lengths[0]
-        keep_all_in_aline = keepx_line_length <= 75
-        keep_all_in_aline &= not has_line_comment_deeply(packet)
-        keep2_line_length += (1 + clause_lengths[1]) if nclauses > 1 else 0
+        keep_all_in_aline = keepx_line_length <= 75 and \
+                            not has_line_comment_deeply(packet)
 
         if isinstance(first_clause, Token) and not is_comment(first_clause):
             tokstr = first_clause.text
