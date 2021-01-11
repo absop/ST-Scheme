@@ -17,9 +17,6 @@ except:
         return col
 
     class SchemeCodeFormatterCommand(sublime_plugin.TextCommand):
-        template = None
-        cache_path = None
-
         def run(self, edit):
             try:
                 self.format_regions(edit)
@@ -158,74 +155,73 @@ def pretty_packet(packet, indent_level):
     clauses = packet[CLAUSES]
     if clauses:
         nkeep = 1
-        is_special = False
-        first_clause = clauses[0]
         nclauses = len(clauses)
-        line_length = indent_level + packet[TEXTLEN]
-        keep_inline = line_length <= 75 and not has_line_comment_deeply(packet)
-        bracket_indent_level = indent_level + len(packet[OPENING])
-        indent_level = bracket_indent_level
+        first_clause = clauses[0]
+        clause_lengths = [clause_length(c) for c in clauses[:2]]
+        open_indent_level = indent_level + len(packet[OPENING])
+        next_indent_level = open_indent_level
+        is_keyword_clause = False
+        keepx_line_length = indent_level + packet[TEXTLEN]
+        keep2_line_length = open_indent_level + clause_lengths[0]
+        keep_all_in_aline = keepx_line_length <= 75
+        keep_all_in_aline &= not has_line_comment_deeply(packet)
+        keep2_line_length += (1 + clause_lengths[1]) if nclauses > 1 else 0
 
         if isinstance(first_clause, Token) and not is_comment(first_clause):
-            token = first_clause.text
-            token_length = len(token)
-            if token in formats:
-                is_special = True
-                fmt = formats[token]
+            tokstr = first_clause.text
+            toklen = len(tokstr)
+            if tokstr in formats:
+                is_keyword_clause = True
+                fmt = formats[tokstr]
                 keep = fmt.get("keep", 2)
                 if keep == "first_list":
                     keep = find_first_list(clauses)
                 nkeep = keep
                 if "indent" in fmt:
-                    indent_level += fmt["indent"] - 1
+                    next_indent_level += fmt["indent"] - 1
                 else:
-                    indent_level += token_length + 1
+                    next_indent_level += toklen + 1
 
                 if (nkeep == 2 and nclauses > 1 and
-                    clause_length(first_clause) > 8 and
-                    clause_length(clauses[1]) / packet[TEXTLEN] > 0.5):
+                    clause_lengths[0] > 8 and
+                    keep2_line_length > 75 and
+                    clause_lengths[1] / packet[TEXTLEN] > 0.5):
                     nkeep = 1
 
-                if line_length > 60:
-                    keep_inline = False
+                if keepx_line_length > 60:
+                    keep_all_in_aline = False
 
-            elif token_length <= 8:
-                nkeep = 2
-                indent_level += 1
-                # if a list's head weight exceeds a certain limit,
-                # we consider it as a computation but definition.
-                if (token_length <= 4 or
-                    nclauses > 2 and
-                    (clause_length(first_clause) +
-                     clause_length(clauses[1])) / packet[TEXTLEN] > 0.33 or
-                    # data is regular
-                    False):
-                    indent_level += token_length
             else:
-                indent_level += 1
-                if (nclauses > 2 and
-                    (bracket_indent_level +
-                     clause_length(first_clause) +
-                     clause_length(clauses[1])) <= 60):
+                next_indent_level += 1
+                if toklen <= 8:
+                    nkeep = 2
+                    # if a list's head weight exceeds a certain limit,
+                    # we consider it as a computation but definition.
+                    if (toklen <= 4 or
+                        nclauses > 2 and
+                        (clause_lengths[0] +
+                         clause_lengths[1]) / packet[TEXTLEN] > 0.33 or
+                        # data is regular
+                        False):
+                        next_indent_level += toklen
+                elif nclauses > 2 and keep2_line_length <= 75:
                     nkeep = 2
 
-        if not keep_inline:
-            if not is_special:
+        if not keep_all_in_aline:
+            if not is_keyword_clause:
                 if nkeep > 1:
                     if (nclauses > 1 and
-                        clause_length(first_clause) > 25 and
-                        (bracket_indent_level +
-                         clause_length(first_clause) +
-                         clause_length(clauses[1])) > 75):
+                        clause_lengths[0] > 25 and
+                        keep2_line_length > 75):
                         nkeep = 2 if nclauses > 2 else 1
-                elif packet[TEXTLEN] - clause_length(first_clause) <= 20:
+                elif packet[TEXTLEN] - clause_lengths[0] <= 20:
                     nkeep = nclauses
 
-                if ((line_length <= 75 or packet[TEXTLEN] <= 50)
+                if ((keepx_line_length <= 75 or packet[TEXTLEN] <= 50)
                     and not has_line_comment_flatly(packet)):
                     nkeep = nclauses
 
-            _indent_level = bracket_indent_level
+            _indent_level = open_indent_level
             for i in range(min(nkeep, nclauses)):
                 if i > 0:
                     yield ' '
@@ -243,13 +239,13 @@ def pretty_packet(packet, indent_level):
                     if is_line_comment(clause):
                         nkeep = i + 1
                         if nkeep == nclauses:
-                            yield '\n' + bracket_indent_level * ' '
+                            yield '\n' + open_indent_level * ' '
                         break
                     _indent_level += len(clause.text)
 
-            yield from pretty_clauses(clauses[nkeep:], indent_level, True)
+            yield from pretty_clauses(clauses[nkeep:], next_indent_level, True)
         else:
-            yield from pretty_clauses_in_aline(clauses, indent_level)
+            yield from pretty_clauses_in_aline(clauses, next_indent_level)
 
     yield packet[CLOSING]
 
@@ -405,11 +401,13 @@ def run_validity_test(encoder, subfix, **kwargs):
     import subprocess
     relpath = 'test'
     abspath = os.path.abspath('test')
-
+    npass = 0
+    nfile = 0
     for filename in os.listdir(relpath):
         if (not filename.endswith(".ss") or
             filename.count('.') > 1):
             continue
+        nfile += 1
 
         print("file: {}".format(filename))
         base, ext = os.path.splitext(filename)
@@ -442,9 +440,11 @@ def run_validity_test(encoder, subfix, **kwargs):
                 size2 = os.path.getsize(encoded_pretty_file_path)
                 if size1 == size2:
                     succeed = True
+                    npass += 1
         print("validate", ["fail!", "pass!"][succeed])
 
-    print("finished {} test\n".format(encoder.__name__))
+    print("finished {} test with {} pass, {} fail.\n".format(
+        encoder.__name__, npass, nfile - npass))
 
 
 if __name__ == '__main__':

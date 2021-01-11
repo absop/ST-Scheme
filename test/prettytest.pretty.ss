@@ -726,17 +726,14 @@
                           (lambda () (d)))])
        (eq? a (a)))
      ; check for warnings when requested
-     (eq? (parameterize
-            ([undefined-variable-warnings "yes please!"])
+     (eq? (parameterize ([undefined-variable-warnings "yes please!"])
             (undefined-variable-warnings))
           #t)
      (warning? ; possible undefined variable
-       (parameterize
-         ([undefined-variable-warnings #t] [optimize-level 2])
+       (parameterize ([undefined-variable-warnings #t] [optimize-level 2])
          (eval '(let () (define x x) x))))
      (error? ; undefined variable
-       (parameterize
-         ([undefined-variable-warnings #f] [optimize-level 2])
+       (parameterize ([undefined-variable-warnings #f] [optimize-level 2])
          (eval '(let () (define x x) x))))
      (begin
        (with-output-to-file "testfile.ss"
@@ -749,8 +746,7 @@
                  ([undefined-variable-warnings #t] [optimize-level 2])
                  (compile-file "testfile")))
      (error? ; undefined variable, with source info
-       (parameterize
-         ([undefined-variable-warnings #f] [optimize-level 2])
+       (parameterize ([undefined-variable-warnings #f] [optimize-level 2])
          (compile-file "testfile")
          (load "testfile.so"))))
 
@@ -1174,8 +1170,7 @@
      (eq? (call-with-values (lambda () (begin 5 (values 2 3)))
             (lambda (x y) (+ x y)))
           5)
-     (error? (call-with-values
-               (lambda () (begin 5 (values 2)))
+     (error? (call-with-values (lambda () (begin 5 (values 2)))
                (lambda (x y) (+ x y))))
      (eq? (call-with-values (lambda () (begin 5 (values 1 2)))
             (lambda (x y) (+ x y)))
@@ -1229,8 +1224,7 @@
                    (g (lambda (x) (lambda () (values x 3)))))
                (cons 0 (call-with-values (g 2) (h 1))))
              '(0 1 2 3))
-     (eqv? (call-with-values
-             (lambda () (apply values (make-list 1000 1)))
+     (eqv? (call-with-values (lambda () (apply values (make-list 1000 1)))
              +)
            1000)
      (equal? (call-with-values (lambda () (if (random 10) 2 3)) list) '(2))
@@ -1246,8 +1240,7 @@
      (equal? (let ()
                (define f
                  (lambda (a b c)
-                   (call-with-values
-                     (let ((x values)) (lambda () (x 1 2)))
+                   (call-with-values (let ((x values)) (lambda () (x 1 2)))
                      (lambda (d e) (list a b c d e)))))
                (f 3 4 5))
              '(3 4 5 1 2))
@@ -1269,11 +1262,9 @@
                      (lambda (x y) (random 20) (list a x y)))))
                (f2 0))
              '(0 1 2))
-     (null? (call-with-values
-              (lambda () (call/cc (lambda (k) (values))))
+     (null? (call-with-values (lambda () (call/cc (lambda (k) (values))))
               (lambda args args)))
-     (null? (call-with-values
-              (lambda () (call/cc (lambda (k) (k))))
+     (null? (call-with-values (lambda () (call/cc (lambda (k) (k))))
               (lambda args args)))
      (equal? (call-with-values
                (lambda ()
@@ -1314,8 +1305,7 @@
                  (lambda (ls)
                    (if (or (null? ls) (null? (cdr ls)))
                        (values ls '())
-                       (call-with-values
-                         (lambda () (split (cddr ls)))
+                       (call-with-values (lambda () (split (cddr ls)))
                          (lambda (odds evens)
                            (values (cons (car ls) odds)
                                    (cons (cadr ls) evens)))))))
@@ -1398,8 +1388,7 @@
                (lambda (a b . r) (cons* r b a)))
              '((2 3) 1 . 4))
 
-     (equal? (call-with-values
-               (lambda () ($mrvs-a f1 f2 f3 f4))
+     (equal? (call-with-values (lambda () ($mrvs-a f1 f2 f3 f4))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
@@ -1428,8 +1417,7 @@
      (equal? (call-with-values (lambda () (($mrvs-a f1))) $mrvs-list)
              '(68 4 1 2 3))
 
-     (equal? (call-with-values
-               (lambda () (($mrvs-a f1 f2 f3 f4)))
+     (equal? (call-with-values (lambda () (($mrvs-a f1 f2 f3 f4)))
                $mrvs-list)
              '(68 1 2 3 4))
 
@@ -1477,8 +1465,7 @@
      (equal? (let-values ([(x a . r) (($mrvs-a f1))]) (cons* x r a))
              '(68 (1 2 3) . 4))
 
-     (equal? (let-values
-               ([(x a . r) (($mrvs-a f1 f2 f3 f4))])
+     (equal? (let-values ([(x a . r) (($mrvs-a f1 f2 f3 f4))])
                (cons* x r a))
              '(68 (2 3 4) . 1))
 
@@ -1491,8 +1478,7 @@
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (2 3) 1 . 4))
 
-     (equal? (call-with-values
-               (lambda () (($mrvs-a f1 f2 f3 f4)))
+     (equal? (call-with-values (lambda () (($mrvs-a f1 f2 f3 f4)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (3 4) 2 . 1))
 
@@ -1519,8 +1505,7 @@
              '(1 . 2))
 
      (equal? (let ([f (lambda ()
-                        (call-with-values
-                          (lambda () (values 1 2))
+                        (call-with-values (lambda () (values 1 2))
                           $mrvs-qcons))])
                (f))
              '(1 . 2))
@@ -1585,13 +1570,11 @@
                (call-with-values q (lambda (a b c) (list c b a))))
              '(10 8 7))
      (error? ; unbound variable $mrvs-foo
-       (call-with-values
-         (lambda () (set! $mrvs-foo list) (values 3 2 1))
+       (call-with-values (lambda () (set! $mrvs-foo list) (values 3 2 1))
          $mrvs-foo))
      (begin (define $mrvs-foo 17) #t)
      (error? ; attempt to call nonprocedure 17
-       (call-with-values
-         (lambda () (set! $mrvs-foo list) (values 3 2 1))
+       (call-with-values (lambda () (set! $mrvs-foo list) (values 3 2 1))
          $mrvs-foo))
      (begin (define $mrvs-foo vector) #t)
      (equal? (call-with-values
@@ -1603,15 +1586,13 @@
      (or (= (optimize-level) 3)
          (eqv? (let ([x 0] [f (lambda (x) (values 1 2))])
                  (guard (c [#t x])
-                   (call-with-values
-                     (begin (set! x (+ x 3)) f)
+                   (call-with-values (begin (set! x (+ x 3)) f)
                      (begin (set! x (+ x 7)) 'oops))))
                10))
      (or (= (optimize-level) 3)
          (eqv? (let ([x 0] [f (lambda (x y z) (list z y x))])
                  (guard (c [#t x])
-                   (#2%call-with-values
-                     (begin (set! x (+ x 3)) 'oops)
+                   (#2%call-with-values (begin (set! x (+ x 3)) 'oops)
                      (begin (set! x (+ x 7)) f))))
                10))
 
@@ -1702,8 +1683,7 @@
                (lambda (a b . r) (cons* r b a)))
              '((2 3) 1 . 4))
 
-     (equal? (call-with-values
-               (lambda () ($mrvs-c f1 f2 f3 f4))
+     (equal? (call-with-values (lambda () ($mrvs-c f1 f2 f3 f4))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
@@ -1733,8 +1713,7 @@
      (equal? (call-with-values (lambda () (($mrvs-c f1))) $mrvs-list)
              '(68 4 1 2 3))
 
-     (equal? (call-with-values
-               (lambda () (($mrvs-c f1 f2 f3 f4)))
+     (equal? (call-with-values (lambda () (($mrvs-c f1 f2 f3 f4)))
                $mrvs-list)
              '(68 1 2 3 4))
 
@@ -1782,8 +1761,7 @@
      (equal? (let-values ([(x a . r) (($mrvs-c f1))]) (cons* x r a))
              '(68 (1 2 3) . 4))
 
-     (equal? (let-values
-               ([(x a . r) (($mrvs-c f1 f2 f3 f4))])
+     (equal? (let-values ([(x a . r) (($mrvs-c f1 f2 f3 f4))])
                (cons* x r a))
              '(68 (2 3 4) . 1))
 
@@ -1796,8 +1774,7 @@
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (2 3) 1 . 4))
 
-     (equal? (call-with-values
-               (lambda () (($mrvs-c f1 f2 f3 f4)))
+     (equal? (call-with-values (lambda () (($mrvs-c f1 f2 f3 f4)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (3 4) 2 . 1))
 
@@ -1813,8 +1790,7 @@
                  (values #t (cdr ls)))))
          (define double-call
            (lambda (x)
-             (let-values
-               ([(x y) (split (split x))])
+             (let-values ([(x y) (split (split x))])
                (list y x)))))
        #t)
 
@@ -1862,16 +1838,14 @@
      (error? (let-values (((x y z) 1)) x))
      (error? (let-values (((x y . w) 1)) x))
      (error? (let-values (((x x . w) (values 1 2 3))) (list x w)))
-     (error? (let-values
-               (((x y . w) (values 1 2 3)) [(x q) (values 4 5)])
+     (error? (let-values (((x y . w) (values 1 2 3)) [(x q) (values 4 5)])
                (list x w q)))
      (equal? (let-values (((x) 3)) x) 3)
      (equal? (let-values (((x y) (values 3 4))) (list x y)) '(3 4))
      (equal? (let-values (((x . y) (values 3 4))) (list x y)) '(3 (4)))
      (equal? (let-values ((x (values 3 4))) x) '(3 4))
      (equal? (let-values ((x 3)) x) '(3))
-     (equal? (let-values
-               (((x . y) (values 1 2 3)) ((z) (values 4)))
+     (equal? (let-values (((x . y) (values 1 2 3)) ((z) (values 4)))
                (list x y z))
              '(1 (2 3) 4))
      (equal? (let ()
@@ -1887,8 +1861,7 @@
      (equal? (let ()
                (define f
                  (lambda (a b c)
-                   (let-values
-                     (((d e) (let ((x values)) (x 1 2))))
+                   (let-values (((d e) (let ((x values)) (x 1 2))))
                      (list a b c d e))))
                (f 3 4 5))
              '(3 4 5 1 2))
@@ -1909,8 +1882,7 @@
      (eqv? (letrec ((z 2)
                     (f (lambda () (values 1 z)))
                     (g (lambda (x y) (values x y z))))
-             (let-values
-               ([(c d e) (let-values ([(z b) (f)]) (g z b))])
+             (let-values ([(c d e) (let-values ([(z b) (f)]) (g z b))])
                (+ c d e z)))
            7)
      (equal? (let ([a 3])
@@ -1952,8 +1924,7 @@
      (equal? (let*-values (((x . y) (values 3 4))) (list x y)) '(3 (4)))
      (equal? (let*-values ((x (values 3 4))) x) '(3 4))
      (equal? (let*-values ((x 3)) x) '(3))
-     (equal? (let*-values
-               (((x . y) (values 1 2 3)) ((z) (values 4)))
+     (equal? (let*-values (((x . y) (values 1 2 3)) ((z) (values 4)))
                (list x y z))
              '(1 (2 3) 4))
      (equal? (let ()
@@ -1961,8 +1932,7 @@
                  (lambda (ls)
                    (if (or (null? ls) (null? (cdr ls)))
                        (values ls '())
-                       (let*-values
-                         (((odds evens) (split (cddr ls))))
+                       (let*-values (((odds evens) (split (cddr ls))))
                          (values (cons (car ls) odds)
                                  (cons (cadr ls) evens))))))
                (call-with-values (lambda () (split '(a b c d e f))) vector))
@@ -1970,8 +1940,7 @@
      (equal? (let ()
                (define f
                  (lambda (a b c)
-                   (let*-values
-                     (((d e) (let ((x values)) (x 1 2))))
+                   (let*-values (((d e) (let ((x values)) (x 1 2))))
                      (list a b c d e))))
                (f 3 4 5))
              '(3 4 5 1 2))
@@ -1992,8 +1961,7 @@
      (eqv? (letrec ((z 2)
                     (f (lambda () (values 1 z)))
                     (g (lambda (x y) (values x y z))))
-             (let*-values
-               ([(c d e) (let*-values ([(z b) (f)]) (g z b))])
+             (let*-values ([(c d e) (let*-values ([(z b) (f)]) (g z b))])
                (+ c d e z)))
            7)
      (equal? (let ([a 3])
@@ -4920,8 +4888,7 @@
      (= (bitwise-arithmetic-shift-left 234 0) 234)
      (= (bitwise-arithmetic-shift-left 1 4) 16)
      (= (bitwise-arithmetic-shift-right 8 4) 0)
-     (= (bitwise-arithmetic-shift-right
-          (bitwise-arithmetic-shift-left 4 4)
+     (= (bitwise-arithmetic-shift-right (bitwise-arithmetic-shift-left 4 4)
           4)
         4)
      (= (bitwise-arithmetic-shift-left 1 100) (expt 2 100))
@@ -5170,8 +5137,7 @@
                (let* ([count (mod count width)]
                       [field0 (bitwise-bit-field n start end)]
                       [field1 (bitwise-arithmetic-shift-left field0 count)]
-                      [field2 (bitwise-arithmetic-shift-right
-                                field0
+                      [field2 (bitwise-arithmetic-shift-right field0
                                 (- width count))]
                       [field (bitwise-ior field1 field2)])
                  (bitwise-copy-bit-field n start end field))
@@ -6769,8 +6735,7 @@
                           (= (bitwise-if kx (bitwise-not y) z)
                              (r6rs-bitwise-if kx (bitwise-not y) z))
                           (= (bitwise-if (bitwise-not kx) (bitwise-not y) z)
-                             (r6rs-bitwise-if
-                               (bitwise-not kx)
+                             (r6rs-bitwise-if (bitwise-not kx)
                                (bitwise-not y)
                                z)))
                      (errorf #f
@@ -9111,8 +9076,7 @@
      (equal? (string-for-each + "" "" "") (void))
      (equal? (string-for-each + "" "" "" "" "") (void))
      (equal? (let ([ls '()])
-               (string-for-each
-                 (lambda (x) (set! ls (cons x ls)))
+               (string-for-each (lambda (x) (set! ls (cons x ls)))
                  "abcdef")
                ls)
              '(#\f #\e #\d #\c #\b #\a))
@@ -9130,8 +9094,7 @@
                (#\b . #\2)
                (#\a . #\3)))
      (equal? (let ([ls '()])
-               (string-for-each
-                 (lambda r (set! ls (cons r ls)))
+               (string-for-each (lambda r (set! ls (cons r ls)))
                  "abcdef"
                  "327654"
                  "!@#$%^")
@@ -9143,8 +9106,7 @@
                (#\b #\2 #\@)
                (#\a #\3 #\!)))
      (equal? (let ([ls '()])
-               (string-for-each
-                 (lambda r (set! ls (cons r ls)))
+               (string-for-each (lambda r (set! ls (cons r ls)))
                  "abcdef"
                  "327654"
                  "!@#$%^"
@@ -13600,8 +13562,7 @@
          ((fx= i (expt 2 8)) #t)
          (do ([j 0 (fx+ j 1)])
              ((fx= j (expt 2 8)))
-             (unless (eqv? (bytevector-s16-ref
-                             (bytevector i j)
+             (unless (eqv? (bytevector-s16-ref (bytevector i j)
                              0
                              (native-endianness))
                            (native->signed i j))
@@ -13684,8 +13645,7 @@
              (unless (eqv? (bytevector-s16-ref (bytevector 0 i j) 1 'big)
                            (big-endian->signed i j))
                      (errorf #f "failed for ~s and ~s (big)" i j))
-             (unless (eqv? (bytevector-s16-ref
-                             (bytevector 0 i j)
+             (unless (eqv? (bytevector-s16-ref (bytevector 0 i j)
                              1
                              (native-endianness))
                            (native->signed i j))
@@ -13733,8 +13693,7 @@
          ((fx= i (expt 2 8)) #t)
          (do ([j 0 (fx+ j 1)])
              ((fx= j (expt 2 8)))
-             (unless (eqv? (bytevector-u16-ref
-                             (bytevector i j)
+             (unless (eqv? (bytevector-u16-ref (bytevector i j)
                              0
                              (native-endianness))
                            (native->unsigned i j))
@@ -13817,8 +13776,7 @@
              (unless (eqv? (bytevector-u16-ref (bytevector 0 i j) 1 'big)
                            (big-endian->unsigned i j))
                      (errorf #f "failed for ~s and ~s (big)" i j))
-             (unless (eqv? (bytevector-u16-ref
-                             (bytevector 0 i j)
+             (unless (eqv? (bytevector-u16-ref (bytevector 0 i j)
                              1
                              (native-endianness))
                            (native->unsigned i j))
@@ -14705,8 +14663,7 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-s24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->signed ls))
@@ -14750,8 +14707,7 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-s24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
                            0
                            'little)
                          (apply little-endian->signed ls))
@@ -14776,14 +14732,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->signed (cdr ls)))
@@ -14795,20 +14749,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (eval `(bytevector-s24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -14861,8 +14812,7 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-u24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->unsigned ls))
@@ -14906,8 +14856,7 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-u24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
                            0
                            'little)
                          (apply little-endian->unsigned ls))
@@ -14932,14 +14881,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u24-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->unsigned (cdr ls)))
@@ -14951,20 +14898,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (eval `(bytevector-u24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u24-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -16147,8 +16091,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-native-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-native-ref (apply bytevector ls)
                            0)
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -16211,8 +16154,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-native-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-native-ref (apply bytevector ls)
                            0)
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -16580,8 +16522,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->signed ls))
@@ -16625,8 +16566,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
                            0
                            'little)
                          (apply little-endian->signed ls))
@@ -16651,14 +16591,12 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-           (unless (eqv? (bytevector-s32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->signed (cdr ls)))
@@ -16714,8 +16652,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->unsigned ls))
@@ -16759,8 +16696,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
                            0
                            'little)
                          (apply little-endian->unsigned ls))
@@ -16785,14 +16721,12 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-           (unless (eqv? (bytevector-u32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u32-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->unsigned (cdr ls)))
@@ -17931,14 +17865,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (bytevector-s40-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s40-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s40-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s40-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->signed (cdr ls)))
@@ -17950,20 +17882,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (eval `(bytevector-s40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -18003,14 +17932,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (bytevector-u40-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u40-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u40-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u40-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->unsigned (cdr ls)))
@@ -18022,20 +17949,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (eval `(bytevector-u40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u40-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -18262,14 +18186,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (bytevector-s48-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s48-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s48-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s48-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->signed (cdr ls)))
@@ -18281,20 +18203,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (eval `(bytevector-s48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -18334,14 +18253,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (bytevector-u48-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u48-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u48-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u48-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->unsigned (cdr ls)))
@@ -18353,20 +18270,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (eval `(bytevector-u48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u48-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -18593,14 +18507,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s56-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s56-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s56-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s56-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->signed (cdr ls)))
@@ -18612,20 +18524,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (eval `(bytevector-s56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -18665,14 +18574,12 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u56-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u56-ref (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u56-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u56-ref (apply bytevector ls)
                            1
                            'little)
                          (apply little-endian->unsigned (cdr ls)))
@@ -18684,20 +18591,17 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (eval `(bytevector-u56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u56-ref
-                                  ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -19003,8 +18907,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-native-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s64-native-ref (apply bytevector ls)
                            0)
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -19124,8 +19027,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u64-native-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-u64-native-ref (apply bytevector ls)
                            0)
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -19456,8 +19358,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-ref
-                           (apply bytevector ls)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector ls)
                            0
                            'little)
                          (apply little-endian->signed ls))
@@ -19551,20 +19452,17 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
                            1
                            (native-endianness))
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-s64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
                            1
                            'big)
                          (apply big-endian->signed ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-s64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
                            1
                            'little)
                          (apply little-endian->signed ls))
@@ -19825,20 +19723,17 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
                            1
                            (native-endianness))
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-u64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
                            1
                            'big)
                          (apply big-endian->unsigned ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-u64-ref
-                           (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
                            1
                            'little)
                          (apply little-endian->unsigned ls))
@@ -20741,8 +20636,7 @@
 
      ; not a bytevector
      (error? (bytevector-ieee-single-native-set! '#(3 252 5 0 0 0 0) 0 0.0))
-     (error? (if (bytevector-ieee-single-native-set!
-                   '#(3 252 5 0 0 0 0)
+     (error? (if (bytevector-ieee-single-native-set! '#(3 252 5 0 0 0 0)
                    0
                    0.0)
                  #f
@@ -20851,8 +20745,7 @@
 
      ; not a bytevector
      (error? (bytevector-ieee-double-native-set! '#(3 252 5 0 0 0 0) 0 0.0))
-     (error? (if (bytevector-ieee-double-native-set!
-                   '#(3 252 5 0 0 0 0)
+     (error? (if (bytevector-ieee-double-native-set! '#(3 252 5 0 0 0 0)
                    0
                    0.0)
                  #f
@@ -21182,8 +21075,7 @@
                0
                0.0
                'little))
-     (error? (if (bytevector-ieee-single-set!
-                   '#(3 252 5 0 0 0 0)
+     (error? (if (bytevector-ieee-single-set! '#(3 252 5 0 0 0 0)
                    0
                    0.0
                    'little)
@@ -21330,8 +21222,7 @@
                0
                0.0
                'little))
-     (error? (if (bytevector-ieee-double-set!
-                   '#(3 252 5 0 0 0 0)
+     (error? (if (bytevector-ieee-double-set! '#(3 252 5 0 0 0 0)
                    0
                    0.0
                    'little)
@@ -21483,8 +21374,7 @@
 
      ; not a bytevector
      (error? (bytevector-sint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1))
-     (error? (if (bytevector-sint-ref
-                   '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (if (bytevector-sint-ref '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    'little
                    1)
@@ -21621,8 +21511,7 @@
 
      ; not a bytevector
      (error? (bytevector-uint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1))
-     (error? (if (bytevector-uint-ref
-                   '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (if (bytevector-uint-ref '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    'little
                    1)
@@ -21768,14 +21657,12 @@
      (error? (if (bytevector-sint-set! $v1 0 7 'big 5 0) #f #t))
 
      ; not a bytevector
-     (error? (bytevector-sint-set!
-               '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (bytevector-sint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
                0
                7
                'little
                1))
-     (error? (if (bytevector-sint-set!
-                   '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (if (bytevector-sint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    7
                    'little
@@ -21990,14 +21877,12 @@
      (error? (if (bytevector-uint-set! $v1 0 7 'big 5 0) #f #t))
 
      ; not a bytevector
-     (error? (bytevector-uint-set!
-               '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (bytevector-uint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
                0
                7
                'little
                1))
-     (error? (if (bytevector-uint-set!
-                   '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (if (bytevector-uint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    7
                    'little
@@ -22589,78 +22474,63 @@
                4))
      (error? (sint-list->bytevector '(0 #x80000000 0) 'little 4))
      (error? (sint-list->bytevector '(0 #x-8000000000000001 0) 'big 8))
-     (error? (sint-list->bytevector
-               '(0 #x-8000000000000001 0)
+     (error? (sint-list->bytevector '(0 #x-8000000000000001 0)
                (native-endianness)
                8))
      (error? (sint-list->bytevector '(0 #x8000000000000000 0) 'big 8))
      (error? (sint-list->bytevector '(0 #x8000000000000000 0) 'little 8))
-     (error? (sint-list->bytevector
-               '(0 #x-80000000000000000001 0)
+     (error? (sint-list->bytevector '(0 #x-80000000000000000001 0)
                (native-endianness)
                10))
-     (error? (sint-list->bytevector
-               '(0 #x-80000000000000000001 0)
+     (error? (sint-list->bytevector '(0 #x-80000000000000000001 0)
                'little
                10))
      (error? (sint-list->bytevector '(0 #x80000000000000000000 0) 'big 10))
      (error? (begin
-               (sint-list->bytevector
-                 '(0 #x80000000000000000000 0)
+               (sint-list->bytevector '(0 #x80000000000000000000 0)
                  'little
                  10)
                #t))
 
      ; invalid endianness
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                1))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                2))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                3))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                4))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                6))
      (error? (begin
-               (sint-list->bytevector
-                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'spam
                  12)
                #t))
 
      ; invalid size
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                -1))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                0))
-     (error? (sint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                1.0))
      (error? (begin
-               (sint-list->bytevector
-                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'big
                  "oops")
                #t))
 
-     (equal? (sint-list->bytevector
-               '(#x-1 #x01 #x02 #x-5 #x-80 #x7f)
+     (equal? (sint-list->bytevector '(#x-1 #x01 #x02 #x-5 #x-80 #x7f)
                'little
                1)
              #vu8(#xff #x01 #x02 #xfb #x80 #x7f))
@@ -22822,62 +22692,50 @@
      (error? (uint-list->bytevector '(0 x-1 0) 'little 10))
      (error? (uint-list->bytevector '(0 #x100000000000000000000 0) 'big 10))
      (error? (begin
-               (uint-list->bytevector
-                 '(0 #x100000000000000000000 0)
+               (uint-list->bytevector '(0 #x100000000000000000000 0)
                  'little
                  10)
                #t))
 
      ; invalid endianness
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                1))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                2))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                3))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                4))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                6))
      (error? (begin
-               (uint-list->bytevector
-                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'spam
                  12)
                #t))
 
      ; invalid size
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                -1))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                0))
-     (error? (uint-list->bytevector
-               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                1.0))
      (error? (begin
-               (uint-list->bytevector
-                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'big
                  "oops")
                #t))
 
-     (equal? (uint-list->bytevector
-               '(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (uint-list->bytevector '(#xff #x01 #x02 #xfb #x80 #x7f)
                'little
                1)
              #vu8(#xff #x01 #x02 #xfb #x80 #x7f))
@@ -23083,20 +22941,17 @@
                  50)
                #t))
 
-     (equal? (bytevector->sint-list
-               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->sint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'little
                1)
              '(#x-1 #x01 #x02 #x-5 #x-80 #x7f))
 
-     (equal? (bytevector->sint-list
-               #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
+     (equal? (bytevector->sint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
                'big
                1)
              '(#x7f #x-80 -5 #x2 #x1 -1))
 
-     (equal? (bytevector->sint-list
-               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->sint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'big
                2)
              '(#x-ff #x2FB #x-7f81))
@@ -23296,20 +23151,17 @@
                  50)
                #t))
 
-     (equal? (bytevector->uint-list
-               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->uint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'little
                1)
              '(#xff #x01 #x02 #xfb #x80 #x7f))
 
-     (equal? (bytevector->uint-list
-               #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
+     (equal? (bytevector->uint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
                'big
                1)
              '(#x7f #x80 #xfb #x2 #x1 #xff))
 
-     (equal? (bytevector->uint-list
-               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->uint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'big
                2)
              '(#xff01 #x2FB #x807f))
@@ -24719,8 +24571,7 @@
                         =>
                         #t)
 
-                  (test (bytevector=?
-                          (string->utf8 "\x010000;\x10ffff;")
+                  (test (bytevector=? (string->utf8 "\x010000;\x10ffff;")
                           '#vu8(#b11110000 #b10010000 #b10000000 #b10000000
                                 #b11110100 #b10001111 #b10111111 #b10111111))
                         =>
@@ -24842,8 +24693,7 @@
                         #t)
 
                   (test (bytevector=?
-                          (string->utf16
-                            "\x010000;\xfdcba;\x10ffff;"
+                          (string->utf16 "\x010000;\xfdcba;\x10ffff;"
                             'little)
                           '#vu8(#x00 #xd8 #x00 #xdc #xb7 #xdb #xba #xdc #xff
                                 #xdb #xff #xdf))
@@ -24852,8 +24702,7 @@
 
                   (test (bytevector=?
                           (string->utf16 "ab\x010000;\xfdcba;\x10ffff;cd")
-                          (string->utf16
-                            "ab\x010000;\xfdcba;\x10ffff;cd"
+                          (string->utf16 "ab\x010000;\xfdcba;\x10ffff;cd"
                             'big))
                         =>
                         #t)
@@ -24939,15 +24788,13 @@
                         =>
                         #t)
 
-                  (test (bytevector=?
-                          (string->utf32 "abc" 'big)
+                  (test (bytevector=? (string->utf32 "abc" 'big)
                           '#vu8(#x00 #x00 #x00 #x61 #x00 #x00 #x00 #x62 #x00
                                 #x00 #x00 #x63))
                         =>
                         #t)
 
-                  (test (bytevector=?
-                          (string->utf32 "abc" 'little)
+                  (test (bytevector=? (string->utf32 "abc" 'little)
                           '#vu8(#x61 #x00 #x00 #x00 #x62 #x00 #x00 #x00 #x63
                                 #x00 #x00 #x00))
                         =>
@@ -25497,8 +25344,7 @@
             (equal? (bytevector-sint-ref v 2 'big 1) #x-02)
             (equal? (bytevector-sint-ref v 1 'little 6) #x78badc56fe34)
             (equal? (bytevector-sint-ref v 2 'little 7) #x-6567874523a902)
-            (equal? (bytevector-sint-ref
-                      (make-bytevector 1000 -1)
+            (equal? (bytevector-sint-ref (make-bytevector 1000 -1)
                       0
                       'big
                       1000)
@@ -25663,12 +25509,10 @@
              #vu8(#x00 #x00 #x00))
      (equal? (bytevector-and #vu8(#x65 #x33 #xf0) #vu8(#x54 #x27 #x86))
              #vu8(#x44 #x23 #x80))
-     (equal? (bytevector-and
-               #vu8(#x65 #x33 #xf0 #x75 #x83 #x99 #x41)
+     (equal? (bytevector-and #vu8(#x65 #x33 #xf0 #x75 #x83 #x99 #x41)
                #vu8(#x54 #x27 #x86 #x99 #x87 #x76 #x63))
              #vu8(#x44 #x23 #x80 #x11 #x83 #x10 #x41))
-     (equal? (bytevector-and
-               #vu8(#x65 #x33 #xf0 #x75 #x83 #x99)
+     (equal? (bytevector-and #vu8(#x65 #x33 #xf0 #x75 #x83 #x99)
                #vu8(#x54 #x27 #x86 #x99 #x87 #x76))
              #vu8(#x44 #x23 #x80 #x11 #x83 #x10))
      (equal? (bytevector-and #vu8(#x0 #x0 #x0 #x0) #vu8(#x0 #x0 #x0 #x0))
@@ -25906,12 +25750,10 @@
              #vu8(#x54 #x27 #x86))
      (equal? (bytevector-ior #vu8(#x65 #x33 #xf0) #vu8(#x54 #x27 #x86))
              #vu8(#x75 #x37 #xf6))
-     (equal? (bytevector-ior
-               #vu8(#x65 #x33 #xf0 #x75 #x83 #x99 #x41)
+     (equal? (bytevector-ior #vu8(#x65 #x33 #xf0 #x75 #x83 #x99 #x41)
                #vu8(#x54 #x27 #x86 #x99 #x87 #x76 #x63))
              #vu8(#x75 #x37 #xf6 #xfd #x87 #xff #x63))
-     (equal? (bytevector-ior
-               #vu8(#x65 #x33 #xf0 #x75 #x83 #x99)
+     (equal? (bytevector-ior #vu8(#x65 #x33 #xf0 #x75 #x83 #x99)
                #vu8(#x54 #x27 #x86 #x99 #x87 #x76))
              #vu8(#x75 #x37 #xf6 #xfd #x87 #xff))
      (equal? (bytevector-ior #vu8(20) #vu8(#xff)) #vu8(#xff))
@@ -26492,22 +26334,18 @@
                (endianness big)))
      (error? (bytevector-u64-native-set! immutable-100-bytevector 0 1))
      (error? (bytevector-s64-native-set! immutable-100-bytevector 0 1))
-     (error? (bytevector-ieee-single-set!
-               immutable-100-bytevector
+     (error? (bytevector-ieee-single-set! immutable-100-bytevector
                0
                1.0
                (endianness big)))
-     (error? (bytevector-ieee-double-set!
-               immutable-100-bytevector
+     (error? (bytevector-ieee-double-set! immutable-100-bytevector
                0
                1.0
                (endianness big)))
-     (error? (bytevector-ieee-single-native-set!
-               immutable-100-bytevector
+     (error? (bytevector-ieee-single-native-set! immutable-100-bytevector
                0
                1.0))
-     (error? (bytevector-ieee-double-native-set!
-               immutable-100-bytevector
+     (error? (bytevector-ieee-double-native-set! immutable-100-bytevector
                0
                1.0))
      (error? (bytevector-fill! immutable-100-bytevector 0))
@@ -26573,19 +26411,15 @@
                 (endianness big)))
      (number? (bytevector-u64-native-ref immutable-100-bytevector 0))
      (number? (bytevector-s64-native-ref immutable-100-bytevector 0))
-     (number? (bytevector-ieee-single-ref
-                immutable-100-bytevector
+     (number? (bytevector-ieee-single-ref immutable-100-bytevector
                 0
                 (endianness big)))
-     (number? (bytevector-ieee-double-ref
-                immutable-100-bytevector
+     (number? (bytevector-ieee-double-ref immutable-100-bytevector
                 0
                 (endianness big)))
-     (number? (bytevector-ieee-single-native-ref
-                immutable-100-bytevector
+     (number? (bytevector-ieee-single-native-ref immutable-100-bytevector
                 0))
-     (number? (bytevector-ieee-double-native-ref
-                immutable-100-bytevector
+     (number? (bytevector-ieee-double-native-ref immutable-100-bytevector
                 0)))
 
 
@@ -27495,8 +27329,7 @@
                                                   (set! saved-condition
                                                     c)])
                                          ($tt-spam i)
-                                         (with-mutex
-                                           console-mutex
+                                         (with-mutex console-mutex
                                            (printf "Starting thread ~s...~%" i))
                                          ; mutex should no longer be needed as of v7.3
                                          #;
@@ -27506,23 +27339,19 @@
                                          (($tt-run))
                                          ; now let's see if we can compile and load object code
                                          ; w/o a mutex
-                                         (compile-file
-                                           "testfile.ss"
+                                         (compile-file "testfile.ss"
                                            (format "testfile.~s" i))
                                          (load (format "testfile.~s" i))
                                          (($tt-run))
-                                         (with-mutex
-                                           console-mutex
+                                         (with-mutex console-mutex
                                            (printf "Finished ~s.~%" i)))
                                        ($tt-done!)
-                                       (with-mutex
-                                         thread-finished-mutex
+                                       (with-mutex thread-finished-mutex
                                          (set! thread-finished-count
                                            (1+ thread-finished-count))
                                          (when (= thread-finished-count thread-count)
                                                (condition-signal program-finished-condition)))))))
-                             (with-mutex
-                               thread-finished-mutex
+                             (with-mutex thread-finished-mutex
                                (unless (= thread-finished-count thread-count)
                                        (condition-wait
                                          program-finished-condition
@@ -27889,8 +27718,7 @@
                    [(_ op (f x) e2)
                     (let ([stack (this-stack)])
                       (define (push! oper val)
-                        (let ([frame (vector-ref
-                                       (shadowstack-frames stack)
+                        (let ([frame (vector-ref (shadowstack-frames stack)
                                        (shadowstack-tail stack))])
                           ;; Initialize the frame
                           (set-shadowframe-oper! frame oper)
@@ -28615,8 +28443,7 @@
              '#((#\a 1 5 a) (#\b 2 7 b) (#\c 3 9 c) (#\d 4 11 d)))
      (let ([orig-v #f] [orig-elts #f] [next #f])
        (let ([n 100])
-         (let ([v (vector-map
-                    (lambda (x) (cons (call/cc values) x))
+         (let ([v (vector-map (lambda (x) (cons (call/cc values) x))
                     (list->vector (iota n)))])
            (if orig-v
                (unless (andmap eq? (vector->list orig-v) orig-elts)
@@ -29017,8 +28844,7 @@
      (equal? (vector-for-each + '#() '#() '#()) (void))
      (equal? (vector-for-each + '#() '#() '#() '#() '#()) (void))
      (equal? (let ([ls '()])
-               (vector-for-each
-                 (lambda (x) (set! ls (cons x ls)))
+               (vector-for-each (lambda (x) (set! ls (cons x ls)))
                  '#(a b c d e f))
                ls)
              '(f e d c b a))
@@ -29031,16 +28857,14 @@
                ls)
              '((f . 4) (e . 5) (d . 6) (c . 7) (b . 2) (a . 3)))
      (equal? (let ([ls '()])
-               (vector-for-each
-                 (lambda r (set! ls (cons r ls)))
+               (vector-for-each (lambda r (set! ls (cons r ls)))
                  '#(a b c d e f)
                  '#(3 2 7 6 5 4)
                  '#(-1 -2 -3 -4 -5 -6))
                ls)
              '((f 4 -6) (e 5 -5) (d 6 -4) (c 7 -3) (b 2 -2) (a 3 -1)))
      (equal? (let ([ls '()])
-               (vector-for-each
-                 (lambda r (set! ls (cons r ls)))
+               (vector-for-each (lambda r (set! ls (cons r ls)))
                  '#(a b c d e f)
                  '#(3 2 7 6 5 4)
                  '#(-1 -2 -3 -4 -5 -6)
@@ -29881,8 +29705,7 @@
      (gensym? (gensym))
      (not (eq? (gensym) (gensym)))
      (not (equal? (symbol->string (gensym)) (symbol->string (gensym))))
-     (parameterize
-       ([gensym-count 1000] [gensym-prefix "xxx"])
+     (parameterize ([gensym-count 1000] [gensym-prefix "xxx"])
        (equal? (symbol->string (gensym)) "xxx1000"))
      (error? (gensym-count -1))
      (error? (gensym-count 'a))
@@ -30041,8 +29864,7 @@
      (error? (open-input-file "nonexistent file"))
      (error? (open-input-file "nonexistent file" 'compressed))
      (error? (open-output-file "/nonexistent/directory/nonexistent/file"))
-     (error? (open-output-file
-               "/nonexistent/directory/nonexistent/file"
+     (error? (open-output-file "/nonexistent/directory/nonexistent/file"
                'replace))
      (error? (open-input-output-file
                "/nonexistent/directory/nonexistent/file"))
@@ -30580,8 +30402,7 @@
          (string-set! s 99 #\newline)
          (let ([s (apply string-append (make-list 10 s))])
            (let ([s (apply string-append (make-list 10 s))])
-             (let ([s (string-append
-                        "hi there mom, how are you?"
+             (let ([s (string-append "hi there mom, how are you?"
                         (string #\newline)
                         s
                         (substring s 0 5000))])
@@ -30817,8 +30638,7 @@
                         (lambda ()
                           (let ([x (read ip)])
                             (or (eof-object? x)
-                                (parameterize
-                                  ([print-unicode #f])
+                                (parameterize ([print-unicode #f])
                                   (pretty-print x op)
                                   (newline op)
                                   (loop))))))
@@ -30874,8 +30694,7 @@
                         (lambda ()
                           (let ([x (read ip)])
                             (or (eof-object? x)
-                                (parameterize
-                                  ([print-unicode #f])
+                                (parameterize ([print-unicode #f])
                                   (write x op)
                                   (newline op)
                                   (loop))))))
@@ -30951,8 +30770,7 @@
          (call-with-port
            (open-file-output-port "testfile.ss" (file-options replace))
            put-stuff)
-         (and (call-with-port
-                (open-file-input-port "testfile.ss")
+         (and (call-with-port (open-file-input-port "testfile.ss")
                 (get-stuff fasl-read))
               (call-with-port
                 (open-file-input-port "testfile.ss"
@@ -31040,57 +30858,45 @@
        (equal? (get-output-string p) "abc.345:\"xyz\"")))
 
 (mat cp1in-verify-format-warnings
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda () (import scheme) (format "~a~~~s" 5)))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda ()
                           (import scheme)
                           (format "~a~a~a~s" 1 2 3 4 5 6)))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda ()
                                   (import scheme)
                                   (format "~a~~~s" 5))))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda ()
                                   (import scheme)
                                   (format "~a~a~a~s" 1 2 3 4 5 6))))))
 
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda () (import scheme) (printf "abc~s")))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda ()
                           (import scheme)
                           (printf "~%~abc~adef~ag~s~~~%" 1 2 3 4 5)))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda () (import scheme) (printf "abc~s"))))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda ()
                                   (import scheme)
                                   (printf "~%~abc~adef~ag~s~~~%" 1 2 3 4 5))))))
 
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda (p) (import scheme) (fprintf p "abc~s")))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(lambda (p)
                           (import scheme)
                           (fprintf p "~%~abc~adef~ag~s~~~%" 1 2 3 4 5)))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda (p)
                                   (import scheme)
                                   (fprintf p "abc~s"))))))
-     (warning? (parameterize
-                 ([#%$suppress-primitive-inlining #f])
+     (warning? (parameterize ([#%$suppress-primitive-inlining #f])
                  (eval '(mat/cf (lambda (p)
                                   (import scheme)
                                   (fprintf p "~%~abc~adef~ag~s~~~%" 1 2 3 4 5)))))))
@@ -31172,15 +30978,13 @@
      (equal? (parameterize ([print-gensym #f])
                (format "~s" '(#3# #3=#{g0 fool})))
              "(g0 g0)")
-     (equal? (parameterize
-               ([print-graph #t] [print-gensym #f])
+     (equal? (parameterize ([print-graph #t] [print-gensym #f])
                (format "~s" '(#4# #4=#{g0 fool})))
              "(#0=g0 #0#)")
      (equal? (parameterize ([print-gensym 'pretty])
                (format "~s" '(#5# #5=#{g0 fool})))
              "(#:g0 #:g0)")
-     (equal? (parameterize
-               ([print-graph #t] [print-gensym 'pretty])
+     (equal? (parameterize ([print-graph #t] [print-gensym 'pretty])
                (format "~s" '(#6# #6=#{g0 fool})))
              "(#0=#:g0 #0#)")
      (equal? (parameterize ([print-gensym 'pretty])
@@ -31193,24 +30997,21 @@
          ((fx= i 0) #t)
          (let ([g (gensym "x")])
            (unless (< (string-length
-                        (parameterize
-                          ([print-gensym 'pretty/suffix])
+                        (parameterize ([print-gensym 'pretty/suffix])
                           (format "~s" g)))
                       (string-length
                         (parameterize ([print-gensym #t]) (format "~s" g))))
                    (error #f "failed"))))
      (let ([g (gensym "x")])
        (let ([x (with-input-from-string
-                  (parameterize
-                    ([print-gensym 'pretty/suffix])
+                  (parameterize ([print-gensym 'pretty/suffix])
                     (format "~s" g))
                   read)])
          (and (symbol? x) (not (gensym? x)))))
      (equal? (parameterize ([print-gensym 'pretty/suffix])
                (format "~s" '#{g0 cfdhkxfnlo6opm0x-c}))
              "g0.cfdhkxfnlo6opm0x-c")
-     (equal? (parameterize
-               ([print-graph #t] [print-gensym 'pretty])
+     (equal? (parameterize ([print-graph #t] [print-gensym 'pretty])
                (format "~s" '(#8# #8=#:g0)))
              "(#0=#:g0 #0#)")
      (equal? (parameterize ([print-brackets #t])
@@ -31249,8 +31050,7 @@
                  (read-char sip)
                  (list n1 (port-input-count sip))))
              '(5 4))
-     (equal? (let ([op (make-output-port
-                         (lambda args (error #f "oops"))
+     (equal? (let ([op (make-output-port (lambda args (error #f "oops"))
                          (make-string 10))])
                (let ([n1 (port-output-count op)])
                  (display "hey!" op)
@@ -31334,8 +31134,7 @@
                  ;                     [block-read (p s n) #f]
                  [block-write (p s n)
                    (unless (null? ports)
-                     (with-interrupts-disabled
-                       (flush-output-port p)
+                     (with-interrupts-disabled (flush-output-port p)
                        (for-each
                          (lambda (p) (block-write p s n))
                          ports)))]
@@ -32659,36 +32458,29 @@
              (parameterize ([source-directories '("." ".")])
                (with-source-path 'test "fatfib.ss" list)))
      (error? ; Error in test: file "I should not be here" not found in source directories
-             (parameterize
-               ([source-directories '("." "../examples")])
+             (parameterize ([source-directories '("." "../examples")])
                (with-source-path 'test "I should not be here" list)))
-     (equal? (parameterize
-               ([source-directories '("." "../examples")])
+     (equal? (parameterize ([source-directories '("." "../examples")])
                (with-source-path 'test "mat.ss" list))
              '("mat.ss"))
      (equal? (with-source-path 'test "mat.ss" list) '("mat.ss"))
-     (equal? (parameterize
-               ([source-directories '("" "../examples")])
+     (equal? (parameterize ([source-directories '("" "../examples")])
                (with-source-path 'test "mat.ss" list))
              '("mat.ss"))
      (error? ; Error in test: file "mat.ss" not found in source directories
              (parameterize ([source-directories '()])
                (with-source-path 'test "mat.ss" list)))
      (error? ; Error in test: file "mat.ss" not found in source directories
-             (parameterize
-               ([source-directories '("../examples")])
+             (parameterize ([source-directories '("../examples")])
                (with-source-path 'test "mat.ss" list)))
-     (equal? (parameterize
-               ([source-directories '("." "../examples")])
+     (equal? (parameterize ([source-directories '("." "../examples")])
                (with-source-path 'test "fatfib.ss" list))
              '("../examples/fatfib.ss"))
-     (equal? (parameterize
-               ([source-directories '("." "../examples")])
+     (equal? (parameterize ([source-directories '("." "../examples")])
                (with-source-path 'test "./fatfib.ss" list))
              '("./fatfib.ss"))
      (begin
-       (parameterize
-         ([source-directories '("." "../examples")])
+       (parameterize ([source-directories '("." "../examples")])
          (load "fatfib.ss" compile))
        (procedure? fatfib))
      (equal? ((inspect/object fatfib) 'type) 'procedure)
@@ -32697,8 +32489,7 @@
                  (((inspect/object fatfib) 'code) 'source-path))
                list)
              '("../examples/fatfib.ss" 16 4))
-     (equal? (parameterize
-               ([source-directories '("." "../examples")])
+     (equal? (parameterize ([source-directories '("." "../examples")])
                (call-with-values
                  (lambda ()
                    (((inspect/object fatfib) 'code) 'source-path))
@@ -32714,8 +32505,7 @@
                list)
              '("../examples/fatfib.ss" 16 4))
      (or (windows?)
-         (equal? (parameterize
-                   ([cd "/"] [source-directories (list (cd))])
+         (equal? (parameterize ([cd "/"] [source-directories (list (cd))])
                    (call-with-values
                      (lambda ()
                        (((inspect/object fatfib) 'code) 'source-path))
@@ -32742,8 +32532,7 @@
                            (parameterize ([cd ".."]) (cd)))
                    16
                    4))
-     (equal? (parameterize
-               ([cd ".."] [source-directories '("examples")])
+     (equal? (parameterize ([cd ".."] [source-directories '("examples")])
                (call-with-values
                  (lambda ()
                    (((inspect/object fatfib) 'code) 'source-path))
@@ -32773,8 +32562,7 @@
                  '("../examples/fatfib.ss" 16 4)))
      (or (windows?)
          (embedded?)
-         (equal? (parameterize
-                   ([source-directories '("../examples")])
+         (equal? (parameterize ([source-directories '("../examples")])
                    (call-with-values
                      (lambda ()
                        (((inspect/object fatfib) 'code) 'source-path))
@@ -33573,8 +33361,7 @@
                        (and (string=? (parameterize ([print-radix b]) (format "~a" n))
                                       s)
                             (or (= n 0)
-                                (string=? (parameterize
-                                            ([print-radix b])
+                                (string=? (parameterize ([print-radix b])
                                             (format "~a" (- n)))
                                           (format "-~a" s)))))
                      (errorf #f "failed in base ~s for ~s" b n))
@@ -33738,8 +33525,7 @@
                      (values 1 2 3))))
                list)
              '(1 2 3))
-     (equal? (call-with-port
-               (open-file-input-port "testfile.ss")
+     (equal? (call-with-port (open-file-input-port "testfile.ss")
                (lambda (p)
                  (list->string
                    (let f ()
@@ -33751,8 +33537,7 @@
                              (let ([c (get-u8 p)])
                                (cons (integer->char c) (f))))))))))
              "a b c d e")
-     (equal? (call-with-port
-               (open-file-input-port "testfile.ss")
+     (equal? (call-with-port (open-file-input-port "testfile.ss")
                (lambda (p)
                  (list->string
                    (let f ()
@@ -33864,8 +33649,7 @@
                  (lambda (p)
                    (put-u8 p (quotient i 256))
                    (put-u8 p (modulo i 256))))
-               (and (eq? (call-with-port
-                           (open-file-input-port filename)
+               (and (eq? (call-with-port (open-file-input-port filename)
                            (lambda (p)
                              (let* ([hi (get-u8 p)] [lo (get-u8 p)])
                                (+ (* 256 hi) lo))))
@@ -34140,8 +33924,7 @@
                    (file-options replace))
                  (lambda (p)
                    (put-bytevector p #vu8(1 2 3 4 5))))
-               (let ([iop (open-file-input/output-port
-                            "testfile.ss"
+               (let ([iop (open-file-input/output-port "testfile.ss"
                             (file-options no-fail no-truncate))])
                  (let ([b1 (get-u8 iop)])
                    (put-u8 iop 17)
@@ -34168,8 +33951,7 @@
                      (close-port iop)
                      (list c1
                            c2
-                           (with-input-from-file
-                             "testfile.ss"
+                           (with-input-from-file "testfile.ss"
                              (lambda ()
                                (list->string
                                  (let f ()
@@ -34202,8 +33984,7 @@
                (do ([i 1000 (- i 1)]) ((fx= i 0)) (display #!eof op))
                (close-port op))
              (and (equal? (call-with-port
-                            (open-file-input-port
-                              "testfile.ss"
+                            (open-file-input-port "testfile.ss"
                               (file-options)
                               (buffer-mode block)
                               (native-transcoder))
@@ -35515,8 +35296,7 @@
      (error? ; invalid size
        (set-textual-port-input-size! $tip 6))
      ; textual output
-     (equal? (let ([op (make-output-port
-                         (lambda args (error #f "oops"))
+     (equal? (let ([op (make-output-port (lambda args (error #f "oops"))
                          (make-string 10 #\$))])
                (let ([buffer0 (string-copy (textual-port-output-buffer op))]
                      [index0 (textual-port-output-index op)]
@@ -36163,8 +35943,7 @@
      (error? (file-buffer-size -15))
      (error? (file-buffer-size (+ (most-positive-fixnum) 1)))
      (error? (file-buffer-size 1024.0))
-     (parameterize
-       ([file-buffer-size (* (file-buffer-size) 2)])
+     (parameterize ([file-buffer-size (* (file-buffer-size) 2)])
        (let ([ip (open-file-input-port "prettytest.ss")])
          (let ([n (bytevector-length (binary-port-input-buffer ip))])
            (close-input-port ip)
@@ -36216,8 +35995,7 @@
          (call-with-port (open-file-input-port ifn)
            (lambda (ip)
              (call-with-port
-               (parameterize
-                 ([compress-format fmt] [compress-level lvl])
+               (parameterize ([compress-format fmt] [compress-level lvl])
                  (open-file-output-port ofn
                    (file-options compressed replace)))
                (lambda (op)
@@ -36466,11 +36244,9 @@
             (eq? (get-u8 x) 1)
             (begin (set-port-position! x 4) #t)
             (eq? (get-u8 x) #!eof)))
-     (error? (set-port-position!
-               (open-bytevector-input-port #vu8(1 2 3 4))
+     (error? (set-port-position! (open-bytevector-input-port #vu8(1 2 3 4))
                -1))
-     (error? (set-port-position!
-               (open-bytevector-input-port #vu8(1 2 3 4))
+     (error? (set-port-position! (open-bytevector-input-port #vu8(1 2 3 4))
                5))
 
      (let ()
@@ -36726,8 +36502,7 @@
               (put-u8 $cp-iop 255))
        #t)
      (eqv? (get-u8 $cp-iop) 1)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-u8 $cp-iop 255))
      (begin (set-port-position! $cp-iop 50) #t)
      (begin
@@ -36735,8 +36510,7 @@
               (put-u8 $cp-iop 255))
        #t)
      (eqv? (get-u8 $cp-iop) 51)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-bytevector $cp-iop #vu8(17)))
 
      (begin
@@ -36814,8 +36588,7 @@
               (put-u8 $cp-iop 255))
        #t)
      (eqv? (get-u8 $cp-iop) 1)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        ; convoluted because we want warning to return normally so that operation
        ; is completed
        (let ([hit? #f])
@@ -36830,8 +36603,7 @@
        #t)
      (begin (get-u8 $cp-iop) #t)
      ; position undefined, so value undefined
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-bytevector $cp-iop #vu8(17))))
 
 (mat custom-textual-ports
@@ -37054,8 +36826,7 @@
               (put-char $cp-iop #\$))
        #t)
      (eqv? (get-char $cp-iop) #\1)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-char $cp-iop #\$))
      (begin (set-port-position! $cp-iop 50) #t)
      (begin
@@ -37063,8 +36834,7 @@
               (put-char $cp-iop #\$))
        #t)
      (eqv? (get-char $cp-iop) #\f)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-string $cp-iop "a"))
 
      (begin
@@ -37146,8 +36916,7 @@
               (put-char $cp-iop #\$))
        #t)
      (eqv? (get-char $cp-iop) #\1)
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        ; convoluted because we want warning to return normally so that operation
        ; is completed
        (let ([hit? #f])
@@ -37162,8 +36931,7 @@
        #t)
      (begin (get-char $cp-iop) #t)
      ; position undefined, so value undefined
-     (custom-port-warning?
-       ; can't determine position for write
+     (custom-port-warning? ; can't determine position for write
        (put-string $cp-iop "a"))
 
      (equal? (let-values ([(sop get) (open-string-output-port)])
@@ -37460,8 +37228,7 @@
          (lambda ()
            (and (eqv? (read) '\x3bb;12345)
                 (eof-object? (read))))))
-     (equal? (call-with-port
-               (open-file-input-port "testfile.ss")
+     (equal? (call-with-port (open-file-input-port "testfile.ss")
                get-bytevector-all)
              #vu8(#xBB #x3 #x31 #x0 #x32 #x0 #x33 #x0 #x34 #x0 #x35 #x0)))
 
@@ -37470,8 +37237,7 @@
      (error? (get-datum (current-input-port) (current-input-port)))
      (error? (get-datum (open-output-string)))
      (error? (get-datum (open-bytevector-input-port #vu8())))
-     (call-with-port
-       (open-string-input-port "hey #;there dude!")
+     (call-with-port (open-string-input-port "hey #;there dude!")
        (lambda (p)
          (and (eq? (get-datum p) 'hey)
               (eqv? (get-char p) #\space)
@@ -37482,8 +37248,7 @@
      (error? (put-datum (current-output-port) 'a 'a))
      (error? (put-datum (open-input-string "hello") 'a))
      (error? (put-datum
-               (let-values
-                 ([(p g) (open-bytevector-output-port)])
+               (let-values ([(p g) (open-bytevector-output-port)])
                  p)
                'a))
      (equal? (let-values ([(p g) (open-string-output-port)])
@@ -37525,8 +37290,7 @@
              "\x85; \x2028; #\\x85 #\\x2028 \"\\x85; \\x2028;\"")
      (let ()
        (define (rw? x1)
-         (let ([str (let-values
-                      ([(p e) (open-string-output-port)])
+         (let ([str (let-values ([(p e) (open-string-output-port)])
                       (write x1 p)
                       (e))])
            (let ([x2 (read (open-string-input-port str))])
@@ -37720,8 +37484,7 @@
                                          (lambda () i)
                                          #f
                                          #f))
-                                     (make-transcoder
-                                       (utf-16be-codec)
+                                     (make-transcoder (utf-16be-codec)
                                        eol
                                        (error-handling-mode replace)))
                                    getbv))])
@@ -38304,8 +38067,7 @@
                        (bytevector->string (string->utf8 s) utf-8-tx))
                      (check 'utf-8-test4
                        s
-                       (bytevector->string
-                         (string->bytevector s utf-8-tx)
+                       (bytevector->string (string->bytevector s utf-8-tx)
                          utf-8-tx))
                      (check 'utf-16-test1a
                        s
@@ -38315,40 +38077,33 @@
                        (utf16->string (string->utf16 s 'big) 'big #t))
                      (check 'utf-16-test2a
                        s
-                       (utf16->string
-                         (string->bytevector s utf-16-tx)
+                       (utf16->string (string->bytevector s utf-16-tx)
                          'big))
                      (check 'utf-16-test2b
                        s
-                       (utf16->string
-                         (string->bytevector s utf-16be-tx)
+                       (utf16->string (string->bytevector s utf-16be-tx)
                          'big
                          #t))
                      (check 'utf-16-test2c
                        s
-                       (utf16->string
-                         (string->bytevector s utf-16le-tx)
+                       (utf16->string (string->bytevector s utf-16le-tx)
                          'little
                          #t))
                      (check 'utf-16-test3a
                        s
-                       (bytevector->string
-                         (string->utf16 s 'big)
+                       (bytevector->string (string->utf16 s 'big)
                          utf-16-tx))
                      (check 'utf-16-test3b
                        s
-                       (bytevector->string
-                         (string->utf16 s 'big)
+                       (bytevector->string (string->utf16 s 'big)
                          utf-16be-tx))
                      (check 'utf-16-test3c
                        s
-                       (bytevector->string
-                         (string->utf16 s 'little)
+                       (bytevector->string (string->utf16 s 'little)
                          utf-16le-tx))
                      (check 'utf-16-test4a
                        s
-                       (bytevector->string
-                         (string->bytevector s utf-16-tx)
+                       (bytevector->string (string->bytevector s utf-16-tx)
                          utf-16-tx))
                      (check 'utf-16-test4b
                        s
@@ -38465,8 +38220,7 @@
          ;
          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-         (define (string-bytevector-tests
-                   *random-stress-tests*
+         (define (string-bytevector-tests *random-stress-tests*
                    *random-stress-test-max-size*)
 
            (define (test-roundtrip bvec tostring tobvec)
@@ -38534,8 +38288,7 @@
                  #t)
 
            (test "utf-8, supplemental"
-                 (bytevector=?
-                   (string->utf8 "\x010000;\x10ffff;")
+                 (bytevector=? (string->utf8 "\x010000;\x10ffff;")
                    '#vu8(#b11110000 #b10010000 #b10000000 #b10000000
                          #b11110100 #b10001111 #b10111111 #b10111111))
                  #t)
@@ -38637,16 +38390,14 @@
 
            (test "utf-16le, BMP"
                  (bytevector=?
-                   (string->utf16
-                     "k\x007f;\x0080;\x07ff;\x0800;\xffff;"
+                   (string->utf16 "k\x007f;\x0080;\x07ff;\x0800;\xffff;"
                      'little)
                    '#vu8(#x6b #x00 #x7f #x00 #x80 #x00 #xff #x07 #x00 #x08
                          #xff #xff))
                  #t)
 
            (test "utf-16, supplemental"
-                 (bytevector=?
-                   (string->utf16 "\x010000;\xfdcba;\x10ffff;")
+                 (bytevector=? (string->utf16 "\x010000;\xfdcba;\x10ffff;")
                    '#vu8(#xd8 #x00 #xdc #x00 #xdb #xb7 #xdc #xba #xdb #xff
                          #xdf #xff))
                  #t)
@@ -39075,8 +38826,7 @@
            (close-port from-stderr))))
      ; test binary ports w/buffer-mode none
      (let-values ([(to-stdin from-stdout from-stderr pid)
-                   (open-process-ports
-                     (patch-exec-path $cat_flush)
+                   (open-process-ports (patch-exec-path $cat_flush)
                      (buffer-mode none))])
        (define put-string
          (lambda (bp s)
@@ -39131,8 +38881,7 @@
            (close-port from-stderr))))
      ; test textual ports
      (let-values ([(to-stdin from-stdout from-stderr pid)
-                   (open-process-ports
-                     (patch-exec-path $cat_flush)
+                   (open-process-ports (patch-exec-path $cat_flush)
                      (buffer-mode block)
                      (native-transcoder))])
        (dynamic-wind void
@@ -39177,8 +38926,7 @@
            (close-port from-stderr))))
      ; test textual ports w/buffer-mode none
      (let-values ([(to-stdin from-stdout from-stderr pid)
-                   (open-process-ports
-                     (patch-exec-path $cat_flush)
+                   (open-process-ports (patch-exec-path $cat_flush)
                      (buffer-mode none)
                      (native-transcoder))])
        (dynamic-wind void
@@ -39223,8 +38971,7 @@
            (close-port from-stderr))))
      ; test textual ports w/buffer-mode line
      (let-values ([(to-stdin from-stdout from-stderr pid)
-                   (open-process-ports
-                     (patch-exec-path $cat_flush)
+                   (open-process-ports (patch-exec-path $cat_flush)
                      (buffer-mode line)
                      (native-transcoder))])
        (dynamic-wind void
@@ -39291,8 +39038,7 @@
                        '()
                        (cons (cond
                                [(gensym? x)
-                                (string-append
-                                  (symbol->string x)
+                                (string-append (symbol->string x)
                                   "%"
                                   (gensym->unique-string x))]
                                [(symbol? x) (symbol->string x)]
@@ -41442,8 +41188,7 @@
                (open-file-output-port "testfile.so"
                  (file-options replace compressed))
                (lambda (op)
-                 (parameterize
-                   ([compile-imported-libraries #t])
+                 (parameterize ([compile-imported-libraries #t])
                    (compile-to-port
                      '((top-level-program
                          (import (chezscheme) (testfile-ctp2a))
@@ -41765,8 +41510,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-program x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -41774,8 +41518,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = =))
@@ -41785,8 +41528,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  'mc-b)
                (map (lambda (x y)
@@ -41805,8 +41547,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  'mc-a)
                (map (lambda (x y)
@@ -41826,8 +41567,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-program x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -41849,8 +41589,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-program x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -41872,8 +41611,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-program x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -41948,8 +41686,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  'mc-b)
                (map (lambda (x y)
@@ -41994,8 +41731,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  'mc-b)
                (map (lambda (x y)
@@ -42014,8 +41750,7 @@
                                    "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-program x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42116,15 +41851,13 @@
      (equal? (separate-eval '(load "testfile-mc-foo.so"))
              "(\"a\" \"b\" \"c\" #(\"b\" \"a\") e-f)\n")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42132,8 +41865,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42141,15 +41873,13 @@
              '(= = = = =))
      (touch "testfile-mc-foo.so" "testfile-mc-foo.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42157,8 +41887,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42166,15 +41895,13 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-a.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42182,23 +41909,20 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42206,8 +41930,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42215,15 +41938,13 @@
              '(> > = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-c.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42231,8 +41952,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42240,15 +41960,13 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-e.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42256,23 +41974,20 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42280,8 +41995,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42289,15 +42003,13 @@
              '(= = > = >))
      (touch "testfile-mc-foo.so" "testfile-mc-e-import.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42305,8 +42017,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42314,15 +42025,13 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-f.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42330,23 +42039,20 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so"
-                                "testfile-mc-b.so"
+                             '("testfile-mc-a.so" "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-file x)))
                  'mc-foo)
                (map (lambda (x y)
@@ -42354,8 +42060,7 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so"
-                            "testfile-mc-b.so"
+                         '("testfile-mc-a.so" "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -42391,8 +42096,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42410,8 +42114,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42428,8 +42131,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42447,8 +42149,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42465,8 +42166,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42484,8 +42184,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #t])
+                    (parameterize ([compile-imported-libraries #t])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42502,8 +42201,7 @@
                                 "testdir/testfile-mc-1c.so"))])
                (separate-compile
                  '(lambda (x)
-                    (parameterize
-                      ([compile-imported-libraries #f])
+                    (parameterize ([compile-imported-libraries #f])
                       (maybe-compile-library x)))
                  "testdir/testfile-mc-1c")
                (map (lambda (x y)
@@ -42620,8 +42318,7 @@
            'mc-2))
        #t)
      (begin
-       (let ([p (open-file-input/output-port
-                  "testfile-mc-2a.so"
+       (let ([p (open-file-input/output-port "testfile-mc-2a.so"
                   (file-options no-create no-fail no-truncate))])
          (set-port-length! p 73)
          (close-port p))
@@ -42637,8 +42334,7 @@
            'mc-2))
        #t)
      (begin
-       (let ([p (open-file-input/output-port
-                  "testfile-mc-2.so"
+       (let ([p (open-file-input/output-port "testfile-mc-2.so"
                   (file-options no-create no-fail no-truncate))])
          (set-port-length! p 87)
          (close-port p))
@@ -42890,8 +42586,7 @@
                                        (patch-exec-path *scheme*))
                                (buffer-mode block)
                                (native-transcoder))])
-                 (pretty-print
-                   '(let () (import (B)) (printf "~s\n" b))
+                 (pretty-print '(let () (import (B)) (printf "~s\n" b))
                    to-stdin)
                  (close-output-port to-stdin)
                  (let ([out (get-string-all from-stdout)]
@@ -42958,8 +42653,7 @@
                     (lambda ()
                       (let ([x 0])
                         (printf "~s\n"
-                          (foreign-callable
-                            (lambda () (set! x (+ x 1)) x)
+                          (foreign-callable (lambda () (set! x (+ x 1)) x)
                             ()
                             void))))))
                (make-boot-file "testfile.boot" '("petite") "testfile.ss")
@@ -43121,16 +42815,14 @@
      (begin
        (#%$compile-host-library 'moi "testfile-hop1.host")
        (define bv
-         (call-with-port
-           (open-file-input-port "testfile-hop1.host")
+         (call-with-port (open-file-input-port "testfile-hop1.host")
            get-bytevector-all))
        #t)
      (begin
        ; doing it a second time should be a no-op
        (#%$compile-host-library 'moi "testfile-hop1.host")
        (bytevector=?
-         (call-with-port
-           (open-file-input-port "testfile-hop1.host")
+         (call-with-port (open-file-input-port "testfile-hop1.host")
            get-bytevector-all)
          bv))
      (begin (set! bv #f) #t)
@@ -43291,8 +42983,7 @@
      (let ()
        (define with-output-to-string
          (lambda (p)
-           (parameterize
-             ([current-output-port (open-output-string)])
+           (parameterize ([current-output-port (open-output-string)])
              (p)
              (get-output-string (current-output-port)))))
        (and (string=? (with-output-to-string
@@ -43397,8 +43088,7 @@ visit/revisit
      (error? revisit-x)
      (eqv? (let ((x 77)) (eval-when (eval) (define x 88)) x) 88)
      (eqv? (let ((x 77))
-             (eval-when
-               (compile visit load revisit)
+             (eval-when (compile visit load revisit)
                (define x 88))
              x)
            77)
@@ -43444,8 +43134,7 @@ visit/revisit
      (let ()
        (define with-output-to-string
          (lambda (p)
-           (parameterize
-             ([current-output-port (open-output-string)])
+           (parameterize ([current-output-port (open-output-string)])
              (p)
              (get-output-string (current-output-port)))))
        (and (string=? (with-output-to-string
@@ -43692,8 +43381,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x)
                       #t)))
                "testfile-wpo-c3")
@@ -43756,8 +43444,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x)
                       #t)))
                'wpo-prog4)
@@ -43808,8 +43495,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x)
                       #t)))
                'wpo-prog4)
@@ -43880,8 +43566,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x)
                       #t)))
                'wpo-prog5)
@@ -43935,8 +43620,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x))))
                'wpo-prog6)
              "()\n")
@@ -44008,8 +43692,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x))))
                'wpo-ab7)
              "((testfile-wpo-c7))\n")
@@ -44018,8 +43701,7 @@ evaluating module init
              "invoking a\ninvoking c\ninvoking b\n#t\n#t\n#t\n")
 
      (begin
-       (with-output-to-file
-         "testfile-wpo-extlib.chezscheme.sls"
+       (with-output-to-file "testfile-wpo-extlib.chezscheme.sls"
          (lambda ()
            (pretty-print
              '(library (testfile-wpo-extlib)
@@ -44043,8 +43725,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a-all.so" x))))
                'wpo-ext)
              "()\n")
@@ -44122,8 +43803,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'cwl-b1)
              "()\n")
@@ -44309,8 +43989,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                "testfile-cwl-b3")
              "()\n")
@@ -44449,8 +44128,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                "testfile-cwl-a4")
              "()\n")
@@ -44518,8 +44196,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                "testfile-cwl-b5")
              "()\n")
@@ -44558,8 +44235,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                "testfile-cwl-b5")
              "()\n")
@@ -44615,8 +44291,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                "testfile-cwl-c5")
              "()\n")
@@ -44690,8 +44365,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'cwl-d6)
              "((testfile-cwl-a6))\n")
@@ -44740,8 +44414,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'cwl-d6)
              "((testfile-cwl-c6))\n")
@@ -44809,8 +44482,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       "testfile-cwl-ab7.so")))
                'cwl-b7)
              "((testfile-cwl-c7))\n")
@@ -44947,8 +44619,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'cwl-d8)
              "((testfile-cwl-c8))\n")
@@ -45177,8 +44848,7 @@ evaluating module init
              "(51 85 119)\n")
 
      (begin
-       (with-output-to-file
-         "testfile-wpo-extlib-1.chezscheme.sls"
+       (with-output-to-file "testfile-wpo-extlib-1.chezscheme.sls"
          (lambda ()
            (pretty-print
              '(library (testfile-wpo-extlib-1)
@@ -45205,8 +44875,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a-all.so" x))))
                'wpo-extlib-2)
              "()\n")
@@ -45278,8 +44947,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #f])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-coconut)
              "()\n")
@@ -45288,8 +44956,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #f])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-apple)
              "((testfile-wpo-coconut))\n")
@@ -45312,8 +44979,7 @@ evaluating module init
                                     name)
                                 dirs
                                 exts)))])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-main)
              "((testfile-wpo-apple)\n  (testfile-wpo-banana)\n  (testfile-wpo-coconut))\n")
@@ -45330,8 +44996,7 @@ evaluating module init
                               dirs
                               exts)))])
                   (load-program "testfile-wpo-main.so")))
-             (string-append
-               "(banana (apple->banana _) (_))\n"
+             (string-append "(banana (apple->banana _) (_))\n"
                "(coconut (apple->coconut _) (_))\n"
                "(apple\n  (_ (apple->banana apple->banana _)\n     (apple->coconut apple->coconut _)))\n"))
 
@@ -45430,8 +45095,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #f])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-coconut)
              "()\n")
@@ -45440,8 +45104,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #f])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-apple)
              "((testfile-wpo-coconut))\n")
@@ -45464,8 +45127,7 @@ evaluating module init
                                     name)
                                 dirs
                                 exts)))])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-main)
              "((testfile-wpo-apple)\n  (testfile-wpo-date)\n  (testfile-wpo-coconut))\n")
@@ -45606,8 +45268,7 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #f])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-coconut)
              "()\n")
@@ -45630,8 +45291,7 @@ evaluating module init
                                     name)
                                 dirs
                                 exts)))])
-                    (compile-whole-library
-                      (format "~a.wpo" x)
+                    (compile-whole-library (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-apple)
              "((testfile-wpo-coconut) (testfile-wpo-eel))\n")
@@ -45657,8 +45317,7 @@ evaluating module init
                                   [else name])
                                 dirs
                                 exts)))])
-                    (compile-whole-program
-                      (format "~a.wpo" x)
+                    (compile-whole-program (format "~a.wpo" x)
                       (format "~a.so" x))))
                'wpo-main)
              "((testfile-wpo-apple)\n  (testfile-wpo-date)\n  (testfile-wpo-coconut)\n  (testfile-wpo-eel))\n")
@@ -45775,8 +45434,7 @@ evaluating module init
        #t)
 
      (error? (separate-eval
-               '(compile-whole-program
-                  "testfile-deja-vu-main.wpo"
+               '(compile-whole-program "testfile-deja-vu-main.wpo"
                   "testfile-deja-vu-main.done")))
 
      (begin
@@ -46107,8 +45765,7 @@ evaluating module init
          '(library-extensions '((".ss" . ".so")))
          '(visit "testfile-lm-a.so")
          '(let () (import (testfile-lm-c)) c))
-       (string-append
-         "import: found source file \"testfile-lm-c.ss\"\n"
+       (string-append "import: found source file \"testfile-lm-c.ss\"\n"
          "import: found corresponding object file \"testfile-lm-c.so\"\n"
          "import: object file is not older\n"
          "import: loading object file \"testfile-lm-c.so\"\n"
@@ -46121,8 +45778,7 @@ evaluating module init
          '(library-extensions '((".ss" . ".so")))
          '(revisit "testfile-lm-a.so")
          '(let () (import (testfile-lm-b)) b))
-       (string-append
-         "import: found source file \"testfile-lm-b.ss\"\n"
+       (string-append "import: found source file \"testfile-lm-b.ss\"\n"
          "import: found corresponding object file \"testfile-lm-b.so\"\n"
          "import: object file is not older\n"
          "import: loading object file \"testfile-lm-b.so\"\n"
@@ -46266,45 +45922,33 @@ evaluating module init
                                 ((top-level-value 'cons) 3 4))))))
              '(notcons notcons (3 . 4)))
      (error? (set-top-level-value! 'let 45))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(define let 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(set! let 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (define-top-level-value 'let 45)))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (set-top-level-value! 'let 45)))
      (error? (define-top-level-value 'let 45 (scheme-environment)))
      (error? (set-top-level-value! 'let 45 (scheme-environment)))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(define cons 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(set! cons 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (define-top-level-value 'cons 45)))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (set-top-level-value! 'cons 45)))
      (error? (define-top-level-value 'cons 45 (scheme-environment)))
      (error? (set-top-level-value! 'cons 45 (scheme-environment)))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(define foo 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (eval '(set! foo 45) (scheme-environment))))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (define-top-level-value 'foo 45)))
-     (error? (parameterize
-               ([interaction-environment (scheme-environment)])
+     (error? (parameterize ([interaction-environment (scheme-environment)])
                (set-top-level-value! 'foo 45)))
      (error? (define-top-level-value 'foo 45 (scheme-environment)))
      (error? (set-top-level-value! 'foo 45 (scheme-environment)))
@@ -46412,8 +46056,7 @@ evaluating module init
            17)
      (eqv? (call/cc
              (lambda (k)
-               (parameterize
-                 ([exit-handler (lambda (q) (k 17))])
+               (parameterize ([exit-handler (lambda (q) (k 17))])
                  (exit -1))))
            17)
      (error? ; unexpected return from handler
@@ -46544,8 +46187,7 @@ evaluating module init
      (error? (collect -1 0))
      (error? (collect 1 0))
      (error? (collect 'static))
-     (with-interrupts-disabled
-       (collect (collect-maximum-generation))
+     (with-interrupts-disabled (collect (collect-maximum-generation))
        (let ([b1 (bytes-allocated)])
          (let loop ([n 1000] [x '()])
            (or (= n 0) (loop (- n 1) (cons x x))))
@@ -47141,8 +46783,7 @@ evaluating module init
        (lambda (k)
          (timer-interrupt-handler (lambda () (k #t)))
          (disable-interrupts)
-         (parameterize
-           ([timer-interrupt-handler (lambda () (k #f))])
+         (parameterize ([timer-interrupt-handler (lambda () (k #f))])
            (set-timer 1)
            (let loop ([n 1000]) (or (= n 0) (loop (- n 1)))))
          (enable-interrupts)
@@ -47154,8 +46795,7 @@ evaluating module init
        (lambda (k)
          (timer-interrupt-handler (lambda () (k #t)))
          (with-interrupts-disabled
-           (parameterize
-             ([timer-interrupt-handler (lambda () (k #f))])
+           (parameterize ([timer-interrupt-handler (lambda () (k #f))])
              (set-timer 1)
              (let loop ([n 1000])
                (or (= n 0) (loop (- n 1))))))
@@ -47166,8 +46806,7 @@ evaluating module init
        (lambda (k)
          (timer-interrupt-handler (lambda () (k #t)))
          (critical-section
-           (parameterize
-             ([timer-interrupt-handler (lambda () (k #f))])
+           (parameterize ([timer-interrupt-handler (lambda () (k #f))])
              (set-timer 1)
              (let loop ([n 1000])
                (or (= n 0) (loop (- n 1))))))
@@ -48441,8 +48080,7 @@ evaluating module init
                              (foreign-ref 'uptr $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab
-                        ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [(#xffffffffffffffff)
@@ -48608,8 +48246,7 @@ evaluating module init
                              (foreign-ref 'unsigned $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab
-                        ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [else
@@ -48781,8 +48418,7 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab
-                        ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [(#xffffffffffffffff)
@@ -50045,8 +49681,7 @@ evaluating module init
                (let ([x (make-toast #0=3.4 #1="hello")])
                  (list (soy-milk x) (toast-y x))))
              '(#0# #1#))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -50062,8 +49697,7 @@ evaluating module init
                    y)])
           (#2%list (#3%$object-ref 'double-float x ,fixnum?)
                    (#3%$object-ref 'scheme-object x ,fixnum?))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -50119,8 +49753,7 @@ evaluating module init
               (eq? (c-x r3) r3)
               (eq? (p-x r4) r4)
               (eq? (c-x r4) r4))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -50284,11 +49917,9 @@ evaluating module init
      (not (record-type-hash-procedure (record-type-descriptor E+H$b)))
 
      (begin
-       (record-type-equal-procedure
-         (record-type-descriptor E+H$a)
+       (record-type-equal-procedure (record-type-descriptor E+H$a)
          E+H$a-equal?)
-       (record-type-hash-procedure
-         (record-type-descriptor E+H$a)
+       (record-type-hash-procedure (record-type-descriptor E+H$a)
          E+H$a-hash)
        #t)
 
@@ -50328,11 +49959,9 @@ evaluating module init
      (not (record-type-hash-procedure (record-type-descriptor E+H$b)))
 
      (begin
-       (record-type-equal-procedure
-         (record-type-descriptor E+H$b+)
+       (record-type-equal-procedure (record-type-descriptor E+H$b+)
          E+H$b-equal?)
-       (record-type-hash-procedure
-         (record-type-descriptor E+H$b+)
+       (record-type-hash-procedure (record-type-descriptor E+H$b+)
          E+H$b-hash)
        #t)
 
@@ -50345,11 +49974,9 @@ evaluating module init
      (equiv? cyclic-E+H$b+1 cyclic-E+H$b+2)
 
      (begin
-       (record-type-equal-procedure
-         (record-type-descriptor E+H$a+)
+       (record-type-equal-procedure (record-type-descriptor E+H$a+)
          E+H$a-equal?)
-       (record-type-hash-procedure
-         (record-type-descriptor E+H$a+)
+       (record-type-hash-procedure (record-type-descriptor E+H$a+)
          E+H$a-hash)
        #t)
 
@@ -50363,11 +49990,9 @@ evaluating module init
      (not-equiv? (make-E+H$a 1 2) (make-E+H$a+ 1 3 5))
 
      (begin
-       (record-type-equal-procedure
-         (record-type-descriptor E+H$a)
+       (record-type-equal-procedure (record-type-descriptor E+H$a)
          E+H$a-equal?)
-       (record-type-hash-procedure
-         (record-type-descriptor E+H$a)
+       (record-type-hash-procedure (record-type-descriptor E+H$a)
          E+H$a-hash)
        #t)
 
@@ -50421,12 +50046,10 @@ evaluating module init
 
      ; Treat marbles as equal when they have the same color
      (begin
-       (record-type-equal-procedure
-         (record-type-descriptor marble)
+       (record-type-equal-procedure (record-type-descriptor marble)
          (lambda (m1 m2 eql?)
            (eql? (marble-color m1) (marble-color m2))))
-       (record-type-hash-procedure
-         (record-type-descriptor marble)
+       (record-type-hash-procedure (record-type-descriptor marble)
          (lambda (m hash) (hash (marble-color m))))
        #t)
 
@@ -50452,13 +50075,11 @@ evaluating module init
        (define-record-type node
          (nongenerative)
          (fields (mutable left) (mutable right)))
-       (record-type-equal-procedure
-         (record-type-descriptor node)
+       (record-type-equal-procedure (record-type-descriptor node)
          (lambda (x y e?)
            (and (e? (node-left x) (node-left y))
                 (e? (node-right x) (node-right y)))))
-       (record-type-hash-procedure
-         (record-type-descriptor marble)
+       (record-type-hash-procedure (record-type-descriptor marble)
          (lambda (x hash)
            (+ (hash (node-left x)) (hash (node-right x)) 23)))
        (define graph1
@@ -50492,8 +50113,7 @@ evaluating module init
        (define record-hash
          (lambda (x hash)
            (let ([rtd (record-rtd x)])
-             (do ([field-name*
-                    (csv7:record-type-field-names rtd)
+             (do ([field-name* (csv7:record-type-field-names rtd)
                     (cdr field-name*)]
                   [i 0 (fx+ i 1)]
                   [h 0 (+ h (hash ((csv7:record-field-accessor rtd i) x)))])
@@ -50509,13 +50129,11 @@ evaluating module init
                              (f (cdr field-name*) (fx+ i 1)))))))))
        (define equiv?
          (lambda (x y)
-           (parameterize
-             ([default-record-equal-procedure record-equal?])
+           (parameterize ([default-record-equal-procedure record-equal?])
              (equal? x y))))
        (define equiv-hash
          (lambda (x)
-           (parameterize
-             ([default-record-hash-procedure record-hash])
+           (parameterize ([default-record-hash-procedure record-hash])
              (equal-hash x))))
        (define-record-type frob (fields (mutable q)))
        (define-record-type frub (fields (mutable x) y z))
@@ -50544,29 +50162,23 @@ evaluating module init
              (list record-hash #f))
      (equal? (parameterize
                ([(rtep (record-type-descriptor frob)) record-equal?])
-               (list (record-equal-procedure
-                       (make-frub 1 2 3)
+               (list (record-equal-procedure (make-frub 1 2 3)
                        (make-frub 1 2 3))
-                     (record-equal-procedure
-                       (make-frub 1 2 3)
+                     (record-equal-procedure (make-frub 1 2 3)
                        (make-frob #\q))
                      (record-equal-procedure (make-frob #\q)
                        (make-frub 1 2 3))
                      (record-equal-procedure (make-frob #\q)
                        (make-frob #\q))))
              (list #f #f #f record-equal?))
-     (equal? (parameterize
-               ([default-record-hash-procedure record-hash])
+     (equal? (parameterize ([default-record-hash-procedure record-hash])
                (list (record-hash-procedure (make-frob #\q))
                      (record-hash-procedure (make-frub 1 2 3))))
              (list record-hash record-hash))
-     (equal? (parameterize
-               ([default-record-equal-procedure record-equal?])
-               (list (record-equal-procedure
-                       (make-frub 1 2 3)
+     (equal? (parameterize ([default-record-equal-procedure record-equal?])
+               (list (record-equal-procedure (make-frub 1 2 3)
                        (make-frub 1 2 3))
-                     (record-equal-procedure
-                       (make-frub 1 2 3)
+                     (record-equal-procedure (make-frub 1 2 3)
                        (make-frob #\q))
                      (record-equal-procedure (make-frob #\q)
                        (make-frub 1 2 3))
@@ -50582,11 +50194,9 @@ evaluating module init
      (equal? (parameterize
                ([default-record-equal-procedure record-equal?]
                 [(rtep (record-type-descriptor frob)) frob-equal?])
-               (list (record-equal-procedure
-                       (make-frub 1 2 3)
+               (list (record-equal-procedure (make-frub 1 2 3)
                        (make-frub 1 2 3))
-                     (record-equal-procedure
-                       (make-frub 1 2 3)
+                     (record-equal-procedure (make-frub 1 2 3)
                        (make-frob #\q))
                      (record-equal-procedure (make-frob #\q)
                        (make-frub 1 2 3))
@@ -50594,8 +50204,7 @@ evaluating module init
                        (make-frob #\q))))
              (list record-equal? #f #f frob-equal?))
      ((lambda (x) (and (integer? x) (exact? x) (nonnegative? x)))
-      (parameterize
-        ([default-record-hash-procedure record-hash])
+      (parameterize ([default-record-hash-procedure record-hash])
         (equal-hash (vector 1 2 (make-frub 1 2 3) 5 (make-frob #\q) 7))))
      (eq? (guard (c [(eq? c 'frob-hash) 'yup] [else (raise c)])
             (parameterize
@@ -50613,8 +50222,7 @@ evaluating module init
      (not (parameterize
             ([(rtep (record-type-descriptor frob)) frob-equal?])
             (equiv? (make-frob #\q) (make-frob #\q))))
-     (parameterize
-       ([(rtep (record-type-descriptor frob)) frob-equal?])
+     (parameterize ([(rtep (record-type-descriptor frob)) frob-equal?])
        (equiv? (make-frub 1 2 3) (make-frub 1 2 3)))
      (equal? (let ([ht (make-hashtable equiv-hash equiv?)])
                (hashtable-set! ht (make-frob #\q) 'one)
@@ -50700,8 +50308,7 @@ evaluating module init
                (let ([x (make-bar 17 23.5)])
                  (list (bar? x) (bar.0 x) (bar.1 x))))
              '(#t 17 23.5))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -50730,8 +50337,7 @@ evaluating module init
           (#2%list #t
             (#3%$object-ref 'integer-32 x ,fixnum?)
             (#3%$object-ref 'double-float x ,fixnum?))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -51426,8 +51032,7 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type
-                                     #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
@@ -51461,8 +51066,7 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type
-                                     #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
@@ -51505,8 +51109,7 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type
-                                     #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
@@ -52010,8 +51613,7 @@ evaluating module init
               (gensym? (record-type-uid prtd))
               (record-type-uid rtd))))
 
-     (equal? (parameterize
-               ([current-output-port (open-output-string)])
+     (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
                  (make-record-type-descriptor 'a
                    #f
@@ -52075,8 +51677,7 @@ evaluating module init
                        ls)))
              '("make-a2: (-1)\n" (3) (4 5 6) (7 8 9) (-1)))
 
-     (equal? (parameterize
-               ([current-output-port (open-output-string)])
+     (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
                  (make-record-type-descriptor 'a
                    #f
@@ -52107,8 +51708,7 @@ evaluating module init
                        ls)))
              '("A in\nA out: #t\n" (12)))
 
-     (equal? (parameterize
-               ([current-output-port (open-output-string)])
+     (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
                  (make-record-type-descriptor 'a
                    #f
@@ -52160,8 +51760,7 @@ evaluating module init
                        ls)))
              '("B in\nA in\nA out: #t\nB out: #t\n" (9 -3 1/3)))
 
-     (equal? (parameterize
-               ([current-output-port (open-output-string)])
+     (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
                  (make-record-type-descriptor 'a
                    #f
@@ -52438,8 +52037,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2 3))))
              '(#(parent 1 2) #(child 1 2 3)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52460,8 +52058,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 2 3)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52498,8 +52095,7 @@ evaluating module init
                     (define ccons (record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2 3))))
              '(#(parent 1 2) #(child 1 2 3)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52520,8 +52116,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 2 3)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52560,8 +52155,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2 3))))
              '(#(parent 1 2) #(child 1 2 3)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52582,8 +52176,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 2 3)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52622,8 +52215,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 1 2) #(child 1 0 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52645,8 +52237,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 0 2)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52689,8 +52280,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 1 2) #(child 1 worldwide 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52712,8 +52302,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 $global 2)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52747,15 +52336,16 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd prcd cprot))
+                        (make-record-constructor-descriptor crtd
+                          prcd
+                          cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
                         (r6rs:record-constructor crcd))
                       (list (pcons 1 2) (ccons 1 2)))))
              '(#(parent 1 2) #(child 1 worldwide 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52781,8 +52371,7 @@ evaluating module init
           (let ([prtd (#2%make-record-type "parent" '(x y))])
             (let ([crtd (#2%make-record-type prtd "child" '(z))])
               (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 lex 2))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52820,15 +52409,16 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd prcd cprot))
+                        (make-record-constructor-descriptor crtd
+                          prcd
+                          cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
                         (r6rs:record-constructor crcd))
                       (list (pcons 1 2) (ccons 1 2)))))
              '(#(parent 8 2) #(child 8 worldwide 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52854,8 +52444,7 @@ evaluating module init
           (let ([prtd (#2%make-record-type "parent" '(x y))])
             (let ([crtd (#2%make-record-type prtd "child" '(z))])
               (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 lex 2))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52893,15 +52482,16 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd prcd cprot))
+                        (make-record-constructor-descriptor crtd
+                          prcd
+                          cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
                         (r6rs:record-constructor crcd))
                       (list (pcons 1 2) (ccons 1 2)))))
              '(#(parent 8 53) #(child 8 53 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -52928,8 +52518,7 @@ evaluating module init
           (let ([prtd (#2%make-record-type "parent" '(x y))])
             (let ([crtd (#2%make-record-type prtd "child" '(z))])
               (#2%list (#3%$record prtd 8 53) (#3%$record crtd 8 53 2))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -52963,13 +52552,11 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor
-                        prtd
+                      (make-record-constructor-descriptor prtd
                         #f
                         (lambda (n) n)))
                     (define crcd
-                      (make-record-constructor-descriptor
-                        crtd
+                      (make-record-constructor-descriptor crtd
                         prcd
                         (lambda (p)
                           (lambda (x y) ((p x 0) y)))))
@@ -52979,8 +52566,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 1 2) #(child 1 0 2)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53003,8 +52589,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 1 2) (#3%$record crtd 1 0 2)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53035,14 +52620,12 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor
-                        prtd
+                      (make-record-constructor-descriptor prtd
                         #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) w)))))
                     (define crcd
-                      (make-record-constructor-descriptor
-                        crtd
+                      (make-record-constructor-descriptor crtd
                         prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) 0)))))
@@ -53052,8 +52635,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 0)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53078,8 +52660,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 2 0)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53112,14 +52693,12 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor
-                        prtd
+                      (make-record-constructor-descriptor prtd
                         #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) 53)))))
                     (define crcd
-                      (make-record-constructor-descriptor
-                        crtd
+                      (make-record-constructor-descriptor crtd
                         prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) 0)))))
@@ -53129,8 +52708,7 @@ evaluating module init
                       (r6rs:record-constructor crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 53) #(child 8 53 0)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53155,8 +52733,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 53) (#3%$record crtd 8 53 0)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53198,8 +52775,7 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor
-                        prtd
+                      (make-record-constructor-descriptor prtd
                         #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) w)))))
@@ -53207,15 +52783,13 @@ evaluating module init
                       (r6rs:record-constructor prcd))
                     (define ccons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          crtd
+                        (make-record-constructor-descriptor crtd
                           prcd
                           (lambda (p)
                             (lambda (x y) ((p x y) 0))))))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 0)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53240,8 +52814,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 2 0)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53282,15 +52855,13 @@ evaluating module init
                       (r6rs:record-constructor prcd))
                     (define ccons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          crtd
+                        (make-record-constructor-descriptor crtd
                           prcd
                           (lambda (p)
                             (lambda (x y) ((p x y) 0))))))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 0)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53315,8 +52886,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 2 0)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53354,17 +52924,14 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          prtd
+                        (make-record-constructor-descriptor prtd
                           #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          crtd
-                          (make-record-constructor-descriptor
-                            prtd
+                        (make-record-constructor-descriptor crtd
+                          (make-record-constructor-descriptor prtd
                             #f
                             (lambda (n)
                               (lambda (z w) (n (+ z 7) w))))
@@ -53381,25 +52948,24 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          prtd
+                        (make-record-constructor-descriptor prtd
                           #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
-                      (let ([prcd (make-record-constructor-descriptor
-                                    prtd
+                      (let ([prcd (make-record-constructor-descriptor prtd
                                     #f
                                     (lambda (n)
                                       (lambda (z w)
                                         (n (+ z 7) w))))]
                             [cprot (lambda (p) (lambda (x y) ((p x y) 0)))])
                         (r6rs:record-constructor
-                          (make-record-constructor-descriptor crtd prcd cprot))))
+                          (make-record-constructor-descriptor crtd
+                            prcd
+                            cprot))))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 0)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53417,8 +52983,7 @@ evaluating module init
                     (lambda (n)
                       (lambda (z w) (n (+ z 7) w))))))
               (define ccons
-                (let ([prcd (make-record-constructor-descriptor
-                              prtd
+                (let ([prcd (make-record-constructor-descriptor prtd
                               #f
                               (lambda (n)
                                 (lambda (z w) (n (+ z 7) w))))]
@@ -53430,8 +52995,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 2 0)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53449,8 +53013,7 @@ evaluating module init
                     (lambda (n)
                       (lambda (z w) (n (+ z 7) w))))))
               (define ccons
-                (let ([prcd (make-record-constructor-descriptor
-                              prtd
+                (let ([prcd (make-record-constructor-descriptor prtd
                               #f
                               (lambda (n)
                                 (lambda (z w) (n (+ z 7) w))))]
@@ -53470,16 +53033,13 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor
-                          prtd
+                        (make-record-constructor-descriptor prtd
                           #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
-                      (let ([tmp (make-record-constructor-descriptor
-                                   crtd
-                                   (make-record-constructor-descriptor
-                                     prtd
+                      (let ([tmp (make-record-constructor-descriptor crtd
+                                   (make-record-constructor-descriptor prtd
                                      #f
                                      (lambda (n)
                                        (lambda (z w)
@@ -53502,8 +53062,7 @@ evaluating module init
                     (define prcd
                       (make-prcd (lambda (n) (lambda (z w) (n (+ z 7) w)))))
                     (define (make-crcd z)
-                      (make-record-constructor-descriptor
-                        crtd
+                      (make-record-constructor-descriptor crtd
                         prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) z)))))
@@ -53516,8 +53075,7 @@ evaluating module init
                     (define ccons (make-ccons crcd))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 -17)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53547,8 +53105,7 @@ evaluating module init
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
           (let ([crtd (#2%make-record-type prtd "child" '(z))])
             (#2%list (#3%$record prtd 8 2) (#3%$record crtd 8 2 -17)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53611,8 +53168,7 @@ evaluating module init
                    (pretty-print ($record->vector (pcons 1 2 3)))
                    (pretty-print ($record->vector (ccons 1 2 3 4))))))
              "(parent #(parent 1 5))\n#(parent 1 5)\n(parent #(child 2 7 1))\n(child #(child 2 7 1))\n#(child 2 7 1)\n")
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53661,8 +53217,7 @@ evaluating module init
                              r)])
                     (#2%pretty-print (#2%list 'child ($record->vector r)))
                     r)))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53739,8 +53294,7 @@ evaluating module init
                                   (pretty-print `(child ,($record->vector r)))
                                   r))))))
                    (define gcrcd
-                     (make-record-constructor-descriptor
-                       gcrtd
+                     (make-record-constructor-descriptor gcrtd
                        crcd
                        (rec gcprot
                             (lambda (p)
@@ -53767,8 +53321,7 @@ evaluating module init
       (child #(grand-child 2 10 4 3))\n~
       (grand-child #(grand-child 2 10 4 3))\n~
       #(grand-child 2 10 4 3)\n"))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -53846,8 +53399,7 @@ evaluating module init
                       (#2%pretty-print
                         (#2%list 'grand-child ($record->vector r)))
                       r))))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -53990,8 +53542,7 @@ evaluating module init
                (make-record-type-descriptor 'bar #f #f #t #f '#()))
              (record-type-sealed? rtd))
            #t)
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -54004,8 +53555,7 @@ evaluating module init
        '(begin
           (#2%make-record-type-descriptor 'bar #f #f #t #f '#0())
           #t))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -54292,8 +53842,7 @@ evaluating module init
                   #`(quote #,(datum->syntax #'* (gensym)))))
               (define-syntax rtd
                 (lambda (x)
-                  #`(quote #,(make-record-type-descriptor
-                               'foo
+                  #`(quote #,(make-record-type-descriptor 'foo
                                #f
                                uid
                                #f
@@ -54336,8 +53885,7 @@ evaluating module init
                   #`(quote #,(datum->syntax #'* (gensym)))))
               (define-syntax rtd
                 (lambda (x)
-                  #`(quote #,(make-record-type-descriptor
-                               'foo
+                  #`(quote #,(make-record-type-descriptor 'foo
                                #f
                                uid
                                #f
@@ -55396,22 +54944,19 @@ evaluating module init
                     (set-box! b (* 3 (unbox b)))
                     (list (box? b) (unbox b))))))))
        `(let ([gs (#2%gensym "record-box")])
-          (let ([g5 (#2%make-record-type-descriptor
-                      'record-box
+          (let ([g5 (#2%make-record-type-descriptor 'record-box
                       #f
                       gs
                       #f
                       #f
                       '#((mutable x)))]
-                [g6 (#2%make-record-type-descriptor
-                      'record-box
+                [g6 (#2%make-record-type-descriptor 'record-box
                       #f
                       gs
                       #f
                       #f
                       '#((mutable x)))]
-                [g4 (#2%make-record-type-descriptor
-                      'record-box
+                [g4 (#2%make-record-type-descriptor 'record-box
                       #f
                       gs
                       #f
@@ -55419,8 +54964,7 @@ evaluating module init
                       '#((mutable x)))])
             (let ([b ((#2%record-constructor
                         (#2%make-record-constructor-descriptor
-                          (#2%make-record-type-descriptor
-                            'record-box
+                          (#2%make-record-type-descriptor 'record-box
                             #f
                             gs
                             #f
@@ -55486,8 +55030,7 @@ evaluating module init
                     0)))
               (procedure? (useless 'useless-box-setter)))))
        `(#2%procedure?
-          (let ([g0 (#2%make-record-type-descriptor
-                      'useless-box-setter
+          (let ([g0 (#2%make-record-type-descriptor 'useless-box-setter
                       #f
                       #f
                       #f
@@ -55749,16 +55292,13 @@ evaluating module init
                      (write fx)
                      (write gx)
                      (write hx)
-                     (record-writer
-                       (record-type-descriptor f)
+                     (record-writer (record-type-descriptor f)
                        (lambda (x p wr)
                          (display "#<an f>" p)))
-                     (record-writer
-                       (record-type-descriptor g)
+                     (record-writer (record-type-descriptor g)
                        (lambda (x p wr)
                          (display "#<a g>" p)))
-                     (record-writer
-                       (record-type-descriptor h)
+                     (record-writer (record-type-descriptor h)
                        (lambda (x p wr)
                          (display "#<an h x=" p)
                          (wr (f-x x) p)
@@ -56148,8 +55688,7 @@ evaluating module init
                         (list x (cpoint? x) (make-point -8 -15))
                         (f (make-cpoint 3 4 (color->rgb 'red))))))
              '(#(cpoint 3 4 (rgb . red)) #f #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56165,8 +55704,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 (color->rgb 'red)))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56174,8 +55712,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56186,8 +55723,7 @@ evaluating module init
               (if x
                   (#2%list x (#3%record? x rtd) (#3%$record rtd -8 -15))
                   (f (#3%$record rtd 3 4 (#2%cons 'rgb 'red))))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56203,8 +55739,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 (color->rgb 'red)))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56212,8 +55747,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56239,8 +55773,7 @@ evaluating module init
                         (list x (cpoint-rgb x) (make-point -8 -15))
                         (f (make-cpoint 3 4 (color->rgb 'red))))))
              '(#(cpoint 3 4 (rgb . red)) (rgb . red) #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56273,8 +55806,7 @@ evaluating module init
                    3
                    4
                    (#2%cons 'rgb 'red))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56316,8 +55848,7 @@ evaluating module init
                         (list x (cpoint? x) (make-point -8 -15))
                         (f (make-cpoint 3 4 'red)))))
              '(#(cpoint 3 4 (rgb . red)) #f #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56336,8 +55867,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56345,8 +55875,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56357,8 +55886,7 @@ evaluating module init
               (if x
                   (#2%list x (#3%record? x rtd) (#3%$record rtd -8 -15))
                   (f (#3%$record rtd 3 4 (#2%cons 'rgb 'red))))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56377,8 +55905,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56386,8 +55913,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56416,8 +55942,7 @@ evaluating module init
                         (list x (cpoint-rgb x) (make-point -8 -15))
                         (f (make-cpoint 3 4 'red)))))
              '(#(cpoint 3 4 (rgb . red)) (rgb . red) #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56453,8 +55978,7 @@ evaluating module init
                    3
                    4
                    (#2%cons 'rgb 'red))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56501,8 +56025,7 @@ evaluating module init
                         (list x (cpoint? x) (make-point -8 -15))
                         (f (make-cpoint 3 4 'red)))))
              '(#(cpoint 3 4 (rgb . red)) #f #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56523,8 +56046,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56532,8 +56054,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56544,8 +56065,7 @@ evaluating module init
               (if x
                   (#2%list x (#3%record? x rtd) (#3%$record rtd -8 -15))
                   (f (#3%$record rtd 3 4 (#2%cons 'rgb 'red))))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56566,8 +56086,7 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor
-                       #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                        'point
                        #f
                        #f
@@ -56575,8 +56094,7 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor
-                         #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -56606,8 +56124,7 @@ evaluating module init
                         (list x (cpoint-rgb x) (make-point -8 -15))
                         (f (make-cpoint 3 4 'red)))))
              '(#(cpoint 3 4 (rgb . red)) (rgb . red) #(point -8 -15)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56644,8 +56161,7 @@ evaluating module init
                    3
                    4
                    (#2%cons 'rgb 'red))))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56688,8 +56204,7 @@ evaluating module init
                     (let ([x ($make-cpoint 3 4 ($color->rgb 'red))])
                       (list x ($cpoint-rgb x) ($make-point -8 -15))))
                '(#($cpoint 3 4 (rgb . red)) (rgb . red) #($point -8 -15))))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56755,8 +56270,7 @@ evaluating module init
                     (let ([x ($make-cpoint 3 4 ($color->rgb 'red))])
                       (#2%list x ($cpoint-rgb x) ($make-point -8 -15))))
             '(#4($cpoint 3 4 (rgb . red)) (rgb . red) #3($point -8 -15)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56824,8 +56338,7 @@ evaluating module init
                     (let ([x ($make-cpoint 3 4 'red)])
                       (list x ($cpoint-rgb x) ($make-point -8 -15))))
                '(#($cpoint 3 4 (rgb . red)) (rgb . red) #($point -8 -15))))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -56907,8 +56420,7 @@ evaluating module init
                     (let ([x ($make-cpoint 3 4 'red)])
                       (#2%list x ($cpoint-rgb x) ($make-point -8 -15))))
             '(#4($cpoint 3 4 (rgb . red)) (rgb . red) #3($point -8 -15)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -56997,8 +56509,7 @@ evaluating module init
                (let ([x (make-fratrat)] [y (make-dormy)])
                  (list (fratrat? x) (dormy? x) (fratrat? y) (dormy? y))))
              '(#t #f #t #t))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -57024,8 +56535,7 @@ evaluating module init
             '#0()
             'define-record-type)
           (#2%list #t #f #t #t)))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -57060,8 +56570,7 @@ evaluating module init
                        (fratrat-x y)
                        (dormy-y y))))
              '(#t #f #t #t 17 23 creepy))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -57084,8 +56593,7 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#2%$make-record-type-descriptor
-                     #!base-rtd
+       `(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -57102,8 +56610,7 @@ evaluating module init
               (#3%$object-ref 'scheme-object x ,fixnum?)
               (#3%$object-ref 'scheme-object y ,fixnum?)
               'creepy))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -57126,8 +56633,7 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#3%$make-record-type-descriptor
-                     #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -57164,8 +56670,7 @@ evaluating module init
                        (fratrat-x y)
                        (dormy-y y))))
              '(#t #f #t #t 17 23 (23 creepy)))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -57189,8 +56694,7 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#2%$make-record-type-descriptor
-                     #!base-rtd
+       `(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -57207,8 +56711,7 @@ evaluating module init
               (#3%$object-ref 'scheme-object x ,fixnum?)
               (#3%$object-ref 'scheme-object y ,fixnum?)
               '(23 creepy)))))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -57232,8 +56735,7 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#3%$make-record-type-descriptor
-                     #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -57255,8 +56757,7 @@ evaluating module init
          (define-record fratrat ((immutable integer-32 x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -57287,8 +56788,7 @@ evaluating module init
                        (fratrat-x y)
                        (dormy-y y))))
              '(#t #f #t #t 17 23 creepy))
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -57313,8 +56813,7 @@ evaluating module init
                       (fratrat-x y)
                       (dormy-y y))))))
        `(#2%list #t #f #t #t 17 23 'creepy))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -57416,8 +56915,7 @@ evaluating module init
          (define-record-type dormy
            (parent fratrat2)
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -57436,8 +56934,7 @@ evaluating module init
            (fields (immutable x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (parent fratrat2)
@@ -57455,13 +56952,11 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -57608,8 +57103,7 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd 'rats
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -57652,8 +57146,7 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd #f
-             (make-record-constructor-descriptor
-               (type-descriptor fratrat)
+             (make-record-constructor-descriptor (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -57731,8 +57224,7 @@ evaluating module init
              (define-record-type bar (sealed #t))
              (record-type-sealed? (record-type-descriptor bar)))
            #t)
-     (equivalent-expansion?
-       ; optimize-level 2 expansion of above
+     (equivalent-expansion? ; optimize-level 2 expansion of above
        (parameterize
          ([optimize-level 2]
           [enable-cp0 #t]
@@ -57751,8 +57243,7 @@ evaluating module init
             '#()
             'define-record-type)
           #t))
-     (equivalent-expansion?
-       ; optimize-level 3 expansion of above
+     (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
           [enable-cp0 #t]
@@ -58221,8 +57712,7 @@ evaluating module init
                 (let ([q (make-foo x)])
                   (set! x 43)
                   (foo-x q))))))
-       `(let ([rtd (#3%$make-record-type-descriptor
-                     #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                      'foo
                      #f
                      #f
@@ -58395,8 +57885,7 @@ evaluating module init
               (lambda (x)
                 (let* ([r (make-foo 37 x)] [r (inc r)] [r (inc r)])
                   r)))))
-       '(let ([rtd (#2%$make-record-type-descriptor
-                     #!base-rtd
+       '(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
                      'foo
                      #f
                      #f
@@ -58420,8 +57909,7 @@ evaluating module init
               (lambda (x)
                 (let* ([r (make-foo 37 x)] [r (inc r)] [r (inc r)])
                   r)))))
-       '(let ([rtd (#3%$make-record-type-descriptor
-                     #!base-rtd
+       '(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
                      'foo
                      #f
                      #f
@@ -59104,8 +58592,7 @@ evaluating module init
      (equal? '(0 1 #f 5 #f)
        (let ([e (make-enumeration '(a b c d e f))])
          (map (enum-set-indexer e) '(a b g f h))))
-     (error? (enum-set-intersection
-               (make-enumeration '(a b c d e f g))
+     (error? (enum-set-intersection (make-enumeration '(a b c d e f g))
                (make-enumeration '(a b c d e f g))))
      (error? (enum-set-intersection 1 1))
      (equal? '(#f #t #f #t #t #t #f #f #f #f)
@@ -59352,8 +58839,7 @@ evaluating module init
              (define z (lambda () (+ x (y))))
              (z))
            7)
-     (eqv? (let-syntax
-             ((a (eval '(lambda (x) (let ((x x)) (syntax 3))))))
+     (eqv? (let-syntax ((a (eval '(lambda (x) (let ((x x)) (syntax 3))))))
              (a))
            3)
      (error? (begin
@@ -59373,20 +58859,16 @@ evaluating module init
                      (fluid-let-syntax ((a (identifier-syntax 4))) 3))))
                x))
      ;; transformers expressions can reference local keywords
-     (eqv? (let-syntax
-             ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
+     (eqv? (let-syntax ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
              (let-syntax ((b a)) b))
            3)
-     (eqv? (let-syntax
-             ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
+     (eqv? (let-syntax ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
              (letrec-syntax ((b a)) b))
            3)
-     (eqv? (let-syntax
-             ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
+     (eqv? (let-syntax ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
              (fluid-let-syntax ((b a)) b))
            3)
-     (eqv? (let-syntax
-             ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
+     (eqv? (let-syntax ((a (lambda (x) (syntax (lambda (y) (syntax 3))))))
              (let () (define-syntax b a) b))
            3)
      (let-syntax ((a (lambda (x) #'(lambda (x) #'3))))
@@ -59402,8 +58884,7 @@ evaluating module init
                ([foo (lambda (x)
                        (syntax-case x ()
                          [(_ z ...)
-                          (let-syntax
-                            ([bar (lambda (y) #'(z ...))])
+                          (let-syntax ([bar (lambda (y) #'(z ...))])
                             (bar))]))])
                (foo + 8 9 10)))
      ;; but can expand into syntax forms containing pattern variable references
@@ -59421,16 +58902,14 @@ evaluating module init
      ; make sure we're using the right environment for evaluating transformers
      (eq? (let ()
             (define x 3)
-            (let-syntax
-              ((x (identifier-syntax (identifier-syntax 4))))
+            (let-syntax ((x (identifier-syntax (identifier-syntax 4))))
               (define-syntax a x))
             a)
           4)
      ; make sure local-syntax bindings aren't visible outside their scope
      (equal? (let ([a 14])
                (module (x y)
-                 (let-syntax
-                   ((a (identifier-syntax 3)))
+                 (let-syntax ((a (identifier-syntax 3)))
                    (define x a))
                  (define y a))
                (cons x y))
@@ -59852,8 +59331,7 @@ evaluating module init
                                 form2
                                 ...)) arg (... ...))])))
                   (define xname
-                    (fluid-let-syntax
-                      ([name (identifier-syntax xname)])
+                    (fluid-let-syntax ([name (identifier-syntax xname)])
                       (lambda formals form1 form2 ...))))])))
        #t)
      (let ()
@@ -59877,8 +59355,7 @@ evaluating module init
 (mat identifier-syntax
      (eqv? (let ([x 0])
              (define-syntax frob
-               (identifier-syntax
-                 [id (begin (set! x (+ x 1)) x)]
+               (identifier-syntax [id (begin (set! x (+ x 1)) x)]
                  [(set! id v) (set! x v)]))
              (let ([n (+ frob frob frob)])
                (set! frob 15)
@@ -60249,8 +59726,7 @@ evaluating module init
      (error? ($do-one `(let ()
                          (define-syntax spam
                            (lambda (x)
-                             #`(assert (let-syntax
-                                         ([q '#,(lambda (x) #f)])
+                             #`(assert (let-syntax ([q '#,(lambda (x) #f)])
                                          q))))
                          spam)))
      (error? ($do-one '(let ()
@@ -60498,8 +59974,7 @@ evaluating module init
      (error? ($do-one `(let ()
                          (define-syntax spam
                            (lambda (x)
-                             #`(assert (let-syntax
-                                         ([q '#,(lambda (x) #f)])
+                             #`(assert (let-syntax ([q '#,(lambda (x) #f)])
                                          q))))
                          spam)))
      (error? ($do-one '(let ()
@@ -60766,8 +60241,7 @@ evaluating module init
              (syntax-case form ()
                [(_ ((v e) ...) e1 e2 ...)
                 #'(let ([v (del e)] ...)
-                    (let-syntax
-                      ((v (identifier-syntax (frc v))) ...)
+                    (let-syntax ((v (identifier-syntax (frc v))) ...)
                       e1
                       e2
                       ...))]))))
@@ -63940,8 +63414,7 @@ evaluating module init
          'replace)
        #t)
      (let ([cf '(lambda (x)
-                  (parameterize
-                    ([compile-imported-libraries #t])
+                  (parameterize ([compile-imported-libraries #t])
                     (compile-file x)))])
        (separate-compile cf 'test-ac)
        #t)
@@ -64084,8 +63557,7 @@ evaluating module init
          'replace)
        (let ([cf (lambda (what)
                    `(lambda (x)
-                      (parameterize
-                        ([compile-imported-libraries #t])
+                      (parameterize ([compile-imported-libraries #t])
                         (,what x))))])
          (separate-compile (cf 'compile-file) 'tlb-a2)
          (separate-compile (cf 'compile-file) 'tlb-a3)
@@ -64109,8 +63581,7 @@ evaluating module init
              "(17 . 4)\n")
      (equal? (separate-eval '(visit "testfile-tlb-a5.so")
                '(pretty-print
-                  (let-syntax
-                    ([a (lambda (x) tlb-a5-spam)])
+                  (let-syntax ([a (lambda (x) tlb-a5-spam)])
                     a)))
              "(17 . 5)\n")
      (equal? (separate-eval '(revisit "testfile-tlb-a6c.so")) "(17 . 6)")
@@ -64122,22 +63593,18 @@ evaluating module init
              "(17 . 7)\n")
      (equal? (separate-eval '(revisit "testfile-tlb-a8.so")
                '(pretty-print
-                  (let-syntax
-                    ([a (lambda (x) tlb-a8-spam)])
+                  (let-syntax ([a (lambda (x) tlb-a8-spam)])
                     a)))
              "(17 . 8)\n")
      (equal? (separate-eval '(revisit "testfile-tlb-a9.so")
                '(pretty-print
-                  (let-syntax
-                    ([a (lambda (x) tlb-a9-spam)])
+                  (let-syntax ([a (lambda (x) tlb-a9-spam)])
                     a)))
              "(17 . 9)\n")
      ; don't really want to fix this one:
-     (equal? (separate-eval
-               '(load-program "testfile-tlb-a10.so")
+     (equal? (separate-eval '(load-program "testfile-tlb-a10.so")
                '(pretty-print
-                  (let-syntax
-                    ([a (lambda (x) tlb-a10-spam)])
+                  (let-syntax ([a (lambda (x) tlb-a10-spam)])
                     a)))
              "(17 . 10)\n")
      (begin
@@ -64179,8 +63646,7 @@ evaluating module init
          'replace)
        (let ([cf (lambda (what)
                    `(lambda (x)
-                      (parameterize
-                        ([compile-imported-libraries #t])
+                      (parameterize ([compile-imported-libraries #t])
                         (,what x))))])
          (separate-compile (cf 'compile-program) 'tlb-bP))
        #t)
@@ -64494,8 +63960,7 @@ evaluating module init
                (list (eval 'foo $ce-e1)
                      (eval '(let () (import foo) eek) $ce-e2)))
              '(not-a-module ack))
-     (equal? (let ([e (copy-environment
-                        (interaction-environment)
+     (equal? (let ([e (copy-environment (interaction-environment)
                         #f
                         '(cons $ce-e1))])
                (list (eval 'cons e) (eval '$ce-e1 e)))
@@ -65374,8 +64839,7 @@ evaluating module init
                           '#(10 5 #,(sqrt 4) #,@(map sqrt '(16 9)) 8)))])
                (test))
              '#(10 5 2 4 3 8))
-     (eqv? (let-syntax
-             ([test (lambda (_) (quasisyntax #,(+ 2 3)))])
+     (eqv? (let-syntax ([test (lambda (_) (quasisyntax #,(+ 2 3)))])
              (test))
            5)
      (equal? (let-syntax
@@ -65510,8 +64974,7 @@ evaluating module init
               (make-compile-time-value 'shuddle))
             (get-ctv frob))
           'shuddle)
-     (eq? (let-syntax
-            ([frob (make-compile-time-value 'skupo)])
+     (eq? (let-syntax ([frob (make-compile-time-value 'skupo)])
             (get-ctv frob))
           'skupo)
      (equal? (let ([frob "not the global frob ..."])
@@ -68069,8 +67532,7 @@ evaluating module init
              (pretty-print '(import (testfile-l4-a1) (chezscheme)))
              (pretty-print '(pretty-print x)))
            'replace)
-         (let ([s (separate-eval
-                    '(compile-imported-libraries #t)
+         (let ([s (separate-eval '(compile-imported-libraries #t)
                     '(compile-file-message #f)
                     '(load-program "testfile-l4-p1.ss"))])
            (unless (equal? s "(a-object (b-object) c-object d-object)\n")
@@ -68093,8 +67555,7 @@ evaluating module init
                         (define a 'newa-object)
                         (define x (list a b c d)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #t)
+               (separate-eval '(compile-imported-libraries #t)
                  '(compile-file-message #f)
                  '(load-program "testfile-l4-p1.ss")))
              "(newa-object (b-object) c-object d-object)\n")
@@ -68108,8 +67569,7 @@ evaluating module init
                         (import (chezscheme))
                         (define b (list 'newb-object)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #t)
+               (separate-eval '(compile-imported-libraries #t)
                  '(compile-file-message #f)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (newb-object) c-object d-object)\n")
@@ -68124,8 +67584,7 @@ evaluating module init
                         (define-syntax c
                           (lambda (x) #''newc-object)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #t)
+               (separate-eval '(compile-imported-libraries #t)
                  '(compile-file-message #f)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (b-object) newc-object d-object)\n")
@@ -68137,8 +67596,7 @@ evaluating module init
                      '(define-syntax d
                         (lambda (x) #''newd-object))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #t)
+               (separate-eval '(compile-imported-libraries #t)
                  '(compile-file-message #f)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (b-object) c-object newd-object)\n")
@@ -68157,8 +67615,7 @@ evaluating module init
                         (define a 'newera-object)
                         (define x (list a b c d)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #f)
+               (separate-eval '(compile-imported-libraries #f)
                  '(compile-file-message #t)
                  '(load-program "testfile-l4-p1.ss")))
              "(newera-object (b-object) c-object d-object)\n")
@@ -68172,8 +67629,7 @@ evaluating module init
                         (import (chezscheme))
                         (define b (list 'newerb-object)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #f)
+               (separate-eval '(compile-imported-libraries #f)
                  '(compile-file-message #t)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (newerb-object) c-object d-object)\n")
@@ -68188,8 +67644,7 @@ evaluating module init
                         (define-syntax c
                           (lambda (x) #''newerc-object)))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #f)
+               (separate-eval '(compile-imported-libraries #f)
                  '(compile-file-message #t)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (b-object) newerc-object d-object)\n")
@@ -68201,8 +67656,7 @@ evaluating module init
                      '(define-syntax d
                         (lambda (x) #''newerd-object))))
                  'replace)
-               (separate-eval
-                 '(compile-imported-libraries #f)
+               (separate-eval '(compile-imported-libraries #f)
                  '(compile-file-message #t)
                  '(load-program "testfile-l4-p1.ss")))
              "(a-object (b-object) c-object newerd-object)\n"))
@@ -68236,8 +67690,7 @@ evaluating module init
                (set-car! a 55)
                (pretty-print (list a b)))))
          'replace)
-       (equal? (parameterize
-                 ([compile-imported-libraries #t])
+       (equal? (parameterize ([compile-imported-libraries #t])
                  (compile-program "testfile-l5-c1"))
                '((testfile-l5-a1))))
      ; delete testfile-l5-b1.{ss,so} to make sure they aren't surreptitiously loaded
@@ -68688,8 +68141,7 @@ evaluating module init
            (pretty-print '(write (g))))
          'replace)
        #t)
-     (equal? (let ([libs (parameterize
-                           ([compile-imported-libraries #t])
+     (equal? (let ([libs (parameterize ([compile-imported-libraries #t])
                            (compile-program "testfile-clo-3b"))])
                (cond
                  ; if compiled program depends on the library, the externally visible side effect (putprop) will be done
@@ -68752,8 +68204,7 @@ evaluating module init
        (define lol-n 100)
        (do ([lib* (lol-fiblib lol-n) (cdr lib*)] [n lol-n (fx- n 1)])
            ((null? lib*))
-           (with-output-to-file
-             (format "~s.ss" (lol-mklibname n))
+           (with-output-to-file (format "~s.ss" (lol-mklibname n))
              (lambda () (pretty-print (car lib*)))
              'replace))
        (with-output-to-file "testfile-lol-prog.ss"
@@ -68767,8 +68218,7 @@ evaluating module init
          (let ([t (current-time 'time-utc)])
            (let ([time-n 3])
              (separate-eval
-               `(parameterize
-                  ([compile-imported-libraries #t])
+               `(parameterize ([compile-imported-libraries #t])
                   (compile-library
                     ,(format "~a.ss" (lol-mklibname time-n)))))
              (do ([n 0 (+ n 1)])
@@ -68798,8 +68248,7 @@ evaluating module init
      (string? (separate-compile
                 `(lambda (x)
                    ,$lol-watchdog
-                   (parameterize
-                     ([compile-imported-libraries #t])
+                   (parameterize ([compile-imported-libraries #t])
                      (compile-program x)))
                 'lol-prog))
      (equal? (separate-eval
@@ -68815,16 +68264,14 @@ evaluating module init
      (string? (separate-compile
                 `(lambda (x)
                    ,$lol-watchdog
-                   (parameterize
-                     ([compile-imported-libraries #t])
+                   (parameterize ([compile-imported-libraries #t])
                      (compile-program x)))
                 'lol-prog))
      ; test maybe rebuild
      (string? (separate-compile
                 `(lambda (x)
                    ,$lol-watchdog
-                   (parameterize
-                     ([compile-imported-libraries #t])
+                   (parameterize ([compile-imported-libraries #t])
                      (maybe-compile-program x)))
                 'lol-prog)))
 
@@ -69210,40 +68657,34 @@ evaluating module init
                            (string? (cdr x))))
                     x)))
      (if (windows?)
-         (parameterize
-           ([library-directories "a1;boo;c:/;dxxy"])
+         (parameterize ([library-directories "a1;boo;c:/;dxxy"])
            (equal? (library-directories)
              '(("a1" . "a1")
                ("boo" . "boo")
                ("c:/" . "c:/")
                ("dxxy" . "dxxy"))))
-         (parameterize
-           ([library-directories "a1:boo:c;/:dxxy"])
+         (parameterize ([library-directories "a1:boo:c;/:dxxy"])
            (equal? (library-directories)
              '(("a1" . "a1")
                ("boo" . "boo")
                ("c;/" . "c;/")
                ("dxxy" . "dxxy")))))
      (if (windows?)
-         (parameterize
-           ([library-directories "a1;boo;;boo-obj;c:/;;dxxy"])
+         (parameterize ([library-directories "a1;boo;;boo-obj;c:/;;dxxy"])
            (equal? (library-directories)
              '(("a1" . "a1") ("boo" . "boo-obj") ("c:/" . "dxxy"))))
-         (parameterize
-           ([library-directories "a1:boo::boo-obj:c;/::dxxy"])
+         (parameterize ([library-directories "a1:boo::boo-obj:c;/::dxxy"])
            (equal? (library-directories)
              '(("a1" . "a1") ("boo" . "boo-obj") ("c;/" . "dxxy")))))
      (let ([default (library-directories)])
        (if (windows?)
-           (parameterize
-             ([library-directories "a1;boo;c:/;dxxy;"])
+           (parameterize ([library-directories "a1;boo;c:/;dxxy;"])
              (equal? (library-directories)
                `(,@'(("a1" . "a1")
                      ("boo" . "boo")
                      ("c:/" . "c:/")
                      ("dxxy" . "dxxy")) ,@default)))
-           (parameterize
-             ([library-directories "a1:boo:c;/:dxxy:"])
+           (parameterize ([library-directories "a1:boo:c;/:dxxy:"])
              (equal? (library-directories)
                `(,@'(("a1" . "a1")
                      ("boo" . "boo")
@@ -69278,15 +68719,13 @@ evaluating module init
                            (string? (cdr x))))
                     x)))
      (if (windows?)
-         (parameterize
-           ([library-extensions ".a1.sls;.boo;.crud;.junk"])
+         (parameterize ([library-extensions ".a1.sls;.boo;.crud;.junk"])
            (equal? (library-extensions)
              '((".a1.sls" . ".a1.so")
                (".boo" . ".so")
                (".crud" . ".so")
                (".junk" . ".so"))))
-         (parameterize
-           ([library-extensions ".a1.sls:.boo:.crud:.junk"])
+         (parameterize ([library-extensions ".a1.sls:.boo:.crud:.junk"])
            (equal? (library-extensions)
              '((".a1.sls" . ".a1.so")
                (".boo" . ".so")
@@ -69294,15 +68733,13 @@ evaluating module init
                (".junk" . ".so")))))
      (let ([default (library-extensions)])
        (if (windows?)
-           (parameterize
-             ([library-extensions ".a1.sls;.boo;.crud;.junk;"])
+           (parameterize ([library-extensions ".a1.sls;.boo;.crud;.junk;"])
              (equal? (library-extensions)
                `(,@'((".a1.sls" . ".a1.so")
                      (".boo" . ".so")
                      (".crud" . ".so")
                      (".junk" . ".so")) ,@default)))
-           (parameterize
-             ([library-extensions ".a1.sls:.boo:.crud:.junk:"])
+           (parameterize ([library-extensions ".a1.sls:.boo:.crud:.junk:"])
              (equal? (library-extensions)
                `(,@'((".a1.sls" . ".a1.so")
                      (".boo" . ".so")
@@ -69396,8 +68833,7 @@ evaluating module init
          '(library-search-handler
             (lambda (who path dir* all-ext*)
               (let-values ([(src-path obj-path obj-exists?)
-                            (default-library-search-handler
-                              who
+                            (default-library-search-handler who
                               path
                               dir*
                               all-ext*)])
@@ -69449,8 +68885,7 @@ evaluating module init
               (assert (equal? all-ext* '((".ss" . ".wpo"))))
               ;; default search finds the wpo file, but ...
               (let-values ([(src-path obj-path obj-exists?)
-                            (default-library-search-handler
-                              who
+                            (default-library-search-handler who
                               path
                               dir*
                               all-ext*)])
@@ -70093,8 +69528,7 @@ evaluating module init
          'replace)
        (separate-compile 'imno1)
        #t)
-     (equal? (parameterize
-               ([console-output-port (open-output-string)])
+     (equal? (parameterize ([console-output-port (open-output-string)])
                (eval '(lambda () (import (testfile-imno2)) y))
                (get-output-string (console-output-port)))
        "import: did not find source file \"testfile-imno2.chezscheme.sls\"\nimport: found source file \"testfile-imno2.ss\"\nimport: did not find corresponding object file \"testfile-imno2.so\"\nimport: loading source file \"testfile-imno2.ss\"\nimport: did not find source file \"testfile-imno1.chezscheme.sls\"\nimport: found source file \"testfile-imno1.ss\"\nimport: found corresponding object file \"testfile-imno1.so\"\nimport: object file is not older\nimport: loading object file \"testfile-imno1.so\"\n")
@@ -70410,8 +69844,7 @@ evaluating module init
                  'replace)
                ; if we don't let the compilation happen implicitly, the filename
                ; for (testfile-tlp9) doesn't get set
-               (parameterize
-                 ([compile-imported-libraries #t])
+               (parameterize ([compile-imported-libraries #t])
                  (set! dep8
                    (compile-program "testfile-tlp11")))
                (printf "loading testfile-tlp11.so\n")
@@ -70441,8 +69874,7 @@ evaluating module init
                (lambda ()
                  ; prevent cp0 from fixing the problem
                  (parameterize ([run-cp0 (lambda (f x) x)])
-                   (eval '(top-level-program
-                            (import (scheme))
+                   (eval '(top-level-program (import (scheme))
                             (define (f)
                               (printf "hello\n")
                               (values 1 2 3))
@@ -70495,8 +69927,7 @@ evaluating module init
        #t)
      (equal? (with-output-to-string
                (lambda ()
-                 (parameterize
-                   ([trace-output-port (current-output-port)])
+                 (parameterize ([trace-output-port (current-output-port)])
                    (load "testfile-lm-b2.so"))))
              "")
      (eqv? b 17))
@@ -70533,8 +69964,7 @@ evaluating module init
 
      (error? (library-requirements 'foo (library-requirements-options)))
      (error? (library-requirements '(1 2 3) (library-requirements-options)))
-     (error? (library-requirements
-               '(probably not a valid loaded library)
+     (error? (library-requirements '(probably not a valid loaded library)
                (library-requirements-options)))
      (error? (library-requirements
                '(probably not a valid loaded library (1))
@@ -71152,8 +70582,7 @@ evaluating module init
      (begin (profile-clear) #t)
      (begin
        (define foo
-         (parameterize
-           ([compile-profile #t] [current-eval compile])
+         (parameterize ([compile-profile #t] [current-eval compile])
            (eval '(lambda ()
                     (define-syntax foo
                       (lambda (z)
@@ -71472,8 +70901,7 @@ evaluating module init
                '(2 3)))
 
      ;; An uncached lookup defniitely reports no line:
-     (equal? (call-with-values
-               (lambda () (locate-source sfd-to-cache 8 #f))
+     (equal? (call-with-values (lambda () (locate-source sfd-to-cache 8 #f))
                (lambda () 'none))
              'none)
 
@@ -73444,8 +72872,7 @@ evaluating module init
            #t)
      ; check to see if we can look as far to the left as we please ...
      (eqv? (fxlogbit? (+ (integer-length (most-positive-fixnum)) 1) -1) #t)
-     (eqv? (fxlogbit?
-             (expt (integer-length (most-positive-fixnum)) 2)
+     (eqv? (fxlogbit? (expt (integer-length (most-positive-fixnum)) 2)
              (most-positive-fixnum))
            #f)
      (eqv? (fxlogbit? (expt (integer-length (most-positive-fixnum)) 2) -1)
@@ -73474,8 +72901,7 @@ evaluating module init
        '(fxlogbit? (+ (integer-length (most-positive-fixnum)) 1) -1)
        #t)
      (test-cp0-expansion eqv?
-       '(fxlogbit?
-          (expt (integer-length (most-positive-fixnum)) 2)
+       '(fxlogbit? (expt (integer-length (most-positive-fixnum)) 2)
           (most-positive-fixnum))
        #f)
      (test-cp0-expansion eqv?
@@ -74107,8 +73533,7 @@ evaluating module init
                   '(0 5 31 32 33 63 64 65 127 128 129))
              '(0 5 31 -32 -31 -1 0 1 -1 0 1))
      (equal? (map (lambda (x)
-                    (let-values
-                      ([ls (fxdiv0-and-mod0 x 64)])
+                    (let-values ([ls (fxdiv0-and-mod0 x 64)])
                       ls))
                   '(0 5 31 32 33 63 64 65 127 128 129))
              '((0 0)
@@ -74129,8 +73554,7 @@ evaluating module init
                   '(0 -5 -31 -32 -33 -63 -64 -65 -127 -128 -129))
              '(0 -5 -31 -32 31 1 0 -1 1 0 -1))
      (equal? (map (lambda (x)
-                    (let-values
-                      ([ls (fxdiv0-and-mod0 x 64)])
+                    (let-values ([ls (fxdiv0-and-mod0 x 64)])
                       ls))
                   '(0 -5 -31 -32 -33 -63 -64 -65 -127 -128 -129))
              '((0 0)
@@ -74364,8 +73788,7 @@ evaluating module init
                (let* ([count (mod count width)]
                       [field0 (bitwise-bit-field n start end)]
                       [field1 (bitwise-arithmetic-shift-left field0 count)]
-                      [field2 (bitwise-arithmetic-shift-right
-                                field0
+                      [field2 (bitwise-arithmetic-shift-right field0
                                 (- width count))]
                       [field (bitwise-ior field1 field2)])
                  (bitwise-copy-bit-field n start end field))
@@ -74455,8 +73878,7 @@ evaluating module init
      (let ()
        (define (refimpl n start end)
          (define (swap n i j)
-           (fxcopy-bit
-             (fxcopy-bit n i (fxbit-field n j (fx+ j 1)))
+           (fxcopy-bit (fxcopy-bit n i (fxbit-field n j (fx+ j 1)))
              j
              (fxbit-field n i (fx+ i 1))))
          (let ([end (fx- end 1)])
@@ -75970,70 +75392,56 @@ evaluating module init
               (char)
               foreign-pointer))
           (set! fs-s_f1_s
-            (eval `(foreign-procedure
-                     ,(format "s~a_f1_s~a" n n)
+            (eval `(foreign-procedure ,(format "s~a_f1_s~a" n n)
                      ((foreign-object ,fs-size ,fs-align)
                       (foreign-object ,fs-size ,fs-align))
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-sp_f1_s
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f1_s~a" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f1_s~a" n n)
                      (foreign-pointer (foreign-object ,fs-size ,fs-align))
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-s_f1_sp
-            (eval `(foreign-procedure
-                     ,(format "s~a_f1_s~ap" n n)
+            (eval `(foreign-procedure ,(format "s~a_f1_s~ap" n n)
                      ((foreign-object ,fs-size ,fs-align) foreign-pointer)
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-sp_f1_sp
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f1_s~ap" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f1_s~ap" n n)
                      (foreign-pointer foreign-pointer)
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-s_f2_s
-            (eval `(foreign-procedure
-                     ,(format "s~a_f2_s~a" n n)
-                     (integer-32
-                       (foreign-object ,fs-size ,fs-align)
+            (eval `(foreign-procedure ,(format "s~a_f2_s~a" n n)
+                     (integer-32 (foreign-object ,fs-size ,fs-align)
                        (foreign-object ,fs-size ,fs-align))
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-sp_f2_s
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f2_s~a" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f2_s~a" n n)
                      (integer-32 foreign-pointer
                        (foreign-object ,fs-size ,fs-align))
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-s_f2_sp
-            (eval `(foreign-procedure
-                     ,(format "s~a_f2_s~ap" n n)
-                     (integer-32
-                       (foreign-object ,fs-size ,fs-align)
+            (eval `(foreign-procedure ,(format "s~a_f2_s~ap" n n)
+                     (integer-32 (foreign-object ,fs-size ,fs-align)
                        foreign-pointer)
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-sp_f2_sp
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f2_s~ap" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f2_s~ap" n n)
                      (integer-32 foreign-pointer foreign-pointer)
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-s_f3_s
-            (eval `(foreign-procedure
-                     ,(format "s~a_f3_s~a" n n)
+            (eval `(foreign-procedure ,(format "s~a_f3_s~a" n n)
                      ((foreign-object ,fs-size ,fs-align)
                       (foreign-object ,fs-size ,fs-align))
                      boolean)))
           (set! fs-sp_f3_s
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f3_s~a" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f3_s~a" n n)
                      (foreign-pointer (foreign-object ,fs-size ,fs-align))
                      boolean)))
           (set! fs-s_f3_sp
-            (eval `(foreign-procedure
-                     ,(format "s~a_f3_s~ap" n n)
+            (eval `(foreign-procedure ,(format "s~a_f3_s~ap" n n)
                      ((foreign-object ,fs-size ,fs-align) foreign-pointer)
                      boolean)))
           (set! fs-sp_f3_sp
-            (eval `(foreign-procedure
-                     ,(format "s~ap_f3_s~ap" n n)
+            (eval `(foreign-procedure ,(format "s~ap_f3_s~ap" n n)
                      (foreign-pointer foreign-pointer)
                      boolean)))
 
@@ -76341,13 +75749,11 @@ evaluating module init
        (let ([s "now is the time for all good men"]
              [r "                                "])
          (let ([bv ($string->bytevector r)])
-           ((foreign-procedure
-              (if (windows?) "windows_strcpy" "strcpy")
+           ((foreign-procedure (if (windows?) "windows_strcpy" "strcpy")
               (u8* string)
               void) bv s)
            (= 0
-              ((foreign-procedure
-                 (if (windows?) "windows_strcmp" "strcmp")
+              ((foreign-procedure (if (windows?) "windows_strcmp" "strcmp")
                  (u8* string)
                  integer-32) bv s)))))
      (error? ((foreign-procedure "id" (string) void) 'foo))
@@ -76636,8 +76042,7 @@ evaluating module init
                (parameterize
                  ([interaction-environment
                     (copy-environment (scheme-environment))])
-                 (list-in-order
-                   (define-top-level-value 'foo 17)
+                 (list-in-order (define-top-level-value 'foo 17)
                    ($fp-tlv 'foo)
                    ($fp-stlv! 'bar 55)
                    ($fp-tlv 'bar)
@@ -76831,8 +76236,7 @@ evaluating module init
      (equal? (call-u16*
                (foreign-callable
                  (lambda (x)
-                   ($bytevector-map
-                     (lambda (x) (if (= x 255) 0 (+ x 100)))
+                   ($bytevector-map (lambda (x) (if (= x 255) 0 (+ x 100)))
                      x))
                  (u16*)
                  u16*)
@@ -76841,8 +76245,7 @@ evaluating module init
      (equal? (call-u32*
                (foreign-callable
                  (lambda (x)
-                   ($bytevector-map
-                     (lambda (x) (if (= x 255) 0 (+ x 100)))
+                   ($bytevector-map (lambda (x) (if (= x 255) 0 (+ x 100)))
                      x))
                  (u32*)
                  u32*)
@@ -76986,93 +76389,79 @@ evaluating module init
          (foreign-procedure "call_wstring" (ptr wstring) wstring))
        #t)
      (equal? (call-utf-8
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (utf-8)
                  utf-8)
                "hello")
              "llo$q")
      (equal? (call-utf-16le
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (utf-16le)
                  utf-16le)
                "hello")
              "llo$q")
      (equal? (call-utf-16be
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (utf-16be)
                  utf-16be)
                "hello")
              "llo$q")
      (equal? (call-utf-32le
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (utf-32le)
                  utf-32le)
                "hello")
              "llo$q")
      (equal? (call-utf-32be
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (utf-32be)
                  utf-32be)
                "hello")
              "llo$q")
      (equal? (call-string
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (string)
                  string)
                "hello")
              "llo$q")
      (equal? (call-wstring
-               (foreign-callable
-                 (lambda (x) (string-append x "$q"))
+               (foreign-callable (lambda (x) (string-append x "$q"))
                  (wstring)
                  wstring)
                "hello")
              "llo$q")
      (error? (call-utf-8
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (utf-8)
                  utf-8)
                "hello"))
      (error? (call-utf-16le
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (utf-16le)
                  utf-16le)
                "hello"))
      (error? (call-utf-16be
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (utf-16be)
                  utf-16be)
                "hello"))
      (error? (call-utf-32le
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (utf-32le)
                  utf-32le)
                "hello"))
      (error? (call-utf-32be
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (utf-32be)
                  utf-32be)
                "hello"))
      (error? (call-string
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (string)
                  string)
                "hello"))
      (error? (call-wstring
-               (foreign-callable
-                 (lambda (x) (list x (string-length x)))
+               (foreign-callable (lambda (x) (list x (string-length x)))
                  (wstring)
                  wstring)
                "hello")))
@@ -77457,43 +76846,37 @@ evaluating module init
                       73
                       0
                       0))
-     (error? (call-i16 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-i16 (foreign-callable (lambda (x) '(- x 7))
                          (integer-16)
                          integer-16)
                        73
                        0
                        0))
-     (error? (call-u16 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-u16 (foreign-callable (lambda (x) '(- x 7))
                          (unsigned-16)
                          unsigned-16)
                        73
                        0
                        0))
-     (error? (call-i32 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-i32 (foreign-callable (lambda (x) '(- x 7))
                          (integer-32)
                          integer-32)
                        73
                        0
                        0))
-     (error? (call-u32 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-u32 (foreign-callable (lambda (x) '(- x 7))
                          (unsigned-32)
                          unsigned-32)
                        73
                        0
                        0))
-     (error? (call-i64 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-i64 (foreign-callable (lambda (x) '(- x 7))
                          (integer-64)
                          integer-64)
                        73
                        0
                        0))
-     (error? (call-u64 (foreign-callable
-                         (lambda (x) '(- x 7))
+     (error? (call-u64 (foreign-callable (lambda (x) '(- x 7))
                          (unsigned-64)
                          unsigned-64)
                        73
@@ -77596,9 +76979,7 @@ evaluating module init
            (eqv? (foo x a b c d e f g)
                  (mod (+ x (- a b) (- c d) (- e f) g) (expt 2 64)))))
        #t)
-     (test-ufoo
-       (lambda (x a b c d e f g)
-         (+ x (ufoo64a a b c d e f g)))
+     (test-ufoo (lambda (x a b c d e f g) (+ x (ufoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -77616,9 +76997,7 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ufoo
-       (lambda (x a b c d e f g)
-         (+ x (ufoo64a a b c d e f g)))
+     (test-ufoo (lambda (x a b c d e f g) (+ x (ufoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -77675,9 +77054,7 @@ evaluating module init
            (eqv? (foo x a b c d e f g)
                  (mod0 (+ x (- a b) (- c d) (- e f) g) (expt 2 64)))))
        #t)
-     (test-ifoo
-       (lambda (x a b c d e f g)
-         (+ x (ifoo64a a b c d e f g)))
+     (test-ifoo (lambda (x a b c d e f g) (+ x (ifoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -77695,9 +77072,7 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ifoo
-       (lambda (x a b c d e f g)
-         (+ x (ifoo64a a b c d e f g)))
+     (test-ifoo (lambda (x a b c d e f g) (+ x (ifoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -77748,8 +77123,7 @@ evaluating module init
        (define short-to-short
          (foreign-procedure "short_to_short" (short int) short))
        (define unsigned-short-to-unsigned-short
-         (foreign-procedure
-           "unsigned_short_to_unsigned_short"
+         (foreign-procedure "unsigned_short_to_unsigned_short"
            (unsigned-short int)
            unsigned-short))
        (define long-to-long
@@ -77763,8 +77137,7 @@ evaluating module init
            (long-long int)
            long-long))
        (define unsigned-long-long-to-unsigned-long-long
-         (foreign-procedure
-           "unsigned_long_long_to_unsigned_long_long"
+         (foreign-procedure "unsigned_long_long_to_unsigned_long_long"
            (unsigned-long-long int)
            unsigned-long-long))
        (define float-to-float
@@ -77794,8 +77167,7 @@ evaluating module init
      ($test-int-to-int long-long-to-long-long
        (foreign-sizeof 'long-long)
        #t)
-     ($test-int-to-int
-       unsigned-long-long-to-unsigned-long-long
+     ($test-int-to-int unsigned-long-long-to-unsigned-long-long
        (foreign-sizeof 'unsigned-long-long)
        #f)
      ($test-int-to-int iptr-to-iptr (foreign-sizeof 'iptr) #t)
@@ -77976,24 +77348,21 @@ evaluating module init
                23)
              108.25)
 
-     (error? (call-int (foreign-callable
-                         (lambda (x) (list x (+ x 1)))
+     (error? (call-int (foreign-callable (lambda (x) (list x (+ x 1)))
                          (int)
                          int)
                        73
                        0
                        0))
      (error? (call-unsigned
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (unsigned)
                  unsigned)
                73
                0
                0))
      (error? (call-unsigned-int
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (unsigned-int)
                  unsigned-int)
                73
@@ -78010,16 +77379,14 @@ evaluating module init
                0
                0))
      (error? (call-short
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (short)
                  short)
                73
                0
                0))
      (error? (call-unsigned-short
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (unsigned-short)
                  unsigned-short)
                73
@@ -78031,40 +77398,35 @@ evaluating module init
                0
                0))
      (error? (call-unsigned-long
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (unsigned-long)
                  unsigned-long)
                73
                0
                0))
      (error? (call-long-long
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (long-long)
                  long-long)
                73
                0
                0))
      (error? (call-unsigned-long-long
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (unsigned-long-long)
                  unsigned-long-long)
                73
                0
                0))
      (error? (call-float
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (float)
                  float)
                73.25
                0
                0))
      (error? (call-double
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (double)
                  double)
                73.25
@@ -78081,8 +77443,7 @@ evaluating module init
                0
                0))
      (error? (call-void*
-               (foreign-callable
-                 (lambda (x) (list x (+ x 1)))
+               (foreign-callable (lambda (x) (list x (+ x 1)))
                  (void*)
                  void*)
                73
@@ -78102,8 +77463,7 @@ evaluating module init
        (define uptr->A
          (foreign-procedure "uptr_to_uptr" (uptr int) (* A)))
        (define b
-         ((foreign-procedure
-            (if (windows?) "windows_malloc" "malloc")
+         ((foreign-procedure (if (windows?) "windows_malloc" "malloc")
             (ssize_t)
             (* B)) (ftype-sizeof B)))
        #t)
@@ -78121,8 +77481,7 @@ evaluating module init
        (define uptr->uptr
          (foreign-callable values (uptr) uptr))
        (define uptr->A
-         (foreign-callable
-           (lambda (a) (make-ftype-pointer A a))
+         (foreign-callable (lambda (a) (make-ftype-pointer A a))
            (uptr)
            (* A)))
        (define B->uptr
@@ -78153,8 +77512,7 @@ evaluating module init
      (eqv? (ftype-pointer-address (call-B->A B->A b 0 0))
            (ftype-pointer-address (ftype-&ref B (y) b)))
      (begin
-       ((foreign-procedure
-          (if (windows?) "windows_free" "free")
+       ((foreign-procedure (if (windows?) "windows_free" "free")
           ((* B))
           void) b)
        (set! b #f)
@@ -78260,8 +77618,7 @@ evaluating module init
              (let ([code-object
                      (foreign-callable-code-object
                        (ftype-pointer-address code))])
-               (dynamic-wind
-                 (lambda () (lock-object code-object))
+               (dynamic-wind (lambda () (lock-object code-object))
                  (lambda ()
                    (define f (ftype-ref foo () code))
                    (f 3 4))
@@ -78284,8 +77641,7 @@ evaluating module init
              (let ([code-object
                      (foreign-callable-code-object
                        (ftype-pointer-address code))])
-               (dynamic-wind
-                 (lambda () (lock-object code-object))
+               (dynamic-wind (lambda () (lock-object code-object))
                  (lambda ()
                    ((ftype-ref foo () code) 17 (* (most-positive-fixnum) 2)))
                  (lambda () (unlock-object code-object)))))
@@ -78755,8 +78111,7 @@ evaluating module init
      (equal? (let ([x 5])
                (define call-twice
                  (foreign-procedure "call_twice" (void* int int) void))
-               (let ([co (foreign-callable
-                           (lambda (y) (set! x (+ x y)))
+               (let ([co (foreign-callable (lambda (y) (set! x (+ x y)))
                            (int)
                            void)])
                  (lock-object co)
@@ -78788,8 +78143,7 @@ evaluating module init
                  (register-callback #\a ouch)
                  (register-callback #\c rats)
                  (register-callback #\e ouch)
-                 (parameterize
-                   ([current-output-port (open-output-string)])
+                 (parameterize ([current-output-port (open-output-string)])
                    (event-loop "abcde")
                    (get-output-string (current-output-port)))))
              (format "Ouch! Hit by 'a'~%Rats! Received 'c'~%Ouch! Hit by 'e'~%"))
@@ -78807,8 +78161,7 @@ evaluating module init
      ; we lock code we don't also lock the code object created by foreign-procedure
      (begin
        (lock-object code)
-       ((foreign-procedure
-          (foreign-callable-entry-point code)
+       ((foreign-procedure (foreign-callable-entry-point code)
           ()
           scheme-object))
        (unlock-object code)
@@ -78953,8 +78306,7 @@ evaluating module init
                                (g (fx- n 1) (fx+ m 1))))))
                    (define fptr (make-ftype-pointer foo f))
                    (define g (ftype-ref foo () fptr))
-                   (with-exception-handler
-                     (lambda (c) (*k* *m*))
+                   (with-exception-handler (lambda (c) (*k* *m*))
                      (lambda ()
                        (call/cc
                          (lambda (k)
@@ -78988,8 +78340,7 @@ evaluating module init
                                (g (fx- n 1) (fx+ m 1))))))
                    (define fptr (make-ftype-pointer foo f))
                    (define g (ftype-ref foo () fptr))
-                   (with-exception-handler
-                     (lambda (c) (*k* *m*))
+                   (with-exception-handler (lambda (c) (*k* *m*))
                      (lambda ()
                        (call/cc
                          (lambda (k)
@@ -79026,8 +78377,7 @@ evaluating module init
                  ; position "fasl" file at eof to make sure fasl-read isn't tripped up
                  ; by something that appears almost valid
                  (get-bytevector-all ip)
-                 (with-exception-handler
-                   (lambda (c) (*k* *m*))
+                 (with-exception-handler (lambda (c) (*k* *m*))
                    (lambda ()
                      ($with-exit-proc
                        (lambda (k)
@@ -79201,8 +78551,7 @@ evaluating module init
              (fprintf to-stdin "'hello\n")
              ; should cause exception, then abort (via reset)
              (flush-output-port to-stdin)
-             (let ([pid^ (machine-case
-                           [(i3nt ti3nt a6nt ta6nt) pid]
+             (let ([pid^ (machine-case [(i3nt ti3nt a6nt ta6nt) pid]
                            [else
                             ((foreign-procedure "waitpid"
                                (int (* int) int)
@@ -79482,14 +78831,19 @@ evaluating module init
                           (= (+ 8 9 10 11 vi ...)
                              (sum_pre_int_int_int_int 8 9 10 11 a))
                           (= (+ 8 9 10 11 12 13 vi ...)
-                             (sum_pre_int_int_int_int_int_int 8 9 10 11 12 13 a))
+                             (sum_pre_int_int_int_int_int_int 8
+                               9
+                               10
+                               11
+                               12
+                               13
+                               a))
                           (= (+ 8 vi ...) (sum_post_int a 8))
                           (= (+ 8.25 vi ...) (sum_pre_double 8.25 a))
                           (= (+ 8.25 9.25 vi ...)
                              (sum_pre_double_double 8.25 9.25 a))
                           (= (+ 8.25 9.25 10.25 11.25 vi ...)
-                             (sum_pre_double_double_double_double
-                               8.25
+                             (sum_pre_double_double_double_double 8.25
                                9.25
                                10.25
                                11.25
@@ -79517,36 +78871,31 @@ evaluating module init
                           (= (+ 8.25 vi ...) (sum_post_double a 8.25))
                           (= (+ 1.0 vi ...)
                              (with-callback
-                               ([cb (make-ftype-pointer
-                                      callback
+                               ([cb (make-ftype-pointer callback
                                       (lambda (r)
                                         (exact->inexact (+ (T-ref r) ...))))])
                                (cb_send cb)))
                           (= (+ 1.0 vi ... vi ...)
                              (with-callback
-                               ([cb (make-ftype-pointer
-                                      callback-two
+                               ([cb (make-ftype-pointer callback-two
                                       (lambda (r1 r2)
                                         (exact->inexact (+ (T-ref r1) ... (T-ref r2) ...))))])
                                (cb_send_two cb)))
                           (= (+ 1.0 8 vi ...)
                              (with-callback
-                               ([cb (make-ftype-pointer
-                                      pre-int-callback
+                               ([cb (make-ftype-pointer pre-int-callback
                                       (lambda (v r)
                                         (exact->inexact (+ v (T-ref r) ...))))])
                                (cb_send_pre_int cb)))
                           (= (+ 1.0 8.25 vi ...)
                              (with-callback
-                               ([cb (make-ftype-pointer
-                                      pre-double-callback
+                               ([cb (make-ftype-pointer pre-double-callback
                                       (lambda (v r)
                                         (exact->inexact (+ v (T-ref r) ...))))])
                                (cb_send_pre_double cb)))
                           (= (+ vi ...)
                              (with-callback
-                               ([cb (make-ftype-pointer
-                                      callback-r
+                               ([cb (make-ftype-pointer callback-r
                                       (lambda (r)
                                         (T-set! r)
                                         ...))])
@@ -79731,8 +79080,7 @@ evaluating module init
        (define call-in-unknown-thread-2
          ;; Call in the current thread, but through the foreign procedure
          (if (and (threaded?) (foreign-entry? "call_in_unknown_thread"))
-             (let ([call (foreign-procedure
-                           "call_in_unknown_thread"
+             (let ([call (foreign-procedure "call_in_unknown_thread"
                            ((* thread-callback-T) double int boolean boolean)
                            double)])
                (lambda (proc arg n-times)
@@ -79743,8 +79091,7 @@ evaluating module init
        (define call-in-unknown-thread-3
          ;; Call in a truly unknown thread:
          (if (and (threaded?) (foreign-entry? "call_in_unknown_thread"))
-             (let ([call (foreign-procedure
-                           "call_in_unknown_thread"
+             (let ([call (foreign-procedure "call_in_unknown_thread"
                            ((* thread-callback-T) double int boolean boolean)
                            double)])
                (lambda (proc arg n-times)
@@ -79769,23 +79116,19 @@ evaluating module init
        #t)
      ;; These tests will pass only if `collect` can run, where `collect`
      ;; can run only if a single thread is active
-     (equal? (call-in-unknown-thread-1
-               (lambda (n) (collect 0) (+ n 1.0))
+     (equal? (call-in-unknown-thread-1 (lambda (n) (collect 0) (+ n 1.0))
                3.5
                1)
              4.5)
-     (equal? (call-in-unknown-thread-2
-               (lambda (n) (collect 0) (+ n 1.0))
+     (equal? (call-in-unknown-thread-2 (lambda (n) (collect 0) (+ n 1.0))
                3.5
                2)
              5.5)
-     (equal? (call-in-unknown-thread-3
-               (lambda (n) (collect 0) (+ n 1.0))
+     (equal? (call-in-unknown-thread-3 (lambda (n) (collect 0) (+ n 1.0))
                3.5
                3)
              6.5)
-     (equal? (call-in-unknown-thread-4
-               (lambda (n) (collect 0) (+ n 1.0))
+     (equal? (call-in-unknown-thread-4 (lambda (n) (collect 0) (+ n 1.0))
                3.5
                4)
              7.5)
@@ -79808,8 +79151,7 @@ evaluating module init
              (lambda ()
                (let loop ([i 10])
                  (unless (zero? i)
-                   (let ([spin (eval '(foreign-procedure
-                                        __collect_safe
+                   (let ([spin (eval '(foreign-procedure __collect_safe
                                         "spin_a_while"
                                         (int unsigned unsigned)
                                         unsigned))])
@@ -80649,8 +79991,7 @@ evaluating module init
            (error? (get-registry "bogus, is it not?"))
 
            (not (get-registry "hkey_current_user\\CSmat\\FratRat"))
-           (eq? (put-registry!
-                  "hkey_current_user\\CSmat\\FratRat"
+           (eq? (put-registry! "hkey_current_user\\CSmat\\FratRat"
                   "7233259")
                 (void))
            (equal? (get-registry "hkey_current_user\\CSmat\\FratRat")
@@ -80662,8 +80003,7 @@ evaluating module init
            (error? (remove-registry! "hkey_current_user\\CSmat\\FratRat"))
            (not (get-registry "hkey_current_user\\CSmat\\FratRat"))
 
-           (eq? (put-registry!
-                  "hkey_current_user\\CSmat\\North\\South"
+           (eq? (put-registry! "hkey_current_user\\CSmat\\North\\South"
                   "east")
                 (void))
            (equal? (get-registry "hkey_current_user\\CSmat\\North\\South")
@@ -82794,8 +82134,7 @@ edit>
      ; check whether tz offsets are set according to DST, assuming that
      ; DST always means a 1-hour shift
      (let ([delta (time-second
-                    (time-difference
-                      (date->time-utc $date-d5)
+                    (time-difference (date->time-utc $date-d5)
                       (date->time-utc $date-d6)))]
            [no-dst-delta (* 152 24 60 60)]
            ; 152 days
@@ -83100,8 +82439,7 @@ edit>
                                         (display (condition-message con))
                                         (display "an error has occurred"))
                                     'error))
-                              (raise (condition
-                                       (make-violation)
+                              (raise (condition (make-violation)
                                        (make-message-condition "I am an error")))))
              "default handler: #<compound condition>\n")
      (equal? ($capture (with-exception-handler
@@ -83129,8 +82467,7 @@ edit>
        (define $co-cond1?
          (condition-predicate (record-type-descriptor $co-&cond1)))
        (define $co-cond1-x
-         (condition-accessor
-           (record-type-descriptor $co-&cond1)
+         (condition-accessor (record-type-descriptor $co-&cond1)
            $co-real-cond1-x))
        (define $co-foo ($co-make-cond1 'foo))
        #t)
@@ -83144,8 +82481,7 @@ edit>
        (define $co-cond2?
          (condition-predicate (record-type-descriptor $co-&cond2)))
        (define $co-cond2-y
-         (condition-accessor
-           (record-type-descriptor $co-&cond2)
+         (condition-accessor (record-type-descriptor $co-&cond2)
            $co-real-cond2-y))
        (define $co-bar ($co-make-cond2 'bar))
        #t)

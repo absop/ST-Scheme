@@ -539,8 +539,7 @@
             (let ([clauses (build-clauses clauses)])
               (unless (equal? (list (libspec-interface libspec))
                         (map (lambda (clause)
-                               (nanopass-case
-                                 (Lsrc CaseLambdaClause)
+                               (nanopass-case (Lsrc CaseLambdaClause)
                                  clause
                                  [(clause (,x* ...) ,interface ,body) interface]))
                              clauses))
@@ -716,8 +715,7 @@
                ,foreign-name
                ,foreign-addr
                (,(map (lambda (x)
-                        (build-fp-specifier
-                          'foreign-procedure
+                        (build-fp-specifier 'foreign-procedure
                           'parameter
                           x
                           #f))
@@ -844,8 +842,7 @@
                           (if (eq? (car types) 'global)
                               (let ([x (build-lexical-var no-source var)])
                                 (values (cons x vars)
-                                  (cons (build-global-assignment
-                                          no-source
+                                  (cons (build-global-assignment no-source
                                           var
                                           (build-lexical-reference no-source x))
                                         sets)))
@@ -1019,15 +1016,13 @@
     (opaque #t)
     (sealed #t))
 
-  (define-record-type (variable-transformer
-                        $make-variable-transformer
+  (define-record-type (variable-transformer $make-variable-transformer
                         variable-transformer?)
     (fields (immutable procedure))
     (nongenerative #{g0 cz18zz6lfwg7mc7m-a})
     (sealed #t))
 
-  (define-record-type (compile-time-value
-                        $make-compile-time-value
+  (define-record-type (compile-time-value $make-compile-time-value
                         $compile-time-value?)
     (fields (immutable value $compile-time-value-value))
     (nongenerative #{g0 c0f3a5187l98t2ef-a})
@@ -1163,8 +1158,7 @@
 
   (define global-extend
     (lambda (type sym val)
-      ($sc-put-cte
-        (make-resolved-id sym (wrap-marks top-wrap) sym)
+      ($sc-put-cte (make-resolved-id sym (wrap-marks top-wrap) sym)
         (make-binding type val)
         '*system*)))
 
@@ -1360,8 +1354,7 @@
         (let ([ht (if (and (pair? chunks) (symbol-hashtable? (car chunks)))
                       (car chunks)
                       (let ([ht (make-hashtable symbol-hash eq?)])
-                        (extensible-ribcage-chunks-set!
-                          ribcage
+                        (extensible-ribcage-chunks-set! ribcage
                           (cons ht chunks))
                         ht))])
           (let ([a (symbol-hashtable-cell ht sym '())])
@@ -1430,8 +1423,7 @@
       (let ([id (if (null? new-marks)
                     id
                     (make-syntax-object (id-sym-name id)
-                      (make-wrap
-                        (join-marks new-marks (id-marks id))
+                      (make-wrap (join-marks new-marks (id-marks id))
                         (id-subst id))))])
         (let ((sym (id-sym-name id)))
           (update-global-substs! sym
@@ -1906,8 +1898,7 @@
                       [type (binding-type b)])
                  (case type
                    [(macro macro!)
-                    (syntax-type
-                      (chi-macro (binding-value b) e r w ae rib)
+                    (syntax-type (chi-macro (binding-value b) e r w ae rib)
                       r
                       empty-wrap
                       ae
@@ -1946,8 +1937,7 @@
          (let* ([b (lookup (id->label e w) r)] [type (binding-type b)])
            (case type
              [(macro macro!)
-              (syntax-type
-                (chi-macro (binding-value b) e r w ae rib)
+              (syntax-type (chi-macro (binding-value b) e r w ae rib)
                 r
                 empty-wrap
                 ae
@@ -1986,8 +1976,7 @@
                              (or (memq 'L rtem)
                                  (memq 'R rtem)
                                  (memq 'V rtem))))
-                    (cons (build-recompile-info
-                            (require-import)
+                    (cons (build-recompile-info (require-import)
                             (require-include))
                           code*)
                     code*))))))))
@@ -2037,8 +2026,7 @@
                                  (displaced-lexical-error id "define" #f))
                            (unless (or (top-ribcage-mutable? top-ribcage)
                                        (eq? (subset-mode) 'system))
-                                   (syntax-error
-                                     (source-wrap e w ae)
+                                   (syntax-error (source-wrap e w ae)
                                      "invalid definition in immutable environment"))
                            (let ([sym (id-sym-name id)])
                              (if (and (eq? (subset-mode) 'system)
@@ -2073,8 +2061,7 @@
                                    (extend-ribcage! ribcage id label)
                                    (unless (eq? (id->label id empty-wrap) label)
                                      ; must be an enclosing local-syntax binding for id
-                                     (syntax-error
-                                       (source-wrap e w ae)
+                                     (syntax-error (source-wrap e w ae)
                                        "definition not permitted"))
                                    (if meta?
                                        (let ([b (make-binding 'meta-variable label)])
@@ -2115,8 +2102,7 @@
                                  (displaced-lexical-error id "define" #f))
                            (unless (or (top-ribcage-mutable? top-ribcage)
                                        (eq? (subset-mode) 'system))
-                                   (syntax-error
-                                     (source-wrap e w ae)
+                                   (syntax-error (source-wrap e w ae)
                                      "invalid definition in immutable environment"))
                            (let-values ([(label bound-id)
                                          (top-id-bound-label
@@ -2126,8 +2112,7 @@
                              (extend-ribcage! ribcage id label)
                              (unless (eq? (id->label id empty-wrap) label)
                                ; must be an enclosing local-syntax binding for id
-                               (syntax-error
-                                 (source-wrap e w ae)
+                               (syntax-error (source-wrap e w ae)
                                  "definition not permitted"))
                              (fluid-let ([require-import
                                            (propagating-library-collector require-import #f)]
@@ -2140,8 +2125,7 @@
                                             exp)])
                                    (extend-rho! r label b (fxlognot 0))
                                    (parse (cdr frob*)
-                                     (cons (bodit-define-syntax
-                                             bound-id
+                                     (cons (bodit-define-syntax bound-id
                                              b
                                              exp
                                              (require-import)
@@ -2159,8 +2143,7 @@
                                 [prop-label (gen-global-label (id-sym-name id))])
                            (unless (or (top-ribcage-mutable? top-ribcage)
                                        (eq? (subset-mode) 'system))
-                                   (syntax-error
-                                     (source-wrap e w ae)
+                                   (syntax-error (source-wrap e w ae)
                                      "invalid definition in immutable environment"))
                            (unless id-label/pl
                              (syntax-error id
@@ -2177,8 +2160,7 @@
                              (extend-ribcage! ribcage id id-label/pl)
                              (unless (eq? (id->label id empty-wrap) id-label)
                                ; must be an enclosing local-syntax binding for id
-                               (syntax-error
-                                 (source-wrap e w ae)
+                               (syntax-error (source-wrap e w ae)
                                  "definition not permitted"))
                              (fluid-let ([require-import
                                            (propagating-library-collector require-import #f)]
@@ -2253,15 +2235,13 @@
                                  (displaced-lexical-error new-id "define" #f))
                            (unless (or (top-ribcage-mutable? top-ribcage)
                                        (eq? (subset-mode) 'system))
-                                   (syntax-error
-                                     (source-wrap e w ae)
+                                   (syntax-error (source-wrap e w ae)
                                      "invalid definition in immutable environment"))
                            (extend-ribcage! ribcage new-id label/pl)
                            (unless (eq? (id->label new-id empty-wrap)
                                         (label/pl->label label/pl))
                                    ; must be an enclosing local-syntax binding for new-id
-                                   (syntax-error
-                                     (source-wrap e w ae)
+                                   (syntax-error (source-wrap e w ae)
                                      "definition not permitted"))
                            (parse (cdr frob*)
                              (let ([id (make-resolved-id
@@ -2304,8 +2284,7 @@
                                        (parse-module e
                                          w
                                          ae
-                                         (make-wrap
-                                           (wrap-marks w)
+                                         (make-wrap (wrap-marks w)
                                            (cons new-ribcage
                                                  (wrap-subst w))))])
                            (when (displaced-lexical? id r)
@@ -2319,8 +2298,7 @@
                                        [require-invoke (library-collector #t)]
                                        [require-visit (library-collector #f)])
                              (let-values ([(code* iface-vector)
-                                           (chi-top-module
-                                             orig
+                                           (chi-top-module orig
                                              r
                                              top-ribcage
                                              new-ribcage
@@ -2364,8 +2342,7 @@
                                          (parse-library e
                                            w
                                            ae
-                                           (make-wrap
-                                             (wrap-marks w)
+                                           (make-wrap (wrap-marks w)
                                              (cons ribcage
                                                    (wrap-subst w))))])
                              (install-library library-path uid #f)
@@ -2398,8 +2375,7 @@
                                          (parse-program e
                                            w
                                            ae
-                                           (make-wrap
-                                             (wrap-marks w)
+                                           (make-wrap (wrap-marks w)
                                              (cons ribcage
                                                    (wrap-subst w))))])
                              (unless (or (top-ribcage-mutable? top-ribcage)
@@ -2483,8 +2459,7 @@
                                (fluid-let ([require-invoke (library-collector #f)]
                                            [require-visit (library-collector #f)])
                                  (residualize-invoke-requirements
-                                   (build-global-assignment
-                                     ae
+                                   (build-global-assignment ae
                                      label
                                      (not-at-top (chi rhs r empty-wrap)))))))
                            rcode*))]
@@ -2508,8 +2483,7 @@
                               (lambda ()
                                 ($sc-put-cte id binding top-token))
                               (lambda ()
-                                (residualize-invoke-requirements
-                                  import*
+                                (residualize-invoke-requirements import*
                                   visit*
                                   invoke*
                                   (build-checking-cte-install id rhs top-token)))))
@@ -2530,8 +2504,7 @@
                                   propval
                                   top-token))
                               (lambda ()
-                                (residualize-invoke-requirements
-                                  import*
+                                (residualize-invoke-requirements import*
                                   visit*
                                   invoke*
                                   (build-primcall no-source
@@ -2554,8 +2527,7 @@
                                     (lambda ()
                                       (residualize-import-requirements
                                         import*
-                                        (build-cte-install
-                                          mid
+                                        (build-cte-install mid
                                           (build-data no-source binding)
                                           top-token)))))))
                             (if (import-interface? imps)
@@ -2563,8 +2535,7 @@
                                   (make-binding 'do-import
                                     (import-interface-new-marks imps)))
                                 (do-top-import #f
-                                  (make-binding
-                                    'do-anonymous-import
+                                  (make-binding 'do-anonymous-import
                                     (list->vector imps)))))
                           rcode*))]
                 [alias (id)
@@ -2579,20 +2550,17 @@
                                   (build-data no-source binding)
                                   top-token))))
                           rcode*))]
-                [meta-define
-                  (id label binding expr import* visit* invoke*)
+                [meta-define (id label binding expr import* visit* invoke*)
                   (process-forms (cdr bf*)
                     (cons (ct-eval/residualize ctem
                             (lambda ()
                               ($sc-put-cte label binding #f))
                             (lambda ()
-                              (residualize-invoke-requirements
-                                import*
+                              (residualize-invoke-requirements import*
                                 visit*
                                 invoke*
                                 (build-sequence no-source
-                                  (list (build-cte-install
-                                          label
+                                  (list (build-cte-install label
                                           (build-data no-source binding)
                                           #f)
                                         (build-global-assignment no-source label expr))))))
@@ -2602,8 +2570,7 @@
                     (cons (ct-eval/residualize ctem
                             void
                             (lambda ()
-                              (residualize-invoke-requirements
-                                import*
+                              (residualize-invoke-requirements import*
                                 visit*
                                 invoke*
                                 expr)))
@@ -2658,8 +2625,7 @@
                            exports)
                          ht))))))
 
-  (define-datatype
-    (mbodit (immutable meta?) (mutable exported))
+  (define-datatype (mbodit (immutable meta?) (mutable exported))
     (define id label binding)
     (meta-define id label binding expr)
     (define-syntax id label binding rhs)
@@ -2940,8 +2906,7 @@
                            (libdesc-invoke-code-set! desc #f))]))
                 (unless (memp (lambda (x) (eq? (libreq-uid x) uid)) req*)
                         (set! req*
-                          (cons (make-libreq
-                                  (libdesc-path desc)
+                          (cons (make-libreq (libdesc-path desc)
                                   (libdesc-version desc)
                                   uid)
                                 req*))))]
@@ -3040,8 +3005,7 @@
                                   (syntax-error id
                                     "attempt to export assigned variable"))))
                         exports)
-                      (let ([bound-id (make-resolved-id
-                                        library-uid
+                      (let ([bound-id (make-resolved-id library-uid
                                         (wrap-marks top-wrap)
                                         library-uid)])
                         (let ([env* (map (lambda (x)
@@ -3098,14 +3062,12 @@
                                 (top-level-eval-hook
                                   (build-lambda no-source
                                     '()
-                                    (build-library-body
-                                      no-source
+                                    (build-library-body no-source
                                       dl*
                                       db*
                                       dv*
                                       de*
-                                      (build-sequence
-                                        no-source
+                                      (build-sequence no-source
                                         `(,@inits ,(build-void)))))))))
 
                           ; must be after last reference to r
@@ -3123,16 +3085,14 @@
                               ,(rt-eval/residualize rtem
                                  build-void
                                  (lambda ()
-                                   (make-library/rt-info
-                                     library-path
+                                   (make-library/rt-info library-path
                                      library-version
                                      library-uid
                                      invoke-req*)))
                               ,(ct-eval/residualize ctem
                                  build-void
                                  (lambda ()
-                                   (make-library/ct-info
-                                     library-path
+                                   (make-library/ct-info library-path
                                      library-version
                                      library-uid
                                      include-req*
@@ -3151,8 +3111,7 @@
                               ,(rt-eval/residualize rtem
                                  build-void
                                  (lambda ()
-                                   (build-top-library/rt
-                                     library-uid
+                                   (build-top-library/rt library-uid
                                      ; invoke code
                                      dl*
                                      db*
@@ -3162,8 +3121,7 @@
                               ,(ct-eval/residualize ctem
                                  build-void
                                  (lambda ()
-                                   (build-top-library/ct
-                                     library-uid
+                                   (build-top-library/ct library-uid
                                      ; visit-time exports (making them available for reset on visit-code failure)
                                      (fold-left
                                        (lambda (ls x)
@@ -3176,14 +3134,12 @@
                                        '()
                                        env*)
                                      ; setup code
-                                     `(,(build-cte-install
-                                          bound-id
+                                     `(,(build-cte-install bound-id
                                           (build-data no-source interface-binding)
                                           '*system*)
                                        ,@(if (null? env*)
                                              '()
-                                             `(,(build-sequence
-                                                  no-source
+                                             `(,(build-sequence no-source
                                                   (map (lambda (x)
                                                          (build-cte-install
                                                            (car x)
@@ -3201,8 +3157,7 @@
                           (if (mbodit-exported mb)
                               (process-bindings mb*
                                 (cons `(,label .
-                                         ,(make-binding
-                                            'library-global
+                                         ,(make-binding 'library-global
                                             (cons library-uid
                                                   label)))
                                       env*)
@@ -3240,8 +3195,7 @@
                               dl*
                               dv*
                               de*))]
-                      [define-property
-                        (id association propval propvalexpr)
+                      [define-property (id association propval propvalexpr)
                         (if (mbodit-exported mb)
                             (process-bindings mb*
                               (cons `(,(cdr association)
@@ -3300,8 +3254,7 @@
                                 (lambda ()
                                   ($sc-put-cte label binding #f)
                                   (vthunk))
-                                (cons* (build-cte-install
-                                         label
+                                (cons* (build-cte-install label
                                          (build-data no-source binding)
                                          #f)
                                        (build-global-assignment no-source label expr)
@@ -3369,8 +3322,7 @@
                           `(,(if (or (memq 'L rtem)
                                      (memq 'R rtem)
                                      (memq 'V rtem))
-                                 (build-recompile-info
-                                   (require-import)
+                                 (build-recompile-info (require-import)
                                    (require-include))
                                  (build-void no-source))
                             ,(rt-eval/residualize rtem
@@ -3386,8 +3338,7 @@
                                    (build-letrec* ae
                                      dv*
                                      de*
-                                     (build-sequence
-                                       no-source
+                                     (build-sequence no-source
                                        (append inits (list (build-void))))))))))))))
                 (let ([mb (car mb*)] [mb* (cdr mb*)])
                   (mbodit-case mb
@@ -3400,8 +3351,7 @@
                           (cons var dv*)
                           (cons val de*)))]
                     [module (id label iface module-mb*)
-                            (process-bindings
-                              (append module-mb* mb*)
+                            (process-bindings (append module-mb* mb*)
                               r
                               dv*
                               de*)]
@@ -3410,10 +3360,7 @@
                         r
                         (cons (build-lexical-var no-source 't)
                               dv*)
-                        (cons (make-frob
-                                #`(begin
-                                    #,(frob-e frob)
-                                    (void))
+                        (cons (make-frob #`(begin #,(frob-e frob) (void))
                                 (frob-meta? frob))
                               de*))]
                     [else (process-bindings mb* r dv* de*)]))))))))
@@ -3527,8 +3474,7 @@
                           dt*
                           dv*
                           de*))]
-                  [define-property
-                    (id association propval propvalexpr)
+                  [define-property (id association propval propvalexpr)
                     (if (mbodit-exported mb)
                         (process-bindings mb*
                           env*
@@ -3793,8 +3739,7 @@
                                     (mbodit-exported-set! mb #t)
                                     (mbodit-case mb
                                       [module (id label iface mb*)
-                                        (vector-for-each
-                                          mark-exported-id!
+                                        (vector-for-each mark-exported-id!
                                           (interface-exports iface))]
                                       [else (void)]))
                                   mb*)
@@ -3902,8 +3847,7 @@
                                   ; chi rhs after establishing lhs mapping to label to allow
                                   ; recursive meta definitions.
                                   (let ([exp (not-at-top (meta-chi rhs r w))])
-                                    (define-top-level-value-hook
-                                      label
+                                    (define-top-level-value-hook label
                                       (top-level-eval-hook exp))
                                     (parse (cdr body)
                                       (cons (mbodit-meta-define #t #f id label b exp)
@@ -3940,8 +3884,7 @@
                          (syntax-error (source-wrap e w ae)
                            "definition not permitted"))
                        (record-id! defn-table id label)
-                       (let ([b (defer-or-eval-transformer
-                                  'define-syntax
+                       (let ([b (defer-or-eval-transformer 'define-syntax
                                   top-level-eval-hook
                                   exp)])
                          (extend-rho! r label b (fxlognot 0))
@@ -3987,8 +3930,7 @@
                            (parse (cdr body)
                              (cons (mbodit-define-property #t
                                      #f
-                                     (make-resolved-id
-                                       (id-sym-name id)
+                                     (make-resolved-id (id-sym-name id)
                                        (id-marks id)
                                        id-label/pl)
                                      (cons key-id-label
@@ -4385,8 +4327,7 @@
 
   (define chi
     (lambda (e r w)
-      (let-values
-        ([(type value e w ae) (syntax-type e r w no-source #f)])
+      (let-values ([(type value e w ae) (syntax-type e r w no-source #f)])
         (chi-expr type value e r w ae))))
 
   (define chi-expr
@@ -4549,20 +4490,17 @@
                          (if (fx> (meta-level) 0)
                              (syntax-error (wrap #'id w)
                                "attempt to assign immutable variable")
-                             (displaced-lexical-error
-                               (source-wrap e w ae)
+                             (displaced-lexical-error (source-wrap e w ae)
                                "assign"
                                #f)))
                         ((meta-variable)
                          (if (fx> (meta-level) 0)
                              (build-global-assignment ae (binding-value b) val)
-                             (displaced-lexical-error
-                               (wrap (syntax id) w)
+                             (displaced-lexical-error (wrap (syntax id) w)
                                "assign"
                                #f)))
                         ((displaced-lexical)
-                         (displaced-lexical-error
-                           (wrap (syntax id) w)
+                         (displaced-lexical-error (wrap (syntax id) w)
                            "assign"
                            (binding-value b)))
                         (else
@@ -4586,8 +4524,7 @@
             ((syntax-object? x)
              (let ((w (syntax-object-wrap x)))
                (let ((ms (wrap-marks w)) (s (wrap-subst w)))
-                 (make-syntax-object
-                   (syntax-object-expression x)
+                 (make-syntax-object (syntax-object-expression x)
                    (if (and (pair? ms) (eq? (car ms) the-anti-mark))
                        (make-wrap (cdr ms) (cdr s))
                        (make-wrap (cons m ms)
@@ -4771,8 +4708,7 @@
                                     (extend-ribcage! ribcage id label)
                                     ; add meta bindings only to meta environment
                                     ; so visible only to next higher level and beyond
-                                    (define-top-level-value-hook
-                                      sym
+                                    (define-top-level-value-hook sym
                                       (top-level-eval-hook (meta-chi rhs r w)))
                                     (parse (cdr body)
                                       vars
@@ -4790,8 +4726,7 @@
                               (extend-ribcage! ribcage id label)
                               (unless (eq? (id->label id empty-wrap) label)
                                 ; must be an enclosing local-syntax binding for id
-                                (syntax-error
-                                  (source-wrap e w ae)
+                                (syntax-error (source-wrap e w ae)
                                   "definition not permitted"))
                               (parse (cdr body)
                                 (cons var vars)
@@ -5176,8 +5111,7 @@
         (vmap (if (null? new-marks)
                   (lambda (id) (cons id id))
                   (lambda (id)
-                    (let ([id (make-resolved-id
-                                (id-sym-name id)
+                    (let ([id (make-resolved-id (id-sym-name id)
                                 (join-marks new-marks (id-marks id))
                                 (resolved-id->label/pl id))])
                       (cons id id))))
@@ -5612,8 +5546,7 @@
          (and (id? #'name)
               (valid-bound-ids? (lambda-var-list #'args)))
          (values (wrap #'name w)
-           (source-wrap
-             (cons #'lambda (wrap #'(args e1 e2 ...) w))
+           (source-wrap (cons #'lambda (wrap #'(args e1 e2 ...) w))
              empty-wrap
              ae)
            empty-wrap
@@ -5711,8 +5644,7 @@
     (lambda (rec? defn? e r w ae)
       (define (go ids vals body*)
         (if (not (valid-bound-ids? ids))
-            (invalid-ids-error
-              (map (lambda (x) (wrap x w)) ids)
+            (invalid-ids-error (map (lambda (x) (wrap x w)) ids)
               (source-wrap e w ae)
               "keyword")
             (let ([labels (map (lambda (id)
@@ -6296,8 +6228,7 @@
                                                          src-path
                                                          obj-path))])
                                             ; with-source-path tries to open include-req if it has to search for it ...
-                                            (with-source-path
-                                              'include
+                                            (with-source-path 'include
                                               include-req
                                               (lambda (include-req)
                                                 ; ... but not if it is an absolute path or begins with "./" or "..", so we
@@ -6363,13 +6294,11 @@
                          (if (equal? obj-path src-path)
                              (with-message
                                "source path and object path are the same"
-                               (with-message
-                                 (format "loading ~s" src-path)
+                               (with-message (format "loading ~s" src-path)
                                  (do-load-library src-path 'load)))
                              (if (time>=? (file-modification-time obj-path)
                                           (file-modification-time src-path))
-                                 (with-message
-                                   "object file is not older"
+                                 (with-message "object file is not older"
                                    (with-message
                                      (format "loading object file ~s" obj-path)
                                      (do-load/reload/recompile-library
@@ -6377,8 +6306,7 @@
                                        obj-path
                                        (and (compile-imported-libraries)
                                             $compiler-is-loaded?))))
-                                 (with-message
-                                   "object file is older"
+                                 (with-message "object file is older"
                                    (if (and (compile-imported-libraries)
                                             $compiler-is-loaded?)
                                        (with-message
@@ -6530,8 +6458,7 @@
         (unless (symbol? caller) ($oops who "~s is not a symbol" caller))
         (guard (c [else ($oops who "invalid library name ~s" path)])
                (unless (list? path) (raise #f))
-               (let-values
-                 ([(path version uid) (create-library-uid path)])
+               (let-values ([(path version uid) (create-library-uid path)])
                  (void)))
         (unless (and (list? dir*) (andmap string-pair? dir*))
                 ($oops who "invalid path list ~s" dir*))
@@ -6903,8 +6830,7 @@
                         (with-new-who who
                           (lambda ()
                             (file-modification-time ifn))))
-                      (with-message
-                        "object file is not older"
+                      (with-message "object file is not older"
                         (let ([rcinfo* (guard (c [else
                                                   (with-message
                                                     (with-output-to-string
@@ -7139,8 +7065,7 @@
           (library-info-version linfo/ct)
           uid
           ofn
-          (make-ctdesc
-            (library/ct-info-include-req* linfo/ct)
+          (make-ctdesc (library/ct-info-include-req* linfo/ct)
             (library/ct-info-import-req* linfo/ct)
             (library/ct-info-visit-visit-req* linfo/ct)
             (library/ct-info-visit-req* linfo/ct)
@@ -7233,8 +7158,7 @@
                  [($module)
                   (let ([iface (get-indirect-interface (binding-value b))])
                     (when top-token
-                          (sc-put-module
-                            (interface-exports iface)
+                          (sc-put-module (interface-exports iface)
                             top-token
                             new-marks)))]
                  [else (syntax-error id "unknown module")])))]
@@ -7457,8 +7381,7 @@
              (syntax (var ...))
              label*)
            (let ([b* (map (lambda (x)
-                            (defer-or-eval-transformer
-                              'fluid-let-syntax
+                            (defer-or-eval-transformer 'fluid-let-syntax
                               local-eval-hook
                               (meta-chi x r w)))
                           (syntax (val ...)))])
@@ -7743,8 +7666,7 @@
             ((_ ((id val) ...) e1 e2 ...)
              (let ((ids (syntax (id ...))))
                (if (not (valid-bound-ids? ids))
-                   (invalid-ids-error
-                     (map (lambda (x) (wrap x w)) ids)
+                   (invalid-ids-error (map (lambda (x) (wrap x w)) ids)
                      (source-wrap e w ae)
                      "bound variable")
                    (let ([new-vars (map gen-var ids)])
@@ -7776,8 +7698,7 @@
                    (chi-body #'(e1 e2 ...) wrapped-form r w))
                  (begin
                    (unless (valid-bound-ids? ids)
-                     (invalid-ids-error
-                       (map (lambda (x) (wrap x w)) ids)
+                     (invalid-ids-error (map (lambda (x) (wrap x w)) ids)
                        wrapped-form
                        "bound variable"))
                    (let ([vars (map gen-var ids)])
@@ -7799,8 +7720,7 @@
                  (format "invalid bound variable ~s in"
                          (strip id empty-wrap))))
              (unless (valid-bound-ids? ids)
-               (invalid-ids-error
-                 (map (lambda (x) (wrap x w)) ids)
+               (invalid-ids-error (map (lambda (x) (wrap x w)) ids)
                  wrapped-form
                  "bound variable"))
              (let ([var (gen-var id)] [vars (map gen-var ids)])
@@ -7814,8 +7734,7 @@
                              (let ([x (chi-body #'(e1 e2 ...)
                                         wrapped-form
                                         r
-                                        (make-binding-wrap
-                                          ids
+                                        (make-binding-wrap ids
                                           labels
                                           (make-binding-wrap (list id) (list label) w)))])
                                (kill-local-label! label)
@@ -8061,8 +7980,7 @@
                                         (meta-level))])
                            (let ([body (chi #'template
                                             r
-                                            (make-binding-wrap
-                                              #'(pattern)
+                                            (make-binding-wrap #'(pattern)
                                               (list label)
                                               empty-wrap))])
                              (kill-local-label! label)
@@ -8111,8 +8029,7 @@
 
     (let ([marked-underscore
             (make-syntax-object '_
-              (make-wrap
-                (cons (new-mark) (wrap-marks top-wrap))
+              (make-wrap (cons (new-mark) (wrap-marks top-wrap))
                 (cons 'shift (wrap-subst top-wrap))))])
       (define syntax-rules-transformer
         (lambda (fender-okay?)
@@ -8345,12 +8262,10 @@
                 ($oops 'sc-expand "~s is not a string or #f" outfn)))
             (if (and (pair? x) (equal? (car x) noexpand))
                 (cadr x)
-                (let ((ctem (initial-mode-set
-                              (eval-syntax-expanders-when)
+                (let ((ctem (initial-mode-set (eval-syntax-expanders-when)
                               compiling-a-file))
                       (rtem (initial-mode-set '(load eval) compiling-a-file)))
-                  (let ([x (at-top (parameterize
-                                     ([meta-level 0])
+                  (let ([x (at-top (parameterize ([meta-level 0])
                                      (chi-top* x
                                        (env-wrap env)
                                        ctem
@@ -8365,8 +8280,7 @@
       (require-include path)))
 
   (set-who! $require-libraries
-    ($make-thread-parameter
-      (case-lambda [() '()] [(ls) (void)])
+    ($make-thread-parameter (case-lambda [() '()] [(ls) (void)])
       (lambda (x)
         (unless (procedure? x) ($oops who "~s is not a procedure" x))
         x)))
@@ -8735,8 +8649,7 @@
                              [(or (not b)
                                   (and (eq? (binding-type b) 'global)
                                        (eq? (binding-value b) label/pl)))
-                              ($set-top-level-value!
-                                new-label
+                              ($set-top-level-value! new-label
                                 (#3%$top-level-value label/pl))
                               ($sc-put-cte id
                                 (make-binding
@@ -8747,8 +8660,7 @@
                                 new-token)]
                              [(and mutable?
                                    (eq? (binding-type b) 'immutable-global))
-                              ($set-top-level-value!
-                                new-label
+                              ($set-top-level-value! new-label
                                 (#3%$top-level-value (binding-value b)))
                               ($sc-put-cte id
                                 (make-binding 'global new-label)
@@ -8805,8 +8717,7 @@
                                   #f)))))))
       (let ([env ($make-environment (gensym) #t)])
         (for-each
-          (eval-import
-            (datum->syntax #'* (cons 'environment import-spec*))
+          (eval-import (datum->syntax #'* (cons 'environment import-spec*))
             env)
           import-spec*)
         (top-ribcage-mutable?-set! (env-top-ribcage env) #f)
@@ -9198,8 +9109,7 @@
        (unless (identifier? (syntax tid))
          (syntax-error (syntax tid)
            "non-identifier with-implicit template"))
-       (with-syntax
-         ([id (datum->syntax (syntax tid) 'id)] ...)
+       (with-syntax ([id (datum->syntax (syntax tid) 'id)] ...)
          e1
          e2
          ...))]))
@@ -9870,8 +9780,7 @@
                                #'(lambda *tfmls body)
                                #`(case-lambda
                                    [*tfmls body]
-                                   [args #,($make-source-oops
-                                             #'let-values
+                                   [args #,($make-source-oops #'let-values
                                              "incorrect number of values from rhs"
                                              #'expr)]))))))]))))
     (syntax-case x ()
@@ -9910,8 +9819,7 @@
                      #`(lambda *fmls #,body)
                      #`(case-lambda
                          [*fmls #,body]
-                         [args #,($make-source-oops
-                                   #'let*-values
+                         [args #,($make-source-oops #'let*-values
                                    "incorrect number of values from rhs"
                                    #'expr)])))])))
     (syntax-case x ()
@@ -10340,8 +10248,7 @@
                        (if (eq? m '*)
                            (f (cdr ps) (cdr ts))
                            `((unless (#%$syntax-match? ',m ,(car ts))
-                               (assertion-violationf
-                                 ',(car keys)
+                               (assertion-violationf ',(car keys)
                                  "~s does not fit 'with' pattern ~s"
                                  ,(car ts)
                                  ',(car ps)))
@@ -10764,8 +10671,7 @@
                                         #'()
                                         #`((unless (record? x '#,ftd) (err ($moi) x)))) (x) (#,type)))
                              (with-syntax
-                               ([pred (datum->syntax
-                                        #'foreign-procedure
+                               ([pred (datum->syntax #'foreign-procedure
                                         ($fp-type->pred type))]
                                 [type (datum->syntax #'foreign-procedure type)])
                                #`(#,(if unsafe?
@@ -11165,8 +11071,7 @@
          (cond
            [(and (pair? info)
                  (eq? (car info) '#{record val9xfsq6oa12q4-a}))
-            (with-syntax
-              ([(rtd . stuff) (cdr info)])
+            (with-syntax ([(rtd . stuff) (cdr info)])
               #''rtd)]
            [(and (pair? info)
                  (eq? (car info) '#{r6rs-record vc7pishgmrh09qm-a}))
@@ -11187,8 +11092,7 @@
          (cond
            [(and (pair? info)
                  (eq? (car info) '#{record val9xfsq6oa12q4-a}))
-            (with-syntax
-              ([(rtd . stuff) (cdr info)])
+            (with-syntax ([(rtd . stuff) (cdr info)])
               #''rtd)]
            [(and (pair? info)
                  (eq? (car info) '#{r6rs-record vc7pishgmrh09qm-a}))
@@ -11318,8 +11222,7 @@
                                     (make-record-type prtd
                                       (record-name #'name)
                                       (syntax->datum (append f1s f2s)))
-                                    (make-record-type
-                                      (record-name #'name)
+                                    (make-record-type (record-name #'name)
                                       (syntax->datum (append f1s f2s))))])
                           (let* ([pids (with ([((pid ...) ...) #'((pid1 ... pid2 ...) ...)])
                                              #'(pid ... ...))]
@@ -11347,8 +11250,7 @@
                                   #`(begin
                                       (define-syntax name
                                         (make-compile-time-value
-                                          `(#{record val9xfsq6oa12q4-a}
-                                             rtd
+                                          `(#{record val9xfsq6oa12q4-a} rtd
                                              ,#'((pid1 ...) ... (id1 ...))
                                              ,#'((pid2 ...) ... (id2 ...))
                                              ,#'((((... ...) pinit) ...)
@@ -11703,8 +11605,7 @@
                              (record-type-descriptor?
                                (parent-desc-rtd %parent)))
                          (not %prtd-expr))
-                    (let ([rtd ($make-record-type-descriptor
-                                 #!base-rtd
+                    (let ([rtd ($make-record-type-descriptor #!base-rtd
                                  (syntax->datum name)
                                  (and %parent
                                       (parent-desc-rtd %parent))
@@ -11719,16 +11620,14 @@
                       (if %protocol
                           #`(begin
                               (define rcd
-                                ($make-record-constructor-descriptor
-                                  '#,rtd
+                                ($make-record-constructor-descriptor '#,rtd
                                   #,(quotify (and %parent
                                                   (parent-desc-rcd %parent)))
                                   #,%protocol
                                   'define-record-type))
                               (define-syntax #,name
                                 (make-compile-time-value
-                                  `(#{r6rs-record vc7pishgmrh09qm-a}
-                                     #,rtd
+                                  `(#{r6rs-record vc7pishgmrh09qm-a} #,rtd
                                      ,#'rcd
                                      #,%sealed?
                                      #,#t)))
@@ -11776,8 +11675,7 @@
                                 ...))))
                     #`(begin
                         (define rtd
-                          ($make-record-type-descriptor
-                            #!base-rtd
+                          ($make-record-type-descriptor #!base-rtd
                             '#,name
                             #,(if %parent
                                   (quotify (parent-desc-rtd %parent))
@@ -11788,8 +11686,7 @@
                             '#,(list->vector (map field-desc-spec %fields))
                             'define-record-type))
                         (define rcd
-                          ($make-record-constructor-descriptor
-                            rtd
+                          ($make-record-constructor-descriptor rtd
                             #,(if %parent
                                   (quotify (parent-desc-rcd %parent))
                                   %prcd-expr)
@@ -11797,8 +11694,7 @@
                             'define-record-type))
                         (define-syntax #,name
                           (make-compile-time-value
-                            `(#{r6rs-record vc7pishgmrh09qm-a}
-                               ,#'rtd
+                            `(#{r6rs-record vc7pishgmrh09qm-a} ,#'rtd
                                ,#'rcd
                                #,%sealed?
                                #,(and %protocol #t))))
@@ -12162,8 +12058,7 @@
          (fxlogor (if (enum-set-subset? (annotation-options debug) options)
                       (constant annotation-debug)
                       0)
-                  (if (enum-set-subset?
-                        (annotation-options profile)
+                  (if (enum-set-subset? (annotation-options profile)
                         options)
                       (constant annotation-profile)
                       0)))]))

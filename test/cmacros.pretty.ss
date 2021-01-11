@@ -677,8 +677,7 @@
                            unswept-cchar
                            unswept-value)
                          ...
-                         (last-unswept-name
-                           last-unswept-cname
+                         (last-unswept-name last-unswept-cname
                            last-unswept-cchar
                            last-unswept-value)))
           (unreal (unreal-name unreal-cname unreal-cchar unreal-value)
@@ -1278,8 +1277,7 @@
                       (map parse-field
                            #'(field1 field2 ...))])
          (with-values
-           (compute-field-offsets
-             'define-primitive-structure-disps
+           (compute-field-offsets 'define-primitive-structure-disps
              (- (constant typemod) (lookup-constant (datum type)))
              (map (lambda (type name len)
                     (list (filter-scheme-type type) name (or len 1)))
@@ -1614,8 +1612,7 @@
 
 (define-syntax bigit-type
   (lambda (x)
-    (with-syntax
-      ([type (datum->syntax #'* (filter-scheme-type 'bigit))])
+    (with-syntax ([type (datum->syntax #'* (filter-scheme-type 'bigit))])
       #''type)))
 
 (define-syntax string-char-type
@@ -1656,8 +1653,7 @@
     (syntax-case exp ()
       ((_k name (flag mask) ...)
        (with-syntax ((env (datum->syntax #'_k
-                            (mask-environment
-                              (datum (flag ...))
+                            (mask-environment (datum (flag ...))
                               (datum (mask ...))))))
          #'(define-syntax name
              (lambda (x)
@@ -1758,8 +1754,7 @@
                  (lambda (x)
                    (syntax-case x ()
                      ((kk x bool)
-                      (with-implicit
-                        (kk field-ref field-set!)
+                      (with-implicit (kk field-ref field-set!)
                         #'(let ((t x))
                             (field-set! t
                               (if bool
@@ -2307,8 +2302,7 @@
                               (syntax-case dtf (mutable immutable)
                                 [(immutable name) ls]
                                 [(mutable name)
-                                 (cons (construct-name
-                                         #'dtname
+                                 (cons (construct-name #'dtname
                                          #'dtname
                                          "-"
                                          #'name
@@ -2537,8 +2531,7 @@
                            ($sputprop xname
                              '*does-not-expect-headroom-libspec*
                              (make-libspec xname
-                               (make-libspec-flags
-                                 xindex-base
+                               (make-libspec-flags xindex-base
                                  #t
                                  xclosure?
                                  xinterface

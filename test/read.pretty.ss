@@ -576,8 +576,7 @@
                                [eof (xcall rd-eof-error "gensym")]
                                [(#\})
                                 (state-return atomic
-                                  (maybe-fold/intern
-                                    (rcb-ip rcb)
+                                  (maybe-fold/intern (rcb-ip rcb)
                                     tb
                                     n
                                     m
@@ -771,8 +770,7 @@
               (if (and (with-peek-char c (eof-object? c))
                        (valid-prefix? s
                          (map symbol->string
-                              (if ($port-flags-set?
-                                    (rcb-ip rcb)
+                              (if ($port-flags-set? (rcb-ip rcb)
                                     (constant port-flag-r6rs))
                                   (map car r6rs-char-names)
                                   (let-values
@@ -1419,8 +1417,7 @@
            (do ([fields (csv7:record-type-field-names d) (cdr fields)] [i 0 (+ i 1)])
                ((null? fields))
                (when (csv7:record-field-accessible? d i)
-                     (rd-fix-graph
-                       ((csv7:record-field-accessor d i) x)
+                     (rd-fix-graph ((csv7:record-field-accessor d i) x)
                        rd-field-set!
                        x
                        i))))]
@@ -1700,8 +1697,7 @@
                                          (delayed-record? (car vs))))
                                 (xvalues (make-delayed-record rtd vals expr-bfp fp)
                                          (and (rcb-a? rcb)
-                                              (make-delayed-record
-                                                rtd
+                                              (make-delayed-record rtd
                                                 stripped-vals
                                                 expr-bfp
                                                 fp)))
@@ -1996,8 +1992,7 @@
     (set-who! read
       (case-lambda
         [()
-         (with-values
-           (do-read who (current-input-port) #f #f #f)
+         (with-values (do-read who (current-input-port) #f #f #f)
            (lambda (x fp) x))]
         [(ip)
          (unless (and (input-port? ip) (textual-port? ip))
@@ -2020,8 +2015,7 @@
         (unless (or (not sfd) (source-file-descriptor? sfd))
                 ($oops who "~s is not a source-file descriptor" sfd))
         (lambda ()
-          (let-values
-            ([(x new-fp) (do-read who ip sfd #t fp)])
+          (let-values ([(x new-fp) (do-read who ip sfd #t fp)])
             (set! fp new-fp)
             x)))))
 
@@ -2283,8 +2277,7 @@
                       (string->symbol name/rtd)))
              =>
              (lambda (name)
-               (with-tc-mutex
-                 ($sputprop name 'record-reader rtd)
+               (with-tc-mutex ($sputprop name 'record-reader rtd)
                  ($sputprop (record-type-uid rtd) 'reader-record name)))]
             [(record-type-descriptor? name/rtd)
              ($oops 'record-reader
