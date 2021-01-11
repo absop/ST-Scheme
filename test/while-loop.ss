@@ -21,6 +21,16 @@
                (let continue ()
                  (when condition body ... (continue)))))))))))
 
+(define-syntax while
+  (lambda (x)
+    (syntax-case x ()
+      ((while condition body ...)
+       (with-implicit (break continue)
+         #'(call/cc
+             (lambda (break)
+               (let continue ()
+                 (when condition body ... (continue))))))))))
+
 #;#;#;
 (print-gensym #f)
 (pretty-print
