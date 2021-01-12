@@ -49,18 +49,24 @@ contexts:
     - match: \(
       scope: punctuation.brackets.scheme
       push: round-brackets
-    - match: \)
-      scope: invalid.deprecated.scheme
 
     - match: \[
       scope: punctuation.brackets.scheme
       push: square-brackets
+
+    - match: \#\{
+      scope: punctuation.definition.gensym.begin.scheme
+      push:
+          - meta_scope: variable.gensym.scheme
+          - match: \}
+            scope: punctuation.definition.gensym.end.scheme
+            pop: true
+          - include: match-type
+
+    - match: \)
+      scope: invalid.deprecated.scheme
     - match: \]
       scope: invalid.deprecated.scheme
-
-    - match: \{
-      scope: punctuation.brackets.scheme
-      push: braces
     - match: \}
       scope: invalid.deprecated.scheme
 
@@ -73,13 +79,6 @@ contexts:
 
   square-brackets:
     - match: \]
-      scope: punctuation.brackets.scheme
-      pop: true
-    - include: match-type
-    - include: sexpr
-
-  braces:
-    - match: \}
       scope: punctuation.brackets.scheme
       pop: true
     - include: match-type
