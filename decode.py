@@ -60,12 +60,12 @@ def is_line_comment(clause):
 def is_datum_comment(clause):
     return token_type(clause) == 'dc'
 
-prefix_regex = re.compile(r"['`](#\d*(?:vu8|vfx)?)")
+packet_regex = re.compile(r"(?:['`](?:#\d*(?:vu8|vfx)?)|(?:#\d*(?:vu8|vfx)))")
 syntax_regex = re.compile(r"['`#]+(?:['`#,@]+|\d*(?:vu8|vfx)?)|['`#,]['`#,@]*")
 
 # ...
 def is_datum_packet(packet):
-    if prefix_regex.match(packet[OPENING]):
+    if packet_regex.match(packet[OPENING]):
         for clause in packet[CLAUSES]:
             if isinstance(clause, list):
                 return False
