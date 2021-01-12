@@ -18,7 +18,7 @@ scope: source.scheme
 variables:
   boundary: '[\(\[\s\]\)]'
   aux_keyword: \.\.\.|#[,'`;]|['`](?!\(\))|(?<=[\(\[\s\]\)])_(?=[\(\[\s\]\)])|,@?|=>|(?<=[\(\[\s])\.(?=\s)
-  identifier: (?:[^({\[#"'`,;\s\]})]|\\[({\[#"'`,;\s\]})]|\\x\h*;)+
+  identifier: (?:[^({\[#"'`,;\\\s\]})]|\\[({\[#"'`,;\\\s\]})]|\\x\h*;)+
   syntax_keyword: \&assertion|\&condition|\&continuation|\&error|\&format|\&i/o|\&i/o-decoding|\&i/o-encoding|\&i/o-file-already-exists|\&i/o-file-does-not-exist|\&i/o-file-is-read-only|\&i/o-file-protection|\&i/o-filename|\&i/o-invalid-position|\&i/o-port|\&i/o-read|\&i/o-write|\&implementation-restriction|\&irritants|\&lexical|\&message|\&no-infinities|\&no-nans|\&non-continuable|\&serious|\&source|\&syntax|\&undefined|\&violation|\&warning|\&who|alias|begin|case|case-lambda|cond|do|else|eval-when|export|extend-syntax|for-each|guard|ieee|if|import|immutable|mutable|include|let-syntax|let\*-values|letrec-syntax|library|meta|meta-cond|module|quasiquote|quasisyntax|quote|r6rs:case|rec|record-case|scheme|set!|syntax|syntax-case|unless|when|with-implicit|with-syntax|type-descriptor|record-type-descriptor
   definitioner: define|define-enumeration|define-structure|define-syntax|define-ftype|define-top-level-syntax|define-record|define-property|define-top-level-value|define-condition-type|define-record-type|define-values
   operator_comparsion: (?:[<>]=?|=)
