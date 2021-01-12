@@ -229,7 +229,7 @@ contexts:
 
   define-record-type:
     - match: ({{identifier}})
-      scope: entity.name.function.scheme
+      scope: entity.name.type.scheme
       set: variable-list
 
   variable-list:
@@ -251,16 +251,16 @@ contexts:
     - match: (set!)\s+({{identifier}})
       captures:
         1: keyword.control.syntax.scheme
-        2: entity.name.function.scheme
+        2: entity.name.scheme
     - match: (set!)\s+({{aux_keyword}})\s*({{identifier}})
       captures:
         1: keyword.control.syntax.scheme
         2: keyword.control.aux.scheme
-        3: entity.name.function.scheme
+        3: entity.name.scheme
 
   define-name:
     - match: ({{identifier}})
-      scope: entity.name.function.scheme
+      scope: entity.name.scheme
       pop: true
     - match: \(
       scope: punctuation.brackets.scheme
