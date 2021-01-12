@@ -16,10 +16,10 @@ file_extensions:
 scope: source.scheme
 
 variables:
-  bound: '[\(\[\s\]\)]'
+  boundary: '[\(\[\s\]\)]'
   aux_keyword: \.\.\.|#[,'`;]|['`](?!\(\))|(?<=[\(\[\s\]\)])_(?=[\(\[\s\]\)])|,@?|=>|(?<=[\(\[\s])\.(?=\s)
-  identifier: '(\\x\h*;)*[[:digit:][:alpha:][:^ascii:]_\+\-\*/$%^&<=>~?!\.:@#]+|(\\x\h*;)+'
-  syntax_id: \&assertion|\&condition|\&continuation|\&error|\&format|\&i/o|\&i/o-decoding|\&i/o-encoding|\&i/o-file-already-exists|\&i/o-file-does-not-exist|\&i/o-file-is-read-only|\&i/o-file-protection|\&i/o-filename|\&i/o-invalid-position|\&i/o-port|\&i/o-read|\&i/o-write|\&implementation-restriction|\&irritants|\&lexical|\&message|\&no-infinities|\&no-nans|\&non-continuable|\&serious|\&source|\&syntax|\&undefined|\&violation|\&warning|\&who|alias|begin|case|case-lambda|cond|do|else|eval-when|export|extend-syntax|for-each|guard|ieee|if|import|immutable|mutable|include|let-syntax|let\*-values|letrec-syntax|library|meta|meta-cond|module|quasiquote|quasisyntax|quote|r6rs:case|rec|record-case|scheme|set!|syntax|syntax-case|unless|when|with-implicit|with-syntax|type-descriptor|record-type-descriptor
+  identifier: (?:[^({\[#"'`,;\s\]})]|\\[({\[#"'`,;\s\]})]|\\x\h*;)+
+  syntax_keyword: \&assertion|\&condition|\&continuation|\&error|\&format|\&i/o|\&i/o-decoding|\&i/o-encoding|\&i/o-file-already-exists|\&i/o-file-does-not-exist|\&i/o-file-is-read-only|\&i/o-file-protection|\&i/o-filename|\&i/o-invalid-position|\&i/o-port|\&i/o-read|\&i/o-write|\&implementation-restriction|\&irritants|\&lexical|\&message|\&no-infinities|\&no-nans|\&non-continuable|\&serious|\&source|\&syntax|\&undefined|\&violation|\&warning|\&who|alias|begin|case|case-lambda|cond|do|else|eval-when|export|extend-syntax|for-each|guard|ieee|if|import|immutable|mutable|include|let-syntax|let\*-values|letrec-syntax|library|meta|meta-cond|module|quasiquote|quasisyntax|quote|r6rs:case|rec|record-case|scheme|set!|syntax|syntax-case|unless|when|with-implicit|with-syntax|type-descriptor|record-type-descriptor
   definitioner: define|define-enumeration|define-structure|define-syntax|define-ftype|define-top-level-syntax|define-record|define-property|define-top-level-value|define-condition-type|define-record-type|define-values
   operator_comparsion: (?:[<>]=?|=)
   operator_arithmetic: (?:[+*/-]|1[+-])
@@ -136,7 +136,7 @@ contexts:
   #         pop: true
 
   quote:
-    - match: (['`])\s*(?:{{identifier}}|[{}])
+    - match: (['`])\s*({{identifier}}|[{}])
       captures:
         1: keyword.control.aux.quote.scheme
         2: variable.symbol.scheme
@@ -389,7 +389,7 @@ contexts:
 
 
   control:
-    - match: (?<=[\(\[])\s*({{syntax_id}})(?=[\(\[\s\]\)])
+    - match: (?<=[\(\[])\s*({{syntax_keyword}})(?=[\(\[\s\]\)])
       captures:
         1: keyword.control.scheme
     - include: aux-keywords
@@ -479,7 +479,7 @@ contexts:
       captures:
         1: prefix.constant.numeric.scheme
         5: constant.numeric.scheme
-    # - match: (#([bB]|[oO]|[dD]|[xX]|[0-9]*[rR])[^{{bound}}]*)(?=[\(\[\s\]\)])
+    # - match: (#([bB]|[oO]|[dD]|[xX]|[0-9]*[rR])[^{{boundary-chars}}]*)(?=[\(\[\s\]\)])
     #   scope: invalid.deprecated.scheme
 
   strings:
