@@ -19,7 +19,8 @@
        ($sputprop 'name 'no-unbound-warning #t)
        ...))))
 
-(disable-unbound-warning lookup-constant
+(disable-unbound-warning
+  lookup-constant
   flag->mask
   construct-name
   tc-field-list)
@@ -42,7 +43,7 @@
     (let ([flag (box #f)])
       (lambda (x)
         (unless (symbol? x)
-          ($oops 'lookup-constant "~s is not a symbol" x))
+                ($oops 'lookup-constant "~s is not a symbol" x))
         (let ([v (getprop x '*constant* flag)])
           (when (eq? v flag)
                 ($oops 'lookup-constant "undefined constant ~s" x))
@@ -164,8 +165,8 @@
                        (printf "Warning: empty machine-case clause for ~s~%"
                                machines)
                        #'($oops 'assembler
-                           "empty machine-case clause for ~s"
-                           '(a1 a2 ...)))
+                                "empty machine-case clause for ~s"
+                                '(a1 a2 ...)))
                      #'(begin e ...))
                  (loop (cdr x)))))
           (((else e1 e2 ...)) #'(begin e1 e2 ...)))))))
@@ -219,20 +220,20 @@
                          index-base
                          0)
                    ($oops 'make-libspec-flags
-                     "libspec base index exceeds ~s-bit bound: ~s"
-                     (constant libspec-index-base-size)
-                     index-base))
+                          "libspec base index exceeds ~s-bit bound: ~s"
+                          (constant libspec-index-base-size)
+                          index-base))
            (unless (fx>= (- (expt 2 (constant libspec-interface-size)) 1)
                          interface
                          0)
                    ($oops 'make-libspec-flags
-                     "libspec interface exceeds ~s-bit bound: ~s"
-                     (constant libspec-interface-size)
-                     interface))
+                          "libspec interface exceeds ~s-bit bound: ~s"
+                          (constant libspec-interface-size)
+                          interface))
            (when (and does-not-expect-headroom?
                       (not has-does-not-expect-headroom-version?))
                  ($oops 'make-libspec-flags
-                   "creating invalid version of libspec that does not expect headroom"))
+                        "creating invalid version of libspec that does not expect headroom"))
            (fxlogor (if does-not-expect-headroom?
                         (fxsll 1
                           (constant libspec-does-not-expect-headroom-index))
@@ -293,8 +294,8 @@
      (let ([libspec ?libspec])
        (unless (libspec-has-does-not-expect-headroom-version? libspec)
                ($oops #f
-                 "generating invalid libspec for ~s that does not expect headroom"
-                 (libspec-name libspec)))
+                      "generating invalid libspec for ~s that does not expect headroom"
+                      (libspec-name libspec)))
        (make-libspec (libspec-name libspec)
          (fxlogor (libspec-flags libspec)
            (fxsll 1 (constant libspec-does-not-expect-headroom-index)))))]))
@@ -367,7 +368,8 @@
              (define-constant machine-type-alist '((value . name) ...))
              (define-constant machine-type-limit (+ (max value ...) 1))))])))
 
-(define-machine-types any
+(define-machine-types
+  any
   i3le
   ti3le
   i3nt
@@ -508,7 +510,8 @@
 (define-constant fasl-fld-double 10)
 
 (define-constant fasl-header
-  (bytevector (constant fasl-type-header)
+  (bytevector
+    (constant fasl-type-header)
     0
     0
     0
@@ -670,41 +673,49 @@
     (syntax-case x (real swept unswept unreal)
       [(_ (real (swept (swept-name swept-cname swept-cchar swept-value)
                        ...
-                       (last-swept-name last-swept-cname
+                       (last-swept-name
+                         last-swept-cname
                          last-swept-cchar
                          last-swept-value))
-                (unswept (unswept-name unswept-cname
+                (unswept (unswept-name
+                           unswept-cname
                            unswept-cchar
                            unswept-value)
                          ...
-                         (last-unswept-name last-unswept-cname
+                         (last-unswept-name
+                           last-unswept-cname
                            last-unswept-cchar
                            last-unswept-value)))
           (unreal (unreal-name unreal-cname unreal-cchar unreal-value)
                   ...
-                  (last-unreal-name last-unreal-cname
+                  (last-unreal-name
+                    last-unreal-cname
                     last-unreal-cchar
                     last-unreal-value)))
        (with-syntax ([(real-name ...)
-                      #'(swept-name ...
+                      #'(swept-name
+                          ...
                           last-swept-name
                           unswept-name
                           ...
                           last-unswept-name)]
                      [(real-cname ...)
-                      #'(swept-cname ...
+                      #'(swept-cname
+                          ...
                           last-swept-cname
                           unswept-cname
                           ...
                           last-unswept-cname)]
                      [(real-cchar ...)
-                      #'(swept-cchar ...
+                      #'(swept-cchar
+                          ...
                           last-swept-cchar
                           unswept-cchar
                           ...
                           last-unswept-cchar)]
                      [(real-value ...)
-                      #'(swept-value ...
+                      #'(swept-value
+                          ...
                           last-swept-value
                           unswept-value
                           ...
@@ -712,17 +723,20 @@
          (with-syntax ([(name ...)
                         #'(real-name ... unreal-name ... last-unreal-name)]
                        [(cname ...)
-                        #'(real-cname ...
+                        #'(real-cname
+                            ...
                             unreal-cname
                             ...
                             last-unreal-cname)]
                        [(cchar ...)
-                        #'(real-cchar ...
+                        #'(real-cchar
+                            ...
                             unreal-cchar
                             ...
                             last-unreal-cchar)]
                        [(value ...)
-                        #'(real-value ...
+                        #'(real-value
+                            ...
                             unreal-value
                             ...
                             last-unreal-value)])
@@ -887,12 +901,10 @@
     [(32) 30]
     [else
      ($oops 'fixnum-bits
-       "expected reasonable native bit width (eg. 32 or 64)")]))
-(define-constant iptr
-  most-positive-fixnum
+            "expected reasonable native bit width (eg. 32 or 64)")]))
+(define-constant iptr most-positive-fixnum
   (- (expt 2 (- (constant fixnum-bits) 1)) 1))
-(define-constant iptr
-  most-negative-fixnum
+(define-constant iptr most-negative-fixnum
   (- (expt 2 (- (constant fixnum-bits) 1))))
 
 (define-constant fixnum-offset
@@ -902,8 +914,7 @@
 (define-constant string-length-offset 4)
 (define-constant string-immutable-flag
   (expt 2 (- (constant string-length-offset) 1)))
-(define-constant iptr
-  maximum-string-length
+(define-constant iptr maximum-string-length
   (min (- (expt 2
                 (fx- (constant ptr-bits) (constant string-length-offset)))
           1)
@@ -911,8 +922,7 @@
 
 (define-constant bignum-sign-offset 5)
 (define-constant bignum-length-offset 6)
-(define-constant iptr
-  maximum-bignum-length
+(define-constant iptr maximum-bignum-length
   (min (- (expt 2
                 (fx- (constant ptr-bits) (constant bignum-length-offset)))
           1)
@@ -924,8 +934,7 @@
 (define-constant vector-length-offset (fx+ 1 (constant fixnum-offset)))
 (define-constant vector-immutable-flag
   (expt 2 (- (constant vector-length-offset) 1)))
-(define-constant iptr
-  maximum-vector-length
+(define-constant iptr maximum-vector-length
   (min (- (expt 2
                 (fx- (constant ptr-bits) (constant vector-length-offset)))
           1)
@@ -935,8 +944,7 @@
 (define-constant fxvector-length-offset 4)
 (define-constant fxvector-immutable-flag
   (expt 2 (- (constant fxvector-length-offset) 1)))
-(define-constant iptr
-  maximum-fxvector-length
+(define-constant iptr maximum-fxvector-length
   (min (- (expt 2
                 (fx- (constant ptr-bits) (constant fxvector-length-offset)))
           1)
@@ -946,8 +954,7 @@
 (define-constant bytevector-length-offset 3)
 (define-constant bytevector-immutable-flag
   (expt 2 (- (constant bytevector-length-offset) 1)))
-(define-constant iptr
-  maximum-bytevector-length
+(define-constant iptr maximum-bytevector-length
   (min (- (expt 2
                 (fx- (constant ptr-bits)
                      (constant bytevector-length-offset)))
@@ -1299,31 +1306,27 @@
                       (if var? "header-size-" "size-")
                       #'name)])
                  #'(begin
-                     (putprop 'name
-                       '*fields*
-                       (map list
-                            '(field-name ...)
-                            '(field-type ...)
-                            '(field-disp ...)
-                            '(field-length ...)))
+                     (putprop 'name '*fields*
+                              (map list
+                                   '(field-name ...)
+                                   '(field-type ...)
+                                   '(field-disp ...)
+                                   '(field-length ...)))
                      (define-constant size-name size)
                      (define-constant name-field-disp field-disp)
                      ...))))))])))
 
-(define-primitive-structure-disps typed-object
-  type-typed-object
+(define-primitive-structure-disps typed-object type-typed-object
   ([iptr type]))
 
 (define-primitive-structure-disps pair type-pair ([ptr car] [ptr cdr]))
 
 (define-constant pair-shift (log2 (constant size-pair)))
 
-(define-primitive-structure-disps box
-  type-typed-object
+(define-primitive-structure-disps box type-typed-object
   ([iptr type] [ptr ref]))
 
-(define-primitive-structure-disps ephemeron
-  type-pair
+(define-primitive-structure-disps ephemeron type-pair
   ([ptr car]
    [ptr cdr]
    [ptr next]
@@ -1331,37 +1334,30 @@
    [ptr trigger-next]))
 ; `trigger-next` is similar, but for segment-specific lists
 
-(define-primitive-structure-disps tlc
-  type-typed-object
+(define-primitive-structure-disps tlc type-typed-object
   ([iptr type] [ptr keyval] [ptr ht] [ptr next]))
 
-(define-primitive-structure-disps symbol
-  type-symbol
+(define-primitive-structure-disps symbol type-symbol
   ([ptr value] [ptr pvalue] [ptr plist] [ptr name] [ptr splist] [ptr hash]))
 
-(define-primitive-structure-disps ratnum
-  type-typed-object
+(define-primitive-structure-disps ratnum type-typed-object
   ([iptr type] [ptr numerator] [ptr denominator]))
 
-(define-primitive-structure-disps vector
-  type-typed-object
+(define-primitive-structure-disps vector type-typed-object
   ([iptr type] [ptr data 0]))
 
-(define-primitive-structure-disps fxvector
-  type-typed-object
+(define-primitive-structure-disps fxvector type-typed-object
   ([iptr type] [ptr data 0]))
 
 (constant-case ptr-bits
   [(32)
-   (define-primitive-structure-disps bytevector
-     type-typed-object
+   (define-primitive-structure-disps bytevector type-typed-object
      ([iptr type]
       [ptr pad]
       ; pad needed to maintain double-word alignment for data
       [octet data 0]))]
   [(64)
-   (define-primitive-structure-disps bytevector
-     type-typed-object
+   (define-primitive-structure-disps bytevector type-typed-object
      ([iptr type] [octet data 0]))])
 
 ; WARNING: implementation of real-part and imag-part assumes that
@@ -1373,20 +1369,16 @@
 ; guarantees that the forwarding address will not overwrite
 ; real-part, which may share storage with a flonum that has
 ; not yet been forwarded.
-(define-primitive-structure-disps inexactnum
-  type-typed-object
+(define-primitive-structure-disps inexactnum type-typed-object
   ([iptr type] [iptr pad] [double real] [double imag]))
 
-(define-primitive-structure-disps exactnum
-  type-typed-object
+(define-primitive-structure-disps exactnum type-typed-object
   ([iptr type] [ptr real] [ptr imag]))
 
-(define-primitive-structure-disps closure
-  type-closure
+(define-primitive-structure-disps closure type-closure
   ([ptr code] [ptr data 0]))
 
-(define-primitive-structure-disps port
-  type-typed-object
+(define-primitive-structure-disps port type-typed-object
   ([iptr type]
    [ptr handler]
    [iptr ocount]
@@ -1398,16 +1390,13 @@
    [ptr info]
    [ptr name]))
 
-(define-primitive-structure-disps string
-  type-typed-object
+(define-primitive-structure-disps string type-typed-object
   ([iptr type] [string-char data 0]))
 
-(define-primitive-structure-disps bignum
-  type-typed-object
+(define-primitive-structure-disps bignum type-typed-object
   ([iptr type] [bigit data 0]))
 
-(define-primitive-structure-disps code
-  type-typed-object
+(define-primitive-structure-disps code type-typed-object
   ([iptr type]
    [iptr length]
    [ptr reloc]
@@ -1418,12 +1407,10 @@
    [ptr pinfo*]
    [octet data 0]))
 
-(define-primitive-structure-disps reloc-table
-  typemod
+(define-primitive-structure-disps reloc-table typemod
   ([iptr size] [ptr code] [uptr data 0]))
 
-(define-primitive-structure-disps continuation
-  type-closure
+(define-primitive-structure-disps continuation type-closure
   ([ptr code]
    [ptr stack]
    [iptr stack-length]
@@ -1432,19 +1419,16 @@
    [ptr return-address]
    [ptr winders]))
 
-(define-primitive-structure-disps record
-  type-typed-object
+(define-primitive-structure-disps record type-typed-object
   ([ptr type] [ptr data 0]))
 
-(define-primitive-structure-disps thread
-  type-typed-object
+(define-primitive-structure-disps thread type-typed-object
   ([ptr type] [uptr tc]))
 
 (define-constant virtual-register-count 16)
 
 ;;; make sure gc sweeps all ptrs
-(define-primitive-structure-disps tc
-  typemod
+(define-primitive-structure-disps tc typemod
   ([void* arg-regs (constant asm-arg-reg-max)]
    [void* ac0]
    [void* ac1]
@@ -1532,12 +1516,10 @@
 (define-constant unactivate-mode-deactivate 1)
 (define-constant unactivate-mode-destroy 2)
 
-(define-primitive-structure-disps rtd-counts
-  type-typed-object
+(define-primitive-structure-disps rtd-counts type-typed-object
   ([iptr type] [U64 timestamp] [uptr data 256]))
 
-(define-primitive-structure-disps record-type
-  type-typed-object
+(define-primitive-structure-disps record-type type-typed-object
   ([ptr type]
    [ptr parent]
    [ptr size]
@@ -1580,23 +1562,19 @@
                            0)
                        (f (cdr flds) (+ b (constant ptr-bytes)) (cdr e*)))])))))))
 
-(define-primitive-structure-disps guardian-entry
-  typemod
+(define-primitive-structure-disps guardian-entry typemod
   ([ptr obj] [ptr rep] [ptr tconc] [ptr next]))
 
 ;;; forwarding addresses are recorded with a single forward-marker
 ;;; bit pattern (a special Scheme object) followed by the forwarding
 ;;; address, a ptr to the forwarded object.
-(define-primitive-structure-disps forward
-  typemod
+(define-primitive-structure-disps forward typemod
   ([ptr marker] [ptr address]))
 
-(define-primitive-structure-disps cached-stack
-  typemod
+(define-primitive-structure-disps cached-stack typemod
   ([iptr size] [ptr link]))
 
-(define-primitive-structure-disps rp-header
-  typemod
+(define-primitive-structure-disps rp-header typemod
   ([ptr livemask]
    [uptr toplink]
    [iptr frame-size]
@@ -1769,7 +1747,8 @@
 (define-constant prelex-sticky-mask #b11111111)
 (define-constant prelex-is-mask #b1111111100000000)
 
-(define-flag-field prelex
+(define-flag-field
+  prelex
   flags
   ; sticky flags:
   (immutable-value #b0000000000000001)
@@ -1991,7 +1970,7 @@
            (fx- (constant char-data-offset) (constant fixnum-offset)))])
   (unless (fx= (fxlogand x (constant mask-fixnum)) (constant type-fixnum))
           ($oops 'cmacros.ss
-            "expected type-char/fixnum relationship does not hold")))
+                 "expected type-char/fixnum relationship does not hold")))
 
 (define-syntax with-tc-mutex
   (if-feature pthreads
@@ -2284,7 +2263,8 @@
                                (syntax-case spec (immutable mutable)
                                  [(immutable name) (identifier? #'name) #'name]
                                  [(mutable name) (identifier? #'name) #'name]
-                                 [_ (syntax-error spec
+                                 [_ (syntax-error
+                                      spec
                                       "invalid datatype field specifier")]))
                              #'(dtfield-spec ...))])
            (with-syntax ([dtname? (construct-name #'dtname #'dtname "?")]
@@ -2302,7 +2282,8 @@
                               (syntax-case dtf (mutable immutable)
                                 [(immutable name) ls]
                                 [(mutable name)
-                                 (cons (construct-name #'dtname
+                                 (cons (construct-name
+                                         #'dtname
                                          #'dtname
                                          "-"
                                          #'name
@@ -2343,7 +2324,9 @@
                                 ...)
                  (define-record-type dtname
                    (nongenerative dtuid)
-                   (fields (immutable variant) dtfield-spec ...))
+                   (fields (immutable variant)
+                           dtfield-spec
+                           ...))
                  (module (make-vname vname-field ...)
                    (define-record-type (vname make-vname vname?)
                      (nongenerative vuid)
@@ -2444,7 +2427,7 @@
        (string? (datum type))
        #`(let ([x arg])
            (unless (pred x)
-             ($oops who #,(format "~~s is not a ~a" (datum type)) x)))])))
+                   ($oops who #,(format "~~s is not a ~a" (datum type)) x)))])))
 (eval-when (load eval)
   (define-syntax lookup-libspec
     (lambda (x)
@@ -2463,7 +2446,8 @@
          (identifier? #'x)
          #`(quote #,(datum->syntax #'x
                       (let ((x (datum x)))
-                        (or ($sgetprop x
+                        (or ($sgetprop
+                              x
                               '*does-not-expect-headroom-libspec*
                               #f)
                             ($oops 'lookup-does-not-expect-headroom-libspec
@@ -2514,24 +2498,26 @@
                    #,(* (length (datum (index-base ...))) 2))
                  (for-each
                    (lambda (xname xindex-base
-                             xclosure?
-                             xinterface
-                             xerror?
-                             xhas-does-not-expect-headroom-version?)
-                     ($sputprop xname
-                       '*libspec*
+                                  xclosure?
+                                  xinterface
+                                  xerror?
+                                  xhas-does-not-expect-headroom-version?)
+                     ($sputprop xname '*libspec*
                        (make-libspec xname
-                         (make-libspec-flags xindex-base
+                         (make-libspec-flags
+                           xindex-base
                            #f
                            xclosure?
                            xinterface
                            xerror?
                            xhas-does-not-expect-headroom-version?)))
                      (when xhas-does-not-expect-headroom-version?
-                           ($sputprop xname
+                           ($sputprop
+                             xname
                              '*does-not-expect-headroom-libspec*
                              (make-libspec xname
-                               (make-libspec-flags xindex-base
+                               (make-libspec-flags
+                                 xindex-base
                                  #t
                                  xclosure?
                                  xinterface
@@ -2828,7 +2814,8 @@
                    '(x ...)
                    '(i ...))))))))
 
-    (declare-c-entries thread-context
+    (declare-c-entries
+      thread-context
       get-thread-context
       handle-apply-overflood
       handle-docall-error

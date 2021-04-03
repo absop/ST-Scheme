@@ -57,7 +57,9 @@
   ($make-thread-parameter 1
     (lambda (x)
       (unless (and (fixnum? x) (fx>= x 0))
-        ($oops 'pretty-standard-indent "~s is not a nonnegative fixnum" x))
+              ($oops 'pretty-standard-indent
+                     "~s is not a nonnegative fixnum"
+                     x))
       x)))
 
 (define pretty-maximum-lines
@@ -293,7 +295,8 @@
              [(meta)
               (let ([defn (cdr x)])
                 (let ([fmt (and (pair? defn) (get-pretty-format defn))])
-                  (mk-prty-list x
+                  (mk-prty-list
+                    x
                     lev
                     len
                     (if fmt `(meta . ,fmt) '(meta x #f ...)))))]
@@ -315,7 +318,8 @@
                (if (print-vector-length)
                    (make-prty '() 4 "#0vfx()")
                    (make-prty '() 3 "#vfx()"))
-               (let ([p (mk-prty-vector fxvector-length
+               (let ([p (mk-prty-vector
+                          fxvector-length
                           fxvector-ref
                           x
                           lev
@@ -332,7 +336,8 @@
                (if (print-vector-length)
                    (make-prty '() 4 "#0vu8()")
                    (make-prty '() 3 "#vu8()"))
-               (let ([p (mk-prty-vector bytevector-length
+               (let ([p (mk-prty-vector
+                          bytevector-length
                           bytevector-u8-ref
                           x
                           lev
@@ -353,7 +358,8 @@
              (make-prty 'x 3 "...")
              (mk-prty x (decr lev) len 'x))]
         [else
-         ($write-pretty-quick x
+         ($write-pretty-quick
+           x
            lev
            len
            graph-env
@@ -369,7 +375,8 @@
                                     ($last-new-vector-element vlen vref x)
                                     (fx- (vlen x) 1))])
                          (if (and len (fx<= len m))
-                             (mk-prty-vector-help vref
+                             (mk-prty-vector-help
+                               vref
                                x
                                (decr lev)
                                len
@@ -403,7 +410,8 @@
                     [(quote sym) '()]
                     [sym (symbol? #'sym) '()]
                     [_ fmt])]
-             [prtys (mk-prty-list-help x
+             [prtys (mk-prty-list-help
+                      x
                       lev
                       len
                       (syntax-case fmt (quote bracket)
@@ -477,7 +485,8 @@
              (let ([start col] [pps (+ pps 1)])
                (cond
                  [(eq? (car fmt) 'fill)
-                  (pretty-fill obj
+                  (pretty-fill
+                    obj
                     start
                     pps
                     oneline
@@ -510,8 +519,8 @@
             [else
              (pretty-help p (if (null? (cdr obj)) pps 0) #f)
              (unless (null? (cdr obj))
-               (pretty-tab (+ tab start) #f)
-               (f (cdr obj) #f))])))))
+                     (pretty-tab (+ tab start) #f)
+                     (f (cdr obj) #f))])))))
 
   (define pretty-generic
     (lambda (fcn args pps oneline)
@@ -665,14 +674,18 @@
 
   (set-who! pretty-file
     (lambda (in out)
-      (unless (string? in) ($oops who "~s is not a string" in))
-      (unless (string? out) ($oops who "~s is not a string" out))
-      (let ([i ($open-file-input-port who
+      (unless (string? in)
+              ($oops who "~s is not a string" in))
+      (unless (string? out)
+              ($oops who "~s is not a string" out))
+      (let ([i ($open-file-input-port
+                 who
                  in
                  (file-options)
                  (buffer-mode block)
                  (current-transcoder))]
-            [o ($open-file-output-port who
+            [o ($open-file-output-port
+                 who
                  out
                  (file-options replace)
                  (buffer-mode block)
@@ -692,11 +705,11 @@
     (case-lambda
       [(key)
        (unless (symbol? key)
-         ($oops 'pretty-format "~s is not a symbol" key))
+               ($oops 'pretty-format "~s is not a symbol" key))
        ($sgetprop key '*pretty-format* #f)]
       [(key fmt)
        (unless (symbol? key)
-         ($oops 'pretty-format "~s is not a symbol" key))
+               ($oops 'pretty-format "~s is not a symbol" key))
        (unless (or (eq? fmt #f) (fmt? fmt))
                ($oops 'pretty-format "invalid format ~s" fmt))
        (with-tc-mutex

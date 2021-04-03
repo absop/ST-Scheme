@@ -1037,19 +1037,13 @@
      (equal? (let ([f (letrec ([e? (lambda (x) (or (zero? x) (o? (- x 1))))]
                                [o? (lambda (x) (not (e? x)))])
                         (lambda (a b)
-                          (vector (e? a)
-                                  (e? b)
-                                  (o? a)
-                                  (o? b))))])
+                          (vector (e? a) (e? b) (o? a) (o? b))))])
                (f 3 0))
              '#(#f #t #t #f))
      (equal? (let ([f (letrec ([q? (lambda (x) (not (p? x)))]
                                [p? (lambda (x) (> x 0))])
                         (lambda (a b)
-                          (vector (p? a)
-                                  (p? b)
-                                  (q? a)
-                                  (q? b))))])
+                          (vector (p? a) (p? b) (q? a) (q? b))))])
                (f 3 -3))
              '#(#t #f #f #t))
      (equal? (let ([f (letrec* ([x 5] [y (+ x x)])
@@ -1224,7 +1218,8 @@
                    (g (lambda (x) (lambda () (values x 3)))))
                (cons 0 (call-with-values (g 2) (h 1))))
              '(0 1 2 3))
-     (eqv? (call-with-values (lambda () (apply values (make-list 1000 1)))
+     (eqv? (call-with-values
+             (lambda () (apply values (make-list 1000 1)))
              +)
            1000)
      (equal? (call-with-values (lambda () (if (random 10) 2 3)) list) '(2))
@@ -1417,7 +1412,8 @@
      (equal? (call-with-values (lambda () (($mrvs-a f1))) $mrvs-list)
              '(68 4 1 2 3))
 
-     (equal? (call-with-values (lambda () (($mrvs-a f1 f2 f3 f4)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-a f1 f2 f3 f4)))
                $mrvs-list)
              '(68 1 2 3 4))
 
@@ -1505,7 +1501,8 @@
              '(1 . 2))
 
      (equal? (let ([f (lambda ()
-                        (call-with-values (lambda () (values 1 2))
+                        (call-with-values
+                          (lambda () (values 1 2))
                           $mrvs-qcons))])
                (f))
              '(1 . 2))
@@ -1570,11 +1567,13 @@
                (call-with-values q (lambda (a b c) (list c b a))))
              '(10 8 7))
      (error? ; unbound variable $mrvs-foo
-       (call-with-values (lambda () (set! $mrvs-foo list) (values 3 2 1))
+       (call-with-values
+         (lambda () (set! $mrvs-foo list) (values 3 2 1))
          $mrvs-foo))
      (begin (define $mrvs-foo 17) #t)
      (error? ; attempt to call nonprocedure 17
-       (call-with-values (lambda () (set! $mrvs-foo list) (values 3 2 1))
+       (call-with-values
+         (lambda () (set! $mrvs-foo list) (values 3 2 1))
          $mrvs-foo))
      (begin (define $mrvs-foo vector) #t)
      (equal? (call-with-values
@@ -1713,7 +1712,8 @@
      (equal? (call-with-values (lambda () (($mrvs-c f1))) $mrvs-list)
              '(68 4 1 2 3))
 
-     (equal? (call-with-values (lambda () (($mrvs-c f1 f2 f3 f4)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-c f1 f2 f3 f4)))
                $mrvs-list)
              '(68 1 2 3 4))
 
@@ -3550,7 +3550,8 @@
                     (begin
                       (write 'y)
                       (+ (begin (write 'c) 5) (begin (write 'd) 7)))))))
-      '("xabycd-5" "xbaycd-5"
+      '("xabycd-5"
+         "xbaycd-5"
          "xabydc-5"
          "xbaydc-5"
          "ycdxab-5"
@@ -4399,7 +4400,8 @@
        ; saved properly in the foreign-procedure (for random-seed) =>
        ; dofretuns => get-room => (C)get_more_room call chain, 
        (let f ((n 0))
-         (unless (>= (random-seed) (expt 2 29)) (f (random 2))))
+         (unless (>= (random-seed) (expt 2 29))
+                 (f (random 2))))
        (let f ((n 1000))
          (unless (fx= n 0) (random-seed) (f (fx- n 1))))
        #t))
@@ -4888,7 +4890,8 @@
      (= (bitwise-arithmetic-shift-left 234 0) 234)
      (= (bitwise-arithmetic-shift-left 1 4) 16)
      (= (bitwise-arithmetic-shift-right 8 4) 0)
-     (= (bitwise-arithmetic-shift-right (bitwise-arithmetic-shift-left 4 4)
+     (= (bitwise-arithmetic-shift-right
+          (bitwise-arithmetic-shift-left 4 4)
           4)
         4)
      (= (bitwise-arithmetic-shift-left 1 100) (expt 2 100))
@@ -5115,7 +5118,8 @@
            #b101101011111011)
      (eqv? (bitwise-rotate-bit-field #b101101011101111 2 7 153)
            #b101101011111011)
-     (eqv? (bitwise-rotate-bit-field #b101101011101111
+     (eqv? (bitwise-rotate-bit-field
+             #b101101011101111
              2
              7
              (+ (expt 5 100) 3))
@@ -5193,19 +5197,23 @@
            #b101101011101111)
      (eqv? (bitwise-reverse-bit-field #b101101011101111 3 9)
            #b101101101110111)
-     (eqv? (bitwise-reverse-bit-field (greatest-fixnum)
+     (eqv? (bitwise-reverse-bit-field
+             (greatest-fixnum)
              0
              (fx- (fixnum-width) 1))
            (greatest-fixnum))
-     (eqv? (bitwise-reverse-bit-field (greatest-fixnum)
+     (eqv? (bitwise-reverse-bit-field
+             (greatest-fixnum)
              0
              (fx- (fixnum-width) 1))
            (greatest-fixnum))
-     (eqv? (bitwise-reverse-bit-field (least-fixnum)
+     (eqv? (bitwise-reverse-bit-field
+             (least-fixnum)
              0
              (fx- (fixnum-width) 1))
            (least-fixnum))
-     (eqv? (bitwise-reverse-bit-field (least-fixnum)
+     (eqv? (bitwise-reverse-bit-field
+             (least-fixnum)
              0
              (fx- (fixnum-width) 1))
            (least-fixnum))
@@ -5391,12 +5399,12 @@
        (let f ([i 10000])
          (let ([r (bitwise-arithmetic-shift-left (random n) (random 100))])
            (unless (fx= i 0)
-             (unless (and (= (bitwise-first-bit-set r)
-                             (slow-first-bit-set r))
-                          (= (bitwise-first-bit-set (- r))
-                             (slow-first-bit-set (- r))))
-                     (errorf #f "failed for ~s" r))
-             (f (fx- i 1)))))
+                   (unless (and (= (bitwise-first-bit-set r)
+                                   (slow-first-bit-set r))
+                                (= (bitwise-first-bit-set (- r))
+                                   (slow-first-bit-set (- r))))
+                           (errorf #f "failed for ~s" r))
+                   (f (fx- i 1)))))
        #t))
 
 (define quotient-remainder
@@ -5637,19 +5645,24 @@
            (- (expt 2 300) 167))
      (eqv? (bitwise-and (- 167 (expt 2 300)) (- 167 (expt 2 300)))
            (- 167 (expt 2 300)))
-     (eqv? (bitwise-and #x1111111111111111111111111
+     (eqv? (bitwise-and
+             #x1111111111111111111111111
              #x2222222222222222222222222)
            0)
-     (eqv? (bitwise-and #x1212121212121212121212121
+     (eqv? (bitwise-and
+             #x1212121212121212121212121
              #x2222222222222222222222222)
            #x202020202020202020202020)
-     (eqv? (bitwise-and #x-1212121212121212121212121
+     (eqv? (bitwise-and
+             #x-1212121212121212121212121
              #x-2222222222222222222222222)
            #x-3232323232323232323232322)
-     (eqv? (bitwise-and #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-and
+             #x-123456789abcdeffedca987654321
              #xfedca987654321123456789abcdef)
            #xECC8A9876543210010146088A8CCF)
-     (eqv? (bitwise-and #x2B225D27F49C1FED301B89103
+     (eqv? (bitwise-and
+             #x2B225D27F49C1FED301B89103
              #x-F2D8DD782236F835A1A50858)
            #x20025020749C106C200189100)
      (eqv? (bitwise-and #x2B225D27F49C1FED301B89103 #x1F366567) #x1300103)
@@ -5667,7 +5680,8 @@
      (eqv? (bitwise-and) -1)
      (eqv? (bitwise-and #x1212121212121212121212121)
            #x1212121212121212121212121)
-     (eqv? (bitwise-and #x1212121212121212121212121
+     (eqv? (bitwise-and
+             #x1212121212121212121212121
              #x2222222222222222222222222
              #x0103010301030103010301030)
            #x2000200020002000200020)
@@ -5703,23 +5717,28 @@
        '(bitwise-and (- 167 (expt 2 300)) (- 167 (expt 2 300)))
        (- 167 (expt 2 300)))
      (test-cp0-expansion eqv?
-       '(bitwise-and #x1111111111111111111111111
+       '(bitwise-and
+          #x1111111111111111111111111
           #x2222222222222222222222222)
        0)
      (test-cp0-expansion eqv?
-       '(bitwise-and #x1212121212121212121212121
+       '(bitwise-and
+          #x1212121212121212121212121
           #x2222222222222222222222222)
        #x202020202020202020202020)
      (test-cp0-expansion eqv?
-       '(bitwise-and #x-1212121212121212121212121
+       '(bitwise-and
+          #x-1212121212121212121212121
           #x-2222222222222222222222222)
        #x-3232323232323232323232322)
      (test-cp0-expansion eqv?
-       '(bitwise-and #x-123456789abcdeffedca987654321
+       '(bitwise-and
+          #x-123456789abcdeffedca987654321
           #xfedca987654321123456789abcdef)
        #xECC8A9876543210010146088A8CCF)
      (test-cp0-expansion eqv?
-       '(bitwise-and #x2B225D27F49C1FED301B89103
+       '(bitwise-and
+          #x2B225D27F49C1FED301B89103
           #x-F2D8DD782236F835A1A50858)
        #x20025020749C106C200189100)
      (test-cp0-expansion eqv?
@@ -5751,7 +5770,8 @@
        '(bitwise-and #x1212121212121212121212121)
        #x1212121212121212121212121)
      (test-cp0-expansion eqv?
-       '(bitwise-and #x1212121212121212121212121
+       '(bitwise-and
+          #x1212121212121212121212121
           #x2222222222222222222222222
           #x0103010301030103010301030)
        #x2000200020002000200020)
@@ -6117,28 +6137,36 @@
            (- (expt 2 300) 167))
      (eqv? (bitwise-ior (- 167 (expt 2 300)) (- 167 (expt 2 300)))
            (- 167 (expt 2 300)))
-     (eqv? (bitwise-ior #x1111111111111111111111111
+     (eqv? (bitwise-ior
+             #x1111111111111111111111111
              #x2222222222222222222222222)
            #x3333333333333333333333333)
-     (eqv? (bitwise-ior #x1212121212121212121212121
+     (eqv? (bitwise-ior
+             #x1212121212121212121212121
              #x2222222222222222222222222)
            #x3232323232323232323232323)
-     (eqv? (bitwise-ior #x-1212121212121212121212121
+     (eqv? (bitwise-ior
+             #x-1212121212121212121212121
              #x-2222222222222222222222222)
            #x-202020202020202020202021)
-     (eqv? (bitwise-ior #x-3333333333333333333333333
+     (eqv? (bitwise-ior
+             #x-3333333333333333333333333
              #x-2222222222222222222222222)
            #x-2222222222222222222222221)
-     (eqv? (bitwise-ior #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-ior
+             #x-123456789abcdeffedca987654321
              #x-fedca987654321123456789abcdef)
            #x-12140000000000122442181214121)
-     (eqv? (bitwise-ior #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-ior
+             #x-123456789abcdeffedca987654321
              #x-fedca987654321123456789abcdef)
            #x-12140000000000122442181214121)
-     (eqv? (bitwise-ior #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-ior
+             #x-123456789abcdeffedca987654321
              #xfedca987654321123456789abcdef)
            #x-2056789ABCDEEDC988806440201)
-     (eqv? (bitwise-ior #x2B225D27F49C1FED301B89103
+     (eqv? (bitwise-ior
+             #x2B225D27F49C1FED301B89103
              #x-F2D8DD782236F835A1A50858)
            #x-40D80D0022360024A0050855)
      (eqv? (bitwise-ior #x2B225D27F49C1FED301B89103 #x1F366567)
@@ -6156,7 +6184,8 @@
      (eqv? (bitwise-ior) 0)
      (eqv? (bitwise-ior #x1212121212121212121212121)
            #x1212121212121212121212121)
-     (eqv? (bitwise-ior #x1212121212121212121212121
+     (eqv? (bitwise-ior
+             #x1212121212121212121212121
              #x2222222222222222222222222
              #x0103010301030103010301030)
            #x3333333333333333333333333)
@@ -6188,35 +6217,43 @@
        '(bitwise-ior (- 167 (expt 2 300)) (- 167 (expt 2 300)))
        (- 167 (expt 2 300)))
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x1111111111111111111111111
+       '(bitwise-ior
+          #x1111111111111111111111111
           #x2222222222222222222222222)
        #x3333333333333333333333333)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x1212121212121212121212121
+       '(bitwise-ior
+          #x1212121212121212121212121
           #x2222222222222222222222222)
        #x3232323232323232323232323)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x-1212121212121212121212121
+       '(bitwise-ior
+          #x-1212121212121212121212121
           #x-2222222222222222222222222)
        #x-202020202020202020202021)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x-3333333333333333333333333
+       '(bitwise-ior
+          #x-3333333333333333333333333
           #x-2222222222222222222222222)
        #x-2222222222222222222222221)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x-123456789abcdeffedca987654321
+       '(bitwise-ior
+          #x-123456789abcdeffedca987654321
           #x-fedca987654321123456789abcdef)
        #x-12140000000000122442181214121)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x-123456789abcdeffedca987654321
+       '(bitwise-ior
+          #x-123456789abcdeffedca987654321
           #x-fedca987654321123456789abcdef)
        #x-12140000000000122442181214121)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x-123456789abcdeffedca987654321
+       '(bitwise-ior
+          #x-123456789abcdeffedca987654321
           #xfedca987654321123456789abcdef)
        #x-2056789ABCDEEDC988806440201)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x2B225D27F49C1FED301B89103
+       '(bitwise-ior
+          #x2B225D27F49C1FED301B89103
           #x-F2D8DD782236F835A1A50858)
        #x-40D80D0022360024A0050855)
      (test-cp0-expansion eqv?
@@ -6248,7 +6285,8 @@
        '(bitwise-ior #x1212121212121212121212121)
        #x1212121212121212121212121)
      (test-cp0-expansion eqv?
-       '(bitwise-ior #x1212121212121212121212121
+       '(bitwise-ior
+          #x1212121212121212121212121
           #x2222222222222222222222222
           #x0103010301030103010301030)
        #x3333333333333333333333333)
@@ -6466,28 +6504,36 @@
            #xFFFFFFFFFFFFFFFFFFFFFFF58)
      (eqv? (bitwise-xor (- (expt 2 300) 167) (- (expt 2 300) 167)) 0)
      (eqv? (bitwise-xor (- 167 (expt 2 300)) (- 167 (expt 2 300))) 0)
-     (eqv? (bitwise-xor #x1111111111111111111111111
+     (eqv? (bitwise-xor
+             #x1111111111111111111111111
              #x2222222222222222222222222)
            #x3333333333333333333333333)
-     (eqv? (bitwise-xor #x1212121212121212121212121
+     (eqv? (bitwise-xor
+             #x1212121212121212121212121
              #x2222222222222222222222222)
            #x3030303030303030303030303)
-     (eqv? (bitwise-xor #x-1212121212121212121212121
+     (eqv? (bitwise-xor
+             #x-1212121212121212121212121
              #x-2222222222222222222222222)
            #x3030303030303030303030301)
-     (eqv? (bitwise-xor #x-3333333333333333333333333
+     (eqv? (bitwise-xor
+             #x-3333333333333333333333333
              #x-2222222222222222222222222)
            #x1111111111111111111111113)
-     (eqv? (bitwise-xor #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-xor
+             #x-123456789abcdeffedca987654321
              #x-fedca987654321123456789abcdef)
            #xECE8FFFFFFFFFFEDD99CE0ECE8ECE)
-     (eqv? (bitwise-xor #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-xor
+             #x-123456789abcdeffedca987654321
              #x-fedca987654321123456789abcdef)
            #xECE8FFFFFFFFFFEDD99CE0ECE8ECE)
-     (eqv? (bitwise-xor #x-123456789abcdeffedca987654321
+     (eqv? (bitwise-xor
+             #x-123456789abcdeffedca987654321
              #xfedca987654321123456789abcdef)
            #x-ECE8FFFFFFFFFFEDD99CE0ECE8ED0)
-     (eqv? (bitwise-xor #x2B225D27F49C1FED301B89103
+     (eqv? (bitwise-xor
+             #x2B225D27F49C1FED301B89103
              #x-F2D8DD782236F835A1A50858)
            #x-240FD0F076BF706E6A01D9955)
      (eqv? (bitwise-xor #x2B225D27F49C1FED301B89103 #x1F366567)
@@ -6509,7 +6555,8 @@
      (eqv? (bitwise-xor) 0)
      (eqv? (bitwise-xor #x1212121212121212121212121)
            #x1212121212121212121212121)
-     (eqv? (bitwise-xor #x1212121212121212121212121
+     (eqv? (bitwise-xor
+             #x1212121212121212121212121
              #x2222222222222222222222222
              #x0103010301030103010301030)
            #x3133313331333133313331333)
@@ -6544,35 +6591,43 @@
        '(bitwise-xor (- 167 (expt 2 300)) (- 167 (expt 2 300)))
        0)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x1111111111111111111111111
+       '(bitwise-xor
+          #x1111111111111111111111111
           #x2222222222222222222222222)
        #x3333333333333333333333333)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x1212121212121212121212121
+       '(bitwise-xor
+          #x1212121212121212121212121
           #x2222222222222222222222222)
        #x3030303030303030303030303)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x-1212121212121212121212121
+       '(bitwise-xor
+          #x-1212121212121212121212121
           #x-2222222222222222222222222)
        #x3030303030303030303030301)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x-3333333333333333333333333
+       '(bitwise-xor
+          #x-3333333333333333333333333
           #x-2222222222222222222222222)
        #x1111111111111111111111113)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x-123456789abcdeffedca987654321
+       '(bitwise-xor
+          #x-123456789abcdeffedca987654321
           #x-fedca987654321123456789abcdef)
        #xECE8FFFFFFFFFFEDD99CE0ECE8ECE)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x-123456789abcdeffedca987654321
+       '(bitwise-xor
+          #x-123456789abcdeffedca987654321
           #x-fedca987654321123456789abcdef)
        #xECE8FFFFFFFFFFEDD99CE0ECE8ECE)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x-123456789abcdeffedca987654321
+       '(bitwise-xor
+          #x-123456789abcdeffedca987654321
           #xfedca987654321123456789abcdef)
        #x-ECE8FFFFFFFFFFEDD99CE0ECE8ED0)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x2B225D27F49C1FED301B89103
+       '(bitwise-xor
+          #x2B225D27F49C1FED301B89103
           #x-F2D8DD782236F835A1A50858)
        #x-240FD0F076BF706E6A01D9955)
      (test-cp0-expansion eqv?
@@ -6604,7 +6659,8 @@
        '(bitwise-xor #x1212121212121212121212121)
        #x1212121212121212121212121)
      (test-cp0-expansion eqv?
-       '(bitwise-xor #x1212121212121212121212121
+       '(bitwise-xor
+          #x1212121212121212121212121
           #x2222222222222222222222222
           #x0103010301030103010301030)
        #x3133313331333133313331333)
@@ -6708,45 +6764,46 @@
              (bitwise-and (bitwise-not ei1) ei3))))
        (let f ([i 10000])
          (unless (fx= i 0)
-           (let ([x (random n)]
-                 [y (random n)]
-                 [z (random n)]
-                 [kx (random (+ (most-positive-fixnum) 1))]
-                 [ky (random (+ (most-positive-fixnum) 1))]
-                 [kz (random (+ (most-positive-fixnum) 1))])
-             (unless (and (= (bitwise-if x y z) (r6rs-bitwise-if x y z))
-                          (= (bitwise-if (bitwise-not x) y z)
-                             (r6rs-bitwise-if (bitwise-not x) y z))
-                          (= (bitwise-if (bitwise-not x) y (bitwise-not z))
-                             (r6rs-bitwise-if (bitwise-not x)
-                               y
-                               (bitwise-not z)))
-                          (= (bitwise-if x (bitwise-not y) z)
-                             (r6rs-bitwise-if x (bitwise-not y) z))
-                          (= (bitwise-if (bitwise-not x)
-                               (bitwise-not y)
-                               (bitwise-not z))
-                             (r6rs-bitwise-if (bitwise-not x)
-                               (bitwise-not y)
-                               (bitwise-not z)))
-                          (= (bitwise-if x ky z) (r6rs-bitwise-if x ky z))
-                          (= (bitwise-if x ky kz) (r6rs-bitwise-if x ky kz))
-                          (= (bitwise-if kx y z) (r6rs-bitwise-if kx y z))
-                          (= (bitwise-if kx (bitwise-not y) z)
-                             (r6rs-bitwise-if kx (bitwise-not y) z))
-                          (= (bitwise-if (bitwise-not kx) (bitwise-not y) z)
-                             (r6rs-bitwise-if (bitwise-not kx)
-                               (bitwise-not y)
-                               z)))
-                     (errorf #f
-                       "failed for ~s, ~s, ~s, ~s, ~s, ~s"
-                       x
-                       y
-                       z
-                       kx
-                       ky
-                       kz)))
-           (f (fx- i 1))))
+                 (let ([x (random n)]
+                       [y (random n)]
+                       [z (random n)]
+                       [kx (random (+ (most-positive-fixnum) 1))]
+                       [ky (random (+ (most-positive-fixnum) 1))]
+                       [kz (random (+ (most-positive-fixnum) 1))])
+                   (unless (and (= (bitwise-if x y z) (r6rs-bitwise-if x y z))
+                                (= (bitwise-if (bitwise-not x) y z)
+                                   (r6rs-bitwise-if (bitwise-not x) y z))
+                                (= (bitwise-if (bitwise-not x) y (bitwise-not z))
+                                   (r6rs-bitwise-if
+                                     (bitwise-not x)
+                                     y
+                                     (bitwise-not z)))
+                                (= (bitwise-if x (bitwise-not y) z)
+                                   (r6rs-bitwise-if x (bitwise-not y) z))
+                                (= (bitwise-if (bitwise-not x)
+                                     (bitwise-not y)
+                                     (bitwise-not z))
+                                   (r6rs-bitwise-if (bitwise-not x)
+                                     (bitwise-not y)
+                                     (bitwise-not z)))
+                                (= (bitwise-if x ky z) (r6rs-bitwise-if x ky z))
+                                (= (bitwise-if x ky kz) (r6rs-bitwise-if x ky kz))
+                                (= (bitwise-if kx y z) (r6rs-bitwise-if kx y z))
+                                (= (bitwise-if kx (bitwise-not y) z)
+                                   (r6rs-bitwise-if kx (bitwise-not y) z))
+                                (= (bitwise-if (bitwise-not kx) (bitwise-not y) z)
+                                   (r6rs-bitwise-if (bitwise-not kx)
+                                     (bitwise-not y)
+                                     z)))
+                           (errorf #f
+                                   "failed for ~s, ~s, ~s, ~s, ~s, ~s"
+                                   x
+                                   y
+                                   z
+                                   kx
+                                   ky
+                                   kz)))
+                 (f (fx- i 1))))
        #t))
 
 (mat logbit?
@@ -6840,10 +6897,8 @@
 
      (equal? (let ([x (- 1 (ash 1 256))])
                (list (logbit? 0 x)
-                     (do ([i 1 (fx+ i 1)] [a #f (or a (logbit? i x))])
-                         ((fx= i 256) a))
-                     (do ([i 256 (fx+ i 1)] [a #t (and a (logbit? i x))])
-                         ((fx= i 1000) a))))
+                     (do ([i 1 (fx+ i 1)] [a #f (or a (logbit? i x))]) ((fx= i 256) a))
+                     (do ([i 256 (fx+ i 1)] [a #t (and a (logbit? i x))]) ((fx= i 1000) a))))
              '(#t #f #t))
      (equal? (let ([x (- (ash 1 256))])
                (list (do ([i 0 (fx+ i 1)] [a #f (or a (logbit? i x))])
@@ -6977,12 +7032,8 @@
 
      (equal? (let ([x (- 1 (ash 1 256))])
                (list (bitwise-bit-set? x 0)
-                     (do ([i 1 (fx+ i 1)]
-                          [a #f (or a (bitwise-bit-set? x i))])
-                         ((fx= i 256) a))
-                     (do ([i 256 (fx+ i 1)]
-                          [a #t (and a (bitwise-bit-set? x i))])
-                         ((fx= i 1000) a))))
+                     (do ([i 1 (fx+ i 1)] [a #f (or a (bitwise-bit-set? x i))]) ((fx= i 256) a))
+                     (do ([i 256 (fx+ i 1)] [a #t (and a (bitwise-bit-set? x i))]) ((fx= i 1000) a))))
              '(#t #f #t))
      (equal? (let ([x (- (ash 1 256))])
                (list (do ([i 0 (fx+ i 1)]
@@ -9076,7 +9127,8 @@
      (equal? (string-for-each + "" "" "") (void))
      (equal? (string-for-each + "" "" "" "" "") (void))
      (equal? (let ([ls '()])
-               (string-for-each (lambda (x) (set! ls (cons x ls)))
+               (string-for-each
+                 (lambda (x) (set! ls (cons x ls)))
                  "abcdef")
                ls)
              '(#\f #\e #\d #\c #\b #\a))
@@ -9094,7 +9146,8 @@
                (#\b . #\2)
                (#\a . #\3)))
      (equal? (let ([ls '()])
-               (string-for-each (lambda r (set! ls (cons r ls)))
+               (string-for-each
+                 (lambda r (set! ls (cons r ls)))
                  "abcdef"
                  "327654"
                  "!@#$%^")
@@ -9106,7 +9159,8 @@
                (#\b #\2 #\@)
                (#\a #\3 #\!)))
      (equal? (let ([ls '()])
-               (string-for-each (lambda r (set! ls (cons r ls)))
+               (string-for-each
+                 (lambda r (set! ls (cons r ls)))
                  "abcdef"
                  "327654"
                  "!@#$%^"
@@ -9506,7 +9560,8 @@
                (define q
                  (lambda args
                    (set! ls (cons (reverse args) ls))))
-               ($string-for-each-f1 q
+               ($string-for-each-f1
+                 q
                  "12345"
                  "fghij"
                  "klmno"
@@ -9622,7 +9677,8 @@
                      (let ([k 100000] [str "abc"])
                        (let ([n k] [m 0])
                          (define (f)
-                           (unless (fx= n 0) (string-for-each foo str)))
+                           (unless (fx= n 0)
+                                   (string-for-each foo str)))
                          (define (foo x)
                            (set! m (+ m 1))
                            (when (char=? x
@@ -9640,7 +9696,8 @@
                      (let ([k 100000] [str "abc"])
                        (let ([n k] [m 0])
                          (define (f)
-                           (unless (fx= n 0) (string-for-each foo str)))
+                           (unless (fx= n 0)
+                                   (string-for-each foo str)))
                          (define (foo x)
                            (set! m (+ m 1))
                            (when (char=? x
@@ -9717,16 +9774,16 @@
              (apply (lambda (c1 c2 c3 c4 c5)
                       (unless (and (string=? c2 (NFC c1) (NFC c2) (NFC c3))
                                    (string=? c4 (NFC c4) (NFC c5)))
-                        (parameterize ([print-unicode #f])
-                          (printf "test 1[~s] failed for ~s\n" testno x)
-                          (printf "       c2 = ~s\n" c2)
-                          (printf "  NFC(c1) = ~s\n" (NFC c1))
-                          (printf "  NFC(c2) = ~s\n" (NFC c2))
-                          (printf "  NFC(c3) = ~s\n" (NFC c3))
-                          (printf "       c4 = ~s\n" c4)
-                          (printf "  NFC(c4) = ~s\n" (NFC c4))
-                          (printf "  NFC(c5) = ~s\n" (NFC c5))
-                          (errorf #f "test 1 failed: see make output"))))
+                              (parameterize ([print-unicode #f])
+                                (printf "test 1[~s] failed for ~s\n" testno x)
+                                (printf "       c2 = ~s\n" c2)
+                                (printf "  NFC(c1) = ~s\n" (NFC c1))
+                                (printf "  NFC(c2) = ~s\n" (NFC c2))
+                                (printf "  NFC(c3) = ~s\n" (NFC c3))
+                                (printf "       c4 = ~s\n" c4)
+                                (printf "  NFC(c4) = ~s\n" (NFC c4))
+                                (printf "  NFC(c5) = ~s\n" (NFC c5))
+                                (errorf #f "test 1 failed: see make output"))))
                     x))
            data
            (enumerate data))
@@ -9737,16 +9794,16 @@
              (apply (lambda (c1 c2 c3 c4 c5)
                       (unless (and (string=? c3 (NFD c1) (NFD c2) (NFD c3))
                                    (string=? c5 (NFD c4) (NFD c5)))
-                        (parameterize ([print-unicode #f])
-                          (printf "test 2[~s] failed for ~s\n" testno x)
-                          (printf "       c3 = ~s\n" c3)
-                          (printf "  NFD(c1) = ~s\n" (NFD c1))
-                          (printf "  NFD(c2) = ~s\n" (NFD c2))
-                          (printf "  NFD(c3) = ~s\n" (NFD c3))
-                          (printf "       c5 = ~s\n" c5)
-                          (printf "  NFD(c4) = ~s\n" (NFD c4))
-                          (printf "  NFD(c5) = ~s\n" (NFD c5))
-                          (errorf #f "test 2 failed: see make output"))))
+                              (parameterize ([print-unicode #f])
+                                (printf "test 2[~s] failed for ~s\n" testno x)
+                                (printf "       c3 = ~s\n" c3)
+                                (printf "  NFD(c1) = ~s\n" (NFD c1))
+                                (printf "  NFD(c2) = ~s\n" (NFD c2))
+                                (printf "  NFD(c3) = ~s\n" (NFD c3))
+                                (printf "       c5 = ~s\n" c5)
+                                (printf "  NFD(c4) = ~s\n" (NFD c4))
+                                (printf "  NFD(c5) = ~s\n" (NFD c5))
+                                (errorf #f "test 2 failed: see make output"))))
                     x))
            data
            (enumerate data))
@@ -9761,15 +9818,15 @@
                                 (NFKC c3)
                                 (NFKC c4)
                                 (NFKC c5))
-                        (parameterize ([print-unicode #f])
-                          (printf "test 3[~s] failed for ~s\n" testno x)
-                          (printf "       c4 = ~s\n" c4)
-                          (printf "  NFKC(c1) = ~s\n" (NFKC c1))
-                          (printf "  NFKC(c2) = ~s\n" (NFKC c2))
-                          (printf "  NFKC(c3) = ~s\n" (NFKC c3))
-                          (printf "  NFKC(c4) = ~s\n" (NFKC c4))
-                          (printf "  NFKC(c5) = ~s\n" (NFKC c5))
-                          (errorf #f "test 3 failed: see make output"))))
+                              (parameterize ([print-unicode #f])
+                                (printf "test 3[~s] failed for ~s\n" testno x)
+                                (printf "       c4 = ~s\n" c4)
+                                (printf "  NFKC(c1) = ~s\n" (NFKC c1))
+                                (printf "  NFKC(c2) = ~s\n" (NFKC c2))
+                                (printf "  NFKC(c3) = ~s\n" (NFKC c3))
+                                (printf "  NFKC(c4) = ~s\n" (NFKC c4))
+                                (printf "  NFKC(c5) = ~s\n" (NFKC c5))
+                                (errorf #f "test 3 failed: see make output"))))
                     x))
            data
            (enumerate data))
@@ -9784,15 +9841,15 @@
                                 (NFKD c3)
                                 (NFKD c4)
                                 (NFKD c5))
-                        (parameterize ([print-unicode #f])
-                          (printf "test 4[~s] failed for ~s\n" testno x)
-                          (printf "       c5 = ~s\n" c5)
-                          (printf "  NFKD(c1) = ~s\n" (NFKD c1))
-                          (printf "  NFKD(c2) = ~s\n" (NFKD c2))
-                          (printf "  NFKD(c3) = ~s\n" (NFKD c3))
-                          (printf "  NFKD(c4) = ~s\n" (NFKD c4))
-                          (printf "  NFKD(c5) = ~s\n" (NFKD c5))
-                          (errorf #f "test 4 failed: see make output"))))
+                              (parameterize ([print-unicode #f])
+                                (printf "test 4[~s] failed for ~s\n" testno x)
+                                (printf "       c5 = ~s\n" c5)
+                                (printf "  NFKD(c1) = ~s\n" (NFKD c1))
+                                (printf "  NFKD(c2) = ~s\n" (NFKD c2))
+                                (printf "  NFKD(c3) = ~s\n" (NFKD c3))
+                                (printf "  NFKD(c4) = ~s\n" (NFKD c4))
+                                (printf "  NFKD(c5) = ~s\n" (NFKD c5))
+                                (errorf #f "test 4 failed: see make output"))))
                     x))
            data
            (enumerate data)))
@@ -9918,10 +9975,12 @@
      (test (string-ci=? "z" "a") #f)
      (test (string-ci=? "Stra\xDF;e" "Strasse") #t)
      (test (string-ci=? "Stra\xDF;e" "STRASSE") #t)
-     (test (string-ci=? "\x39E;\x391;\x39F;\x3A3;"
+     (test (string-ci=?
+             "\x39E;\x391;\x39F;\x3A3;"
              "\x3BE;\x3B1;\x3BF;\x3C2;")
            #t)
-     (test (string-ci=? "\x39E;\x391;\x39F;\x3A3;"
+     (test (string-ci=?
+             "\x39E;\x391;\x39F;\x3A3;"
              "\x3BE;\x3B1;\x3BF;\x3C3;")
            #t)
      (test (string-ci<=? "a" "Z") #t)
@@ -10596,12 +10655,9 @@
      (equal? (string-titlecase "ciao12") "Ciao12")
      (equal? (string-titlecase "ciao123") "Ciao123")
      (equal? (string-titlecase "ciao123 futzmo") "Ciao123 Futzmo")
-     (equal? (string-titlecase "ciao123 futzmo.  goobar")
-             "Ciao123 Futzmo.  Goobar")
-     (equal? (string-titlecase "ciao123 futzmo.  goob33ar")
-             "Ciao123 Futzmo.  Goob33ar")
-     (equal? (string-titlecase "ciao123 futzmo.  33ar")
-             "Ciao123 Futzmo.  33Ar"))
+     (equal? (string-titlecase "ciao123 futzmo.  goobar") "Ciao123 Futzmo.  Goobar")
+     (equal? (string-titlecase "ciao123 futzmo.  goob33ar") "Ciao123 Futzmo.  Goob33ar")
+     (equal? (string-titlecase "ciao123 futzmo.  33ar") "Ciao123 Futzmo.  33Ar"))
 ;;; 5-5.ms
 ;;; Copyright 1984-2017 Cisco Systems, Inc.
 ;;; 
@@ -11300,12 +11356,8 @@
      (let ([s ""]) (substring-fill! s 0 0 #\a) (eqv? s ""))
      (let ([s (string-copy "ABCDE")])
        (and (begin (substring-fill! s 0 0 #\$) (equal? s "ABCDE"))
-            (begin
-              (substring-fill! s 2 5 #\$)
-              (equal? s "AB$$$"))
-            (begin
-              (substring-fill! s 0 3 #\&)
-              (equal? s "&&&$$")))))
+            (begin (substring-fill! s 2 5 #\$) (equal? s "AB$$$"))
+            (begin (substring-fill! s 0 3 #\&) (equal? s "&&&$$")))))
 
 (mat list->string
      (error? (list->string))
@@ -11651,31 +11703,31 @@
              (foo a b c d e f g h i j k l m n o p q r s t u v w x y z))))
        #t)
      (equal? ($bv-f 101
-               -102
-               103
-               -104
-               -105
-               106
-               107
-               -108
-               -109
-               -110
-               111
-               112
-               113
-               114
-               -115
-               -116
-               -117
-               -118
-               119
-               120
-               121
-               -122
-               -123
-               124
-               -125
-               126)
+                    -102
+                    103
+                    -104
+                    -105
+                    106
+                    107
+                    -108
+                    -109
+                    -110
+                    111
+                    112
+                    113
+                    114
+                    -115
+                    -116
+                    -117
+                    -118
+                    119
+                    120
+                    121
+                    -122
+                    -123
+                    124
+                    -125
+                    126)
        '(#vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
               140 139 138 119 120 121 134 133 124 131 126)
          #vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
@@ -11749,18 +11801,18 @@
                   126))))
        #t)
      (equal? ($bv-g 101
-               103
-               -105
-               107
-               -109
-               111
-               113
-               -115
-               -117
-               119
-               121
-               -123
-               -125)
+                    103
+                    -105
+                    107
+                    -109
+                    111
+                    113
+                    -115
+                    -117
+                    119
+                    121
+                    -123
+                    -125)
        '(#vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
               140 139 138 119 120 121 134 133 124 131 126)
          #vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
@@ -11834,18 +11886,18 @@
                   z))))
        #t)
      (equal? ($bv-h -102
-               -104
-               106
-               -108
-               -110
-               112
-               114
-               -116
-               -118
-               120
-               -122
-               124
-               126)
+                    -104
+                    106
+                    -108
+                    -110
+                    112
+                    114
+                    -116
+                    -118
+                    120
+                    -122
+                    124
+                    126)
        '(#vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
               140 139 138 119 120 121 134 133 124 131 126)
          #vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
@@ -11933,18 +11985,18 @@
                   z))))
        #t)
      (equal? ($bv-i -102
-               -104
-               106
-               -108
-               -110
-               112
-               114
-               -116
-               -118
-               120
-               -122
-               124
-               126)
+                    -104
+                    106
+                    -108
+                    -110
+                    112
+                    114
+                    -116
+                    -118
+                    120
+                    -122
+                    124
+                    126)
        '(#vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
               140 139 138 119 120 121 134 133 124 131 126)
          #vu8(101 154 103 152 151 106 107 148 147 146 111 112 113 114 141
@@ -12260,12 +12312,8 @@
 
      (let ((v (bytevector 3 4 5)))
        (and (begin (bytevector-s8-set! v 0 33) (equal? v #vu8(33 4 5)))
-            (begin
-              (bytevector-s8-set! v 1 -44)
-              (equal? v #vu8(33 212 5)))
-            (begin
-              (bytevector-s8-set! v 2 55)
-              (equal? v #vu8(33 212 55)))))
+            (begin (bytevector-s8-set! v 1 -44) (equal? v #vu8(33 212 5)))
+            (begin (bytevector-s8-set! v 2 55) (equal? v #vu8(33 212 55)))))
      (let ([v (bytevector 3 4 5)])
        (do ([n -128 (fx+ n 1)])
            ((fx= n 128) #t)
@@ -12305,12 +12353,8 @@
 
      (let ((v (bytevector 3 4 5)))
        (and (begin (bytevector-u8-set! v 0 33) (equal? v #vu8(33 4 5)))
-            (begin
-              (bytevector-u8-set! v 1 128)
-              (equal? v #vu8(33 128 5)))
-            (begin
-              (bytevector-u8-set! v 2 55)
-              (equal? v #vu8(33 128 55)))))
+            (begin (bytevector-u8-set! v 1 128) (equal? v #vu8(33 128 5)))
+            (begin (bytevector-u8-set! v 2 55) (equal? v #vu8(33 128 55)))))
      (let ([v (bytevector 3 4 5)])
        (do ([n 0 (fx+ n 1)])
            ((fx= n 256) #t)
@@ -12320,7 +12364,8 @@
                         (eqv? (bytevector-u8-ref v 2) 5))
                    (errorf #f "wrong value for ~s" n)))))
 
-(module (big-endian->signed little-endian->signed
+(module (big-endian->signed
+          little-endian->signed
           native->signed
           big-endian->unsigned
           little-endian->unsigned
@@ -12344,9 +12389,8 @@
       [(big) (apply big-endian->signed args)]
       [(little) (apply little-endian->signed args)]
       [else
-       (errorf 'native->signed
-         "unhandled endianness ~s"
-         (native-endianness))]))
+       (errorf 'native->signed "unhandled endianness ~s"
+               (native-endianness))]))
 
   (define (big-endian->unsigned . args)
     (let f ([args (cdr args)] [a (car args)])
@@ -12365,9 +12409,8 @@
       [(big) (apply big-endian->unsigned args)]
       [(little) (apply little-endian->unsigned args)]
       [else
-       (errorf 'native->unsigned
-         "unhandled endianness ~s"
-         (native-endianness))])))
+       (errorf 'native->unsigned "unhandled endianness ~s"
+               (native-endianness))])))
 
 (mat bytevector-s16-native-ref
      ; wrong argument count
@@ -12743,7 +12786,8 @@
          ((fx= i (expt 2 8)) #t)
          (do ([j 0 (fx+ j 1)])
              ((fx= j (expt 2 8)))
-             (unless (eqv? (bytevector-s16-ref (bytevector i j)
+             (unless (eqv? (bytevector-s16-ref
+                             (bytevector i j)
                              0
                              (native-endianness))
                            (native->signed i j))
@@ -12826,7 +12870,8 @@
              (unless (eqv? (bytevector-s16-ref (bytevector 0 i j) 1 'big)
                            (big-endian->signed i j))
                      (errorf #f "failed for ~s and ~s (big)" i j))
-             (unless (eqv? (bytevector-s16-ref (bytevector 0 i j)
+             (unless (eqv? (bytevector-s16-ref
+                             (bytevector 0 i j)
                              1
                              (native-endianness))
                            (native->signed i j))
@@ -12874,7 +12919,8 @@
          ((fx= i (expt 2 8)) #t)
          (do ([j 0 (fx+ j 1)])
              ((fx= j (expt 2 8)))
-             (unless (eqv? (bytevector-u16-ref (bytevector i j)
+             (unless (eqv? (bytevector-u16-ref
+                             (bytevector i j)
                              0
                              (native-endianness))
                            (native->unsigned i j))
@@ -12957,7 +13003,8 @@
              (unless (eqv? (bytevector-u16-ref (bytevector 0 i j) 1 'big)
                            (big-endian->unsigned i j))
                      (errorf #f "failed for ~s and ~s (big)" i j))
-             (unless (eqv? (bytevector-u16-ref (bytevector 0 i j)
+             (unless (eqv? (bytevector-u16-ref
+                             (bytevector 0 i j)
                              1
                              (native-endianness))
                            (native->unsigned i j))
@@ -13011,7 +13058,8 @@
             (equal? $v1
               #vu8(#xff #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (native->signed #x80 #x00)
          (native-endianness))
@@ -13019,7 +13067,8 @@
             (equal? $v1
               #vu8(#x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (native->signed #x00 #x80)
          (native-endianness))
@@ -13027,7 +13076,8 @@
             (equal? $v1
               #vu8(#x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (native->signed #x7f #xff)
          (native-endianness))
@@ -13035,7 +13085,8 @@
             (equal? $v1
               #vu8(#x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (native->signed #xff #x7f)
          (native-endianness))
@@ -13043,7 +13094,8 @@
             (equal? $v1
               #vu8(#xff #x7f #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (native->signed #xff #xff)
          (native-endianness))
@@ -13056,7 +13108,8 @@
             (equal? $v1
               #vu8(0 0 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          2
          (native->signed #xf3 #x45)
          (native-endianness))
@@ -13064,7 +13117,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          4
          (native->signed #x23 #xc7)
          (native-endianness))
@@ -13072,7 +13126,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          6
          (native->signed #x3a #x1c)
          (native-endianness))
@@ -13080,7 +13135,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #x3a #x1c #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          8
          (native->signed #xe3 #xd7)
          (native-endianness))
@@ -13093,7 +13149,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-s16-set! v
+               (bytevector-s16-set!
+                 v
                  0
                  (native->signed i j)
                  (native-endianness))
@@ -13113,7 +13170,8 @@
             (equal? $v1
               #vu8(#xff #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (little-endian->signed #x80 #x00)
          'little)
@@ -13121,7 +13179,8 @@
             (equal? $v1
               #vu8(#x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (little-endian->signed #x00 #x80)
          'little)
@@ -13129,7 +13188,8 @@
             (equal? $v1
               #vu8(#x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (little-endian->signed #x7f #xff)
          'little)
@@ -13137,7 +13197,8 @@
             (equal? $v1
               #vu8(#x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (little-endian->signed #xff #x7f)
          'little)
@@ -13145,7 +13206,8 @@
             (equal? $v1
               #vu8(#xff #x7f #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          0
          (little-endian->signed #xff #xff)
          'little)
@@ -13158,7 +13220,8 @@
             (equal? $v1
               #vu8(0 0 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          2
          (little-endian->signed #xf3 #x45)
          'little)
@@ -13166,7 +13229,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          4
          (little-endian->signed #x23 #xc7)
          'little)
@@ -13174,7 +13238,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          6
          (little-endian->signed #x3a #x1c)
          'little)
@@ -13182,7 +13247,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #x3a #x1c #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          8
          (little-endian->signed #xe3 #xd7)
          'little)
@@ -13195,7 +13261,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-s16-set! v
+               (bytevector-s16-set!
+                 v
                  0
                  (little-endian->signed i j)
                  'little)
@@ -13287,7 +13354,8 @@
             (equal? $v1
               #vu8(#xad #xff #xff #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          1
          (native->signed #x80 #x00)
          (native-endianness))
@@ -13295,7 +13363,8 @@
             (equal? $v1
               #vu8(#xad #x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          1
          (little-endian->signed #x00 #x80)
          'little)
@@ -13303,7 +13372,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          1
          (little-endian->signed #x7f #xff)
          'little)
@@ -13311,7 +13381,8 @@
             (equal? $v1
               #vu8(#xad #x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          1
          (native->signed #xff #x7f)
          (native-endianness))
@@ -13334,7 +13405,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x00 #xf3 #x45 #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          5
          (little-endian->signed #x23 #xc7)
          'little)
@@ -13342,7 +13414,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x00 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad))))
      (begin
-       (bytevector-s16-set! $v1
+       (bytevector-s16-set!
+         $v1
          7
          (native->signed #x3a #x1c)
          (native-endianness))
@@ -13360,7 +13433,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-s16-set! v
+               (bytevector-s16-set!
+                 v
                  1
                  (native->signed i j)
                  (native-endianness))
@@ -13373,7 +13447,8 @@
                        (errorf #f "failed for ~s and ~s (big)" i j))
                (bytevector-u8-set! v 1 #xc7)
                (bytevector-u8-set! v 2 #xc7)
-               (bytevector-s16-set! v
+               (bytevector-s16-set!
+                 v
                  1
                  (little-endian->signed i j)
                  'little)
@@ -13428,7 +13503,8 @@
             (equal? $v1
               #vu8(#xff #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (native->unsigned #x80 #x00)
          (native-endianness))
@@ -13436,7 +13512,8 @@
             (equal? $v1
               #vu8(#x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (native->unsigned #x00 #x80)
          (native-endianness))
@@ -13444,7 +13521,8 @@
             (equal? $v1
               #vu8(#x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (native->unsigned #x7f #xff)
          (native-endianness))
@@ -13452,7 +13530,8 @@
             (equal? $v1
               #vu8(#x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (native->unsigned #xff #x7f)
          (native-endianness))
@@ -13460,7 +13539,8 @@
             (equal? $v1
               #vu8(#xff #x7f #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (native->unsigned #xff #xff)
          (native-endianness))
@@ -13473,7 +13553,8 @@
             (equal? $v1
               #vu8(0 0 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          2
          (native->unsigned #xf3 #x45)
          (native-endianness))
@@ -13481,7 +13562,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          4
          (native->unsigned #x23 #xc7)
          (native-endianness))
@@ -13489,7 +13571,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          6
          (native->unsigned #x3a #x1c)
          (native-endianness))
@@ -13497,7 +13580,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #x3a #x1c #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          8
          (native->unsigned #xe3 #xd7)
          (native-endianness))
@@ -13510,7 +13594,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-u16-set! v
+               (bytevector-u16-set!
+                 v
                  0
                  (native->unsigned i j)
                  (native-endianness))
@@ -13530,7 +13615,8 @@
             (equal? $v1
               #vu8(#xff #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (little-endian->unsigned #x80 #x00)
          'little)
@@ -13538,7 +13624,8 @@
             (equal? $v1
               #vu8(#x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (little-endian->unsigned #x00 #x80)
          'little)
@@ -13546,7 +13633,8 @@
             (equal? $v1
               #vu8(#x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (little-endian->unsigned #x7f #xff)
          'little)
@@ -13554,7 +13642,8 @@
             (equal? $v1
               #vu8(#x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (little-endian->unsigned #xff #x7f)
          'little)
@@ -13562,7 +13651,8 @@
             (equal? $v1
               #vu8(#xff #x7f #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          0
          (little-endian->unsigned #xff #xff)
          'little)
@@ -13575,7 +13665,8 @@
             (equal? $v1
               #vu8(0 0 #xad #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          2
          (little-endian->unsigned #xf3 #x45)
          'little)
@@ -13583,7 +13674,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          4
          (little-endian->unsigned #x23 #xc7)
          'little)
@@ -13591,7 +13683,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          6
          (little-endian->unsigned #x3a #x1c)
          'little)
@@ -13599,7 +13692,8 @@
             (equal? $v1
               #vu8(0 0 #xf3 #x45 #x23 #xc7 #x3a #x1c #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          8
          (little-endian->unsigned #xe3 #xd7)
          'little)
@@ -13612,7 +13706,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-u16-set! v
+               (bytevector-u16-set!
+                 v
                  0
                  (little-endian->unsigned i j)
                  'little)
@@ -13704,7 +13799,8 @@
             (equal? $v1
               #vu8(#xad #xff #xff #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          1
          (native->unsigned #x80 #x00)
          (native-endianness))
@@ -13712,7 +13808,8 @@
             (equal? $v1
               #vu8(#xad #x80 #x00 #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          1
          (little-endian->unsigned #x00 #x80)
          'little)
@@ -13720,7 +13817,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x80 #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          1
          (little-endian->unsigned #x7f #xff)
          'little)
@@ -13728,7 +13826,8 @@
             (equal? $v1
               #vu8(#xad #x7f #xff #xad #xad #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          1
          (native->unsigned #xff #x7f)
          (native-endianness))
@@ -13751,7 +13850,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x00 #xf3 #x45 #xad #xad #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          5
          (little-endian->unsigned #x23 #xc7)
          'little)
@@ -13759,7 +13859,8 @@
             (equal? $v1
               #vu8(#xad #x00 #x00 #xf3 #x45 #x23 #xc7 #xad #xad #xad #xad))))
      (begin
-       (bytevector-u16-set! $v1
+       (bytevector-u16-set!
+         $v1
          7
          (native->unsigned #x3a #x1c)
          (native-endianness))
@@ -13777,7 +13878,8 @@
            ((fx= i (expt 2 8)) #t)
            (do ([j 0 (fx+ j 1)])
                ((fx= j (expt 2 8)))
-               (bytevector-u16-set! v
+               (bytevector-u16-set!
+                 v
                  1
                  (native->unsigned i j)
                  (native-endianness))
@@ -13790,7 +13892,8 @@
                        (errorf #f "failed for ~s and ~s (big)" i j))
                (bytevector-u8-set! v 1 #xc7)
                (bytevector-u8-set! v 2 #xc7)
-               (bytevector-u16-set! v
+               (bytevector-u16-set!
+                 v
                  1
                  (little-endian->unsigned i j)
                  'little)
@@ -13813,7 +13916,8 @@
      ; invalid index
      (error? (bytevector-s24-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-s24-ref #vu8(3 252 5 0 0 0 0) 6 'little))
-     (error? (bytevector-s24-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-s24-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -13826,7 +13930,8 @@
      (error? (begin (bytevector-s24-ref #vu8(3 252 5 0 0 0 0) 0 #t) #f))
 
      ; 32-bit aligned accesses, endianness native
-     (eqv? (bytevector-s24-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-s24-ref
+             #vu8(3 252 5 32 65 87 20)
              0
              (native-endianness))
            (native->signed 3 252 5))
@@ -13844,7 +13949,8 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref
+                           (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->signed ls))
@@ -13888,14 +13994,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
-                           0
-                           'little)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls) 0 'little)
                          (apply little-endian->signed ls))
                    (errorf #f "failed for ~s" ls))))
 
      ; not 32-bit aligned, endianness mixed
-     (eqv? (bytevector-s24-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-s24-ref
+             #vu8(3 252 5 32 65 87 20)
              3
              (native-endianness))
            (native->signed 32 65 87))
@@ -13913,14 +14018,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s24-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s24-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-s24-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-s24-ref (apply bytevector ls) 1 'big)
@@ -13930,17 +14034,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -13962,7 +14069,8 @@
      ; invalid index
      (error? (bytevector-u24-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-u24-ref #vu8(3 252 5 0 0 0 0) 6 'little))
-     (error? (bytevector-u24-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-u24-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -13975,7 +14083,8 @@
      (error? (begin (bytevector-u24-ref #vu8(0 1 2 3 4 5 6 7) 0 #t) #f))
 
      ; 32-bit aligned accesses, endianness native
-     (eqv? (bytevector-u24-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-u24-ref
+             #vu8(3 252 5 32 65 87 20)
              0
              (native-endianness))
            (native->unsigned 3 252 5))
@@ -13993,7 +14102,8 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref
+                           (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->unsigned ls))
@@ -14037,14 +14147,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
-                           0
-                           'little)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls) 0 'little)
                          (apply little-endian->unsigned ls))
                    (errorf #f "failed for ~s" ls))))
 
      ; not 32-bit aligned accesses, endianness mixed
-     (eqv? (bytevector-u24-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-u24-ref
+             #vu8(3 252 5 32 65 87 20)
              3
              (native-endianness))
            (native->unsigned 32 65 87))
@@ -14062,14 +14171,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u24-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u24-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-u24-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-u24-ref (apply bytevector ls) 1 'big)
@@ -14079,17 +14187,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u24-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u24-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -14114,7 +14225,8 @@
      ; not a bytevector
      (error? (bytevector-s24-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-s24-set! (make-vector 10)
+               (bytevector-s24-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -14129,7 +14241,8 @@
 
      ; invalid value
      (error? (bytevector-s24-set! $v1 0 (expt 2 23) 'big))
-     (error? (bytevector-s24-set! $v1
+     (error? (bytevector-s24-set!
+               $v1
                4
                (- -1 (expt 2 23))
                (native-endianness)))
@@ -14156,7 +14269,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (native->signed #x80 #x00 #x00)
          (native-endianness))
@@ -14166,7 +14280,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (native->signed #x00 #x00 #x80)
          (native-endianness))
@@ -14176,7 +14291,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (native->signed #x7f #xff #xff)
          (native-endianness))
@@ -14186,7 +14302,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (native->signed #xff #xff #x7f)
          (native-endianness))
@@ -14196,7 +14313,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (native->signed #xff #xff #xff)
          (native-endianness))
@@ -14213,7 +14331,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          4
          (native->signed #xf3 #x45 #x19)
          (native-endianness))
@@ -14223,7 +14342,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          8
          (native->signed #x23 #xc7 #xe8)
          (native-endianness))
@@ -14233,7 +14353,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          12
          (native->signed #x3a #x1c #x59)
          (native-endianness))
@@ -14243,7 +14364,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          16
          (native->signed #xe3 #xd7 #xa9)
          (native-endianness))
@@ -14257,7 +14379,8 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (bytevector-s24-set! v
+             (bytevector-s24-set!
+               v
                0
                (apply native->signed ls)
                (native-endianness))
@@ -14337,7 +14460,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          12
          (big-endian->signed #x3a #x1c #x59)
          'big)
@@ -14347,7 +14471,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          16
          (big-endian->signed #xe3 #xd7 #xa9)
          'big)
@@ -14382,7 +14507,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (little-endian->signed #x80 #x00 #x00)
          'little)
@@ -14392,7 +14518,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (little-endian->signed #x00 #x00 #x80)
          'little)
@@ -14402,7 +14529,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (little-endian->signed #x7f #xff #xff)
          'little)
@@ -14412,7 +14540,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (little-endian->signed #xff #xff #x7f)
          'little)
@@ -14422,7 +14551,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          0
          (little-endian->signed #xff #xff #xff)
          'little)
@@ -14439,7 +14569,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          4
          (little-endian->signed #xf3 #x45 #x19)
          'little)
@@ -14449,7 +14580,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          8
          (little-endian->signed #x23 #xc7 #xe8)
          'little)
@@ -14459,7 +14591,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          12
          (little-endian->signed #x3a #x1c #x59)
          'little)
@@ -14469,7 +14602,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          16
          (little-endian->signed #xe3 #xd7 #xa9)
          'little)
@@ -14483,7 +14617,8 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (bytevector-s24-set! v
+             (bytevector-s24-set!
+               v
                0
                (apply little-endian->signed ls)
                'little)
@@ -14507,7 +14642,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          1
          (little-endian->signed #x80 #x00 #x00)
          'little)
@@ -14517,7 +14653,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          1
          (native->signed #x00 #x00 #x80)
          (native-endianness))
@@ -14527,7 +14664,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          1
          (native->signed #x7f #xff #xff)
          (native-endianness))
@@ -14544,7 +14682,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          1
          (little-endian->signed #xff #xff #xff)
          'little)
@@ -14561,7 +14700,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          5
          (native->signed #xf3 #x45 #x19)
          (native-endianness))
@@ -14571,7 +14711,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          10
          (little-endian->signed #x23 #xc7 #xe8)
          'little)
@@ -14581,7 +14722,8 @@
                     #xc7 #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          15
          (big-endian->signed #x3a #x1c #x59)
          'big)
@@ -14591,7 +14733,8 @@
                     #xc7 #xe8 #xad #xad #x3a #x1c #x59 #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s24-set! $v1
+       (bytevector-s24-set!
+         $v1
          20
          (little-endian->signed #xe3 #xd7 #xa9)
          'little)
@@ -14608,13 +14751,15 @@
              (bytevector-s24-set! v 1 (apply big-endian->signed ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s24-set! v
+             (bytevector-s24-set!
+               v
                1
                (apply little-endian->signed (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s24-set! v
+             (bytevector-s24-set!
+               v
                1
                (apply native->signed ls)
                (native-endianness))
@@ -14625,19 +14770,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (eval `(bytevector-s24-set! ,v
+             (eval `(bytevector-s24-set!
+                      ,v
                       1
                       ,(apply big-endian->signed ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s24-set! ,v
+             (eval `(bytevector-s24-set!
+                      ,v
                       1
                       ,(apply little-endian->signed (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s24-set! ,v
+             (eval `(bytevector-s24-set!
+                      ,v
                       1
                       ,(apply native->signed ls)
                       (native-endianness)))
@@ -14662,7 +14810,8 @@
 
      ; not a bytevector
      (error? (bytevector-u24-set! (make-vector 10) 0 0 (native-endianness)))
-     (error? (if (bytevector-u24-set! (make-vector 10)
+     (error? (if (bytevector-u24-set!
+                   (make-vector 10)
                    0
                    0
                    (native-endianness))
@@ -14702,7 +14851,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (native->unsigned #x80 #x00 #x00)
          (native-endianness))
@@ -14712,7 +14862,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (native->unsigned #x00 #x00 #x80)
          (native-endianness))
@@ -14722,7 +14873,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (native->unsigned #x7f #xff #xff)
          (native-endianness))
@@ -14732,7 +14884,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (native->unsigned #xff #xff #x7f)
          (native-endianness))
@@ -14742,7 +14895,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (native->unsigned #xff #xff #xff)
          (native-endianness))
@@ -14759,7 +14913,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          4
          (native->unsigned #xf3 #x45 #x19)
          (native-endianness))
@@ -14769,7 +14924,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          8
          (native->unsigned #x23 #xc7 #xe8)
          (native-endianness))
@@ -14779,7 +14935,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          12
          (native->unsigned #x3a #x1c #x59)
          (native-endianness))
@@ -14789,7 +14946,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          16
          (native->unsigned #xe3 #xd7 #xa9)
          (native-endianness))
@@ -14803,7 +14961,8 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (bytevector-u24-set! v
+             (bytevector-u24-set!
+               v
                0
                (apply native->unsigned ls)
                (native-endianness))
@@ -14827,7 +14986,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (big-endian->unsigned #x80 #x00 #x00)
          'big)
@@ -14837,7 +14997,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (big-endian->unsigned #x00 #x00 #x80)
          'big)
@@ -14847,7 +15008,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (big-endian->unsigned #x7f #xff #xff)
          'big)
@@ -14857,7 +15019,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (big-endian->unsigned #xff #xff #x7f)
          'big)
@@ -14867,7 +15030,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (big-endian->unsigned #xff #xff #xff)
          'big)
@@ -14884,7 +15048,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          4
          (big-endian->unsigned #xf3 #x45 #x19)
          'big)
@@ -14894,7 +15059,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          8
          (big-endian->unsigned #x23 #xc7 #xe8)
          'big)
@@ -14904,7 +15070,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          12
          (big-endian->unsigned #x3a #x1c #x59)
          'big)
@@ -14914,7 +15081,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          16
          (big-endian->unsigned #xe3 #xd7 #xa9)
          'big)
@@ -14949,7 +15117,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (little-endian->unsigned #x80 #x00 #x00)
          'little)
@@ -14959,7 +15128,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (little-endian->unsigned #x00 #x00 #x80)
          'little)
@@ -14969,7 +15139,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (little-endian->unsigned #x7f #xff #xff)
          'little)
@@ -14979,7 +15150,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (little-endian->unsigned #xff #xff #x7f)
          'little)
@@ -14989,7 +15161,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          0
          (little-endian->unsigned #xff #xff #xff)
          'little)
@@ -15006,7 +15179,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          4
          (little-endian->unsigned #xf3 #x45 #x19)
          'little)
@@ -15016,7 +15190,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          8
          (little-endian->unsigned #x23 #xc7 #xe8)
          'little)
@@ -15026,7 +15201,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          12
          (little-endian->unsigned #x3a #x1c #x59)
          'little)
@@ -15036,7 +15212,8 @@
                     #xad #x3a #x1c #x59 #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          16
          (little-endian->unsigned #xe3 #xd7 #xa9)
          'little)
@@ -15050,7 +15227,8 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (bytevector-u24-set! v
+             (bytevector-u24-set!
+               v
                0
                (apply little-endian->unsigned ls)
                'little)
@@ -15074,7 +15252,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          1
          (little-endian->unsigned #x80 #x00 #x00)
          'little)
@@ -15084,7 +15263,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          1
          (native->unsigned #x00 #x00 #x80)
          (native-endianness))
@@ -15094,7 +15274,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          1
          (native->unsigned #x7f #xff #xff)
          (native-endianness))
@@ -15104,7 +15285,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          1
          (big-endian->unsigned #xff #xff #x7f)
          'big)
@@ -15114,7 +15296,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          1
          (little-endian->unsigned #xff #xff #xff)
          'little)
@@ -15131,7 +15314,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          5
          (native->unsigned #xf3 #x45 #x19)
          (native-endianness))
@@ -15141,7 +15325,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          10
          (little-endian->unsigned #x23 #xc7 #xe8)
          'little)
@@ -15151,7 +15336,8 @@
                     #xc7 #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          15
          (big-endian->unsigned #x3a #x1c #x59)
          'big)
@@ -15161,7 +15347,8 @@
                     #xc7 #xe8 #xad #xad #x3a #x1c #x59 #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u24-set! $v1
+       (bytevector-u24-set!
+         $v1
          20
          (little-endian->unsigned #xe3 #xd7 #xa9)
          'little)
@@ -15178,13 +15365,15 @@
              (bytevector-u24-set! v 1 (apply big-endian->unsigned ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u24-set! v
+             (bytevector-u24-set!
+               v
                1
                (apply little-endian->unsigned (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u24-set! v
+             (bytevector-u24-set!
+               v
                1
                (apply native->unsigned ls)
                (native-endianness))
@@ -15195,19 +15384,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 3))])
-             (eval `(bytevector-u24-set! ,v
+             (eval `(bytevector-u24-set!
+                      ,v
                       1
                       ,(apply big-endian->unsigned ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u24-set! ,v
+             (eval `(bytevector-u24-set!
+                      ,v
                       1
                       ,(apply little-endian->unsigned (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u24-set! ,v
+             (eval `(bytevector-u24-set!
+                      ,v
                       1
                       ,(apply native->unsigned ls)
                       (native-endianness)))
@@ -15272,7 +15464,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-native-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-native-ref
+                           (apply bytevector ls)
                            0)
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -15335,7 +15528,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-native-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-native-ref
+                           (apply bytevector ls)
                            0)
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -15402,8 +15596,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         0
+       (bytevector-s32-native-set! $v1 0
          (native->signed #x80 #x00 #x00 #x00))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15411,8 +15604,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         0
+       (bytevector-s32-native-set! $v1 0
          (native->signed #x00 #x00 #x00 #x80))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15420,8 +15612,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         0
+       (bytevector-s32-native-set! $v1 0
          (native->signed #x7f #xff #xff #xff))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15429,8 +15620,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         0
+       (bytevector-s32-native-set! $v1 0
          (native->signed #xff #xff #xff #x7f))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15438,8 +15628,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         0
+       (bytevector-s32-native-set! $v1 0
          (native->signed #xff #xff #xff #xff))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15454,8 +15643,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         4
+       (bytevector-s32-native-set! $v1 4
          (native->signed #xf3 #x45 #x23 #x19))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15463,8 +15651,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         8
+       (bytevector-s32-native-set! $v1 8
          (native->signed #x23 #xc7 #x72 #xe8))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15472,8 +15659,7 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         12
+       (bytevector-s32-native-set! $v1 12
          (native->signed #x3a #x1c #x22 #x59))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15481,8 +15667,7 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-native-set! $v1
-         16
+       (bytevector-s32-native-set! $v1 16
          (native->signed #xe3 #xd7 #xc2 #xa9))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15560,8 +15745,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         0
+       (bytevector-u32-native-set! $v1 0
          (native->unsigned #x80 #x00 #x00 #x00))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15569,8 +15753,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         0
+       (bytevector-u32-native-set! $v1 0
          (native->unsigned #x00 #x00 #x00 #x80))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15578,8 +15761,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         0
+       (bytevector-u32-native-set! $v1 0
          (native->unsigned #x7f #xff #xff #xff))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15587,8 +15769,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         0
+       (bytevector-u32-native-set! $v1 0
          (native->unsigned #xff #xff #xff #x7f))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15596,8 +15777,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         0
+       (bytevector-u32-native-set! $v1 0
          (native->unsigned #xff #xff #xff #xff))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15612,8 +15792,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         4
+       (bytevector-u32-native-set! $v1 4
          (native->unsigned #xf3 #x45 #x23 #x19))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15621,8 +15800,7 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         8
+       (bytevector-u32-native-set! $v1 8
          (native->unsigned #x23 #xc7 #x72 #xe8))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15630,8 +15808,7 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         12
+       (bytevector-u32-native-set! $v1 12
          (native->unsigned #x3a #x1c #x22 #x59))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15639,8 +15816,7 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-native-set! $v1
-         16
+       (bytevector-u32-native-set! $v1 16
          (native->unsigned #xe3 #xd7 #xc2 #xa9))
        (and (bytevector? $v1)
             (equal? $v1
@@ -15672,7 +15848,8 @@
      ; invalid index
      (error? (bytevector-s32-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-s32-ref #vu8(3 252 5 0 0 0 0) 6 'little))
-     (error? (bytevector-s32-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-s32-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -15685,7 +15862,8 @@
      (error? (begin (bytevector-s32-ref $v1 0 #t) #f))
 
      ; aligned accesses, endianness native
-     (eqv? (bytevector-s32-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-s32-ref
+             #vu8(3 252 5 32 65 87 20)
              0
              (native-endianness))
            (native->signed 3 252 5 32))
@@ -15703,7 +15881,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref
+                           (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->signed ls))
@@ -15747,14 +15926,13 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
-                           0
-                           'little)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls) 0 'little)
                          (apply little-endian->signed ls))
                    (errorf #f "failed for ~s" ls))))
 
      ; unaligned accesses, endianness mixed
-     (eqv? (bytevector-s32-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-s32-ref
+             #vu8(3 252 5 32 65 87 20)
              3
              (native-endianness))
            (native->signed 32 65 87 20))
@@ -15772,14 +15950,13 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s32-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s32-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-s32-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-s32-ref (apply bytevector ls) 1 'big)
@@ -15802,7 +15979,8 @@
      ; invalid index
      (error? (bytevector-u32-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-u32-ref #vu8(3 252 5 0 0 0 0) 6 'little))
-     (error? (bytevector-u32-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-u32-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -15815,7 +15993,8 @@
      (error? (begin (bytevector-u32-ref $v1 0 #t) #f))
 
      ; aligned accesses, endianness native
-     (eqv? (bytevector-u32-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-u32-ref
+             #vu8(3 252 5 32 65 87 20)
              0
              (native-endianness))
            (native->unsigned 3 252 5 32))
@@ -15833,7 +16012,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref
+                           (apply bytevector ls)
                            0
                            (native-endianness))
                          (apply native->unsigned ls))
@@ -15877,14 +16057,13 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
-                           0
-                           'little)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls) 0 'little)
                          (apply little-endian->unsigned ls))
                    (errorf #f "failed for ~s" ls))))
 
      ; unaligned accesses, endianness mixed
-     (eqv? (bytevector-u32-ref #vu8(3 252 5 32 65 87 20)
+     (eqv? (bytevector-u32-ref
+             #vu8(3 252 5 32 65 87 20)
              3
              (native-endianness))
            (native->unsigned 32 65 87 20))
@@ -15902,14 +16081,13 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u32-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u32-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-u32-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-u32-ref (apply bytevector ls) 1 'big)
@@ -15935,7 +16113,8 @@
      ; not a bytevector
      (error? (bytevector-s32-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-s32-set! (make-vector 10)
+               (bytevector-s32-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -15975,7 +16154,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (native->signed #x80 #x00 #x00 #x00)
          (native-endianness))
@@ -15985,7 +16165,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (native->signed #x00 #x00 #x00 #x80)
          (native-endianness))
@@ -15995,7 +16176,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (native->signed #x7f #xff #xff #xff)
          (native-endianness))
@@ -16005,7 +16187,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (native->signed #xff #xff #xff #x7f)
          (native-endianness))
@@ -16015,7 +16198,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (native->signed #xff #xff #xff #xff)
          (native-endianness))
@@ -16032,7 +16216,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          4
          (native->signed #xf3 #x45 #x23 #x19)
          (native-endianness))
@@ -16042,7 +16227,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          8
          (native->signed #x23 #xc7 #x72 #xe8)
          (native-endianness))
@@ -16052,7 +16238,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          12
          (native->signed #x3a #x1c #x22 #x59)
          (native-endianness))
@@ -16062,7 +16249,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          16
          (native->signed #xe3 #xd7 #xc2 #xa9)
          (native-endianness))
@@ -16076,7 +16264,8 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-             (bytevector-s32-set! v
+             (bytevector-s32-set!
+               v
                0
                (apply native->signed ls)
                (native-endianness))
@@ -16100,7 +16289,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (big-endian->signed #x80 #x00 #x00 #x00)
          'big)
@@ -16110,7 +16300,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (big-endian->signed #x00 #x00 #x00 #x80)
          'big)
@@ -16120,7 +16311,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (big-endian->signed #x7f #xff #xff #xff)
          'big)
@@ -16130,7 +16322,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (big-endian->signed #xff #xff #xff #x7f)
          'big)
@@ -16140,7 +16333,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (big-endian->signed #xff #xff #xff #xff)
          'big)
@@ -16157,7 +16351,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          4
          (big-endian->signed #xf3 #x45 #x23 #x19)
          'big)
@@ -16167,7 +16362,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          8
          (big-endian->signed #x23 #xc7 #x72 #xe8)
          'big)
@@ -16177,7 +16373,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          12
          (big-endian->signed #x3a #x1c #x22 #x59)
          'big)
@@ -16187,7 +16384,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          16
          (big-endian->signed #xe3 #xd7 #xc2 #xa9)
          'big)
@@ -16222,7 +16420,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (little-endian->signed #x80 #x00 #x00 #x00)
          'little)
@@ -16232,7 +16431,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (little-endian->signed #x00 #x00 #x00 #x80)
          'little)
@@ -16242,7 +16442,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (little-endian->signed #x7f #xff #xff #xff)
          'little)
@@ -16252,7 +16453,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (little-endian->signed #xff #xff #xff #x7f)
          'little)
@@ -16262,7 +16464,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          0
          (little-endian->signed #xff #xff #xff #xff)
          'little)
@@ -16279,7 +16482,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          4
          (little-endian->signed #xf3 #x45 #x23 #x19)
          'little)
@@ -16289,7 +16493,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          8
          (little-endian->signed #x23 #xc7 #x72 #xe8)
          'little)
@@ -16299,7 +16504,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          12
          (little-endian->signed #x3a #x1c #x22 #x59)
          'little)
@@ -16309,7 +16515,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          16
          (little-endian->signed #xe3 #xd7 #xc2 #xa9)
          'little)
@@ -16323,7 +16530,8 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-             (bytevector-s32-set! v
+             (bytevector-s32-set!
+               v
                0
                (apply little-endian->signed ls)
                'little)
@@ -16347,7 +16555,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          1
          (little-endian->signed #x80 #x00 #x00 #x00)
          'little)
@@ -16357,7 +16566,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          1
          (native->signed #x00 #x00 #x00 #x80)
          (native-endianness))
@@ -16367,7 +16577,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          1
          (native->signed #x7f #xff #xff #xff)
          (native-endianness))
@@ -16377,7 +16588,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          1
          (big-endian->signed #xff #xff #xff #x7f)
          'big)
@@ -16387,7 +16599,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          1
          (little-endian->signed #xff #xff #xff #xff)
          'little)
@@ -16404,7 +16617,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          5
          (native->signed #xf3 #x45 #x23 #x19)
          (native-endianness))
@@ -16414,7 +16628,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          10
          (little-endian->signed #x23 #xc7 #x72 #xe8)
          'little)
@@ -16424,7 +16639,8 @@
                     #xc7 #x72 #xe8 #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          15
          (big-endian->signed #x3a #x1c #x22 #x59)
          'big)
@@ -16434,7 +16650,8 @@
                     #xc7 #x72 #xe8 #xad #x3a #x1c #x22 #x59 #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-s32-set! $v1
+       (bytevector-s32-set!
+         $v1
          19
          (little-endian->signed #xe3 #xd7 #xc2 #xa9)
          'little)
@@ -16451,13 +16668,15 @@
              (bytevector-s32-set! v 1 (apply big-endian->signed ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s32-set! v
+             (bytevector-s32-set!
+               v
                1
                (apply little-endian->signed (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s32-set! v
+             (bytevector-s32-set!
+               v
                1
                (apply native->signed ls)
                (native-endianness))
@@ -16482,7 +16701,8 @@
 
      ; not a bytevector
      (error? (bytevector-u32-set! (make-vector 10) 0 0 (native-endianness)))
-     (error? (if (bytevector-u32-set! (make-vector 10)
+     (error? (if (bytevector-u32-set!
+                   (make-vector 10)
                    0
                    0
                    (native-endianness))
@@ -16523,7 +16743,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (native->unsigned #x80 #x00 #x00 #x00)
          (native-endianness))
@@ -16533,7 +16754,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (native->unsigned #x00 #x00 #x00 #x80)
          (native-endianness))
@@ -16543,7 +16765,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (native->unsigned #x7f #xff #xff #xff)
          (native-endianness))
@@ -16553,7 +16776,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (native->unsigned #xff #xff #xff #x7f)
          (native-endianness))
@@ -16563,7 +16787,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (native->unsigned #xff #xff #xff #xff)
          (native-endianness))
@@ -16580,7 +16805,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          4
          (native->unsigned #xf3 #x45 #x23 #x19)
          (native-endianness))
@@ -16590,7 +16816,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          8
          (native->unsigned #x23 #xc7 #x72 #xe8)
          (native-endianness))
@@ -16600,7 +16827,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          12
          (native->unsigned #x3a #x1c #x22 #x59)
          (native-endianness))
@@ -16610,7 +16838,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          16
          (native->unsigned #xe3 #xd7 #xc2 #xa9)
          (native-endianness))
@@ -16624,7 +16853,8 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-             (bytevector-u32-set! v
+             (bytevector-u32-set!
+               v
                0
                (apply native->unsigned ls)
                (native-endianness))
@@ -16648,7 +16878,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (big-endian->unsigned #x80 #x00 #x00 #x00)
          'big)
@@ -16658,7 +16889,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (big-endian->unsigned #x00 #x00 #x00 #x80)
          'big)
@@ -16668,7 +16900,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (big-endian->unsigned #x7f #xff #xff #xff)
          'big)
@@ -16678,7 +16911,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (big-endian->unsigned #xff #xff #xff #x7f)
          'big)
@@ -16688,7 +16922,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (big-endian->unsigned #xff #xff #xff #xff)
          'big)
@@ -16705,7 +16940,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          4
          (big-endian->unsigned #xf3 #x45 #x23 #x19)
          'big)
@@ -16715,7 +16951,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          8
          (big-endian->unsigned #x23 #xc7 #x72 #xe8)
          'big)
@@ -16725,7 +16962,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          12
          (big-endian->unsigned #x3a #x1c #x22 #x59)
          'big)
@@ -16735,7 +16973,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          16
          (big-endian->unsigned #xe3 #xd7 #xc2 #xa9)
          'big)
@@ -16770,7 +17009,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (little-endian->unsigned #x80 #x00 #x00 #x00)
          'little)
@@ -16780,7 +17020,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (little-endian->unsigned #x00 #x00 #x00 #x80)
          'little)
@@ -16790,7 +17031,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (little-endian->unsigned #x7f #xff #xff #xff)
          'little)
@@ -16800,7 +17042,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (little-endian->unsigned #xff #xff #xff #x7f)
          'little)
@@ -16810,7 +17053,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          0
          (little-endian->unsigned #xff #xff #xff #xff)
          'little)
@@ -16827,7 +17071,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          4
          (little-endian->unsigned #xf3 #x45 #x23 #x19)
          'little)
@@ -16837,7 +17082,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          8
          (little-endian->unsigned #x23 #xc7 #x72 #xe8)
          'little)
@@ -16847,7 +17093,8 @@
                     #xe8 #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          12
          (little-endian->unsigned #x3a #x1c #x22 #x59)
          'little)
@@ -16857,7 +17104,8 @@
                     #xe8 #x3a #x1c #x22 #x59 #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          16
          (little-endian->unsigned #xe3 #xd7 #xc2 #xa9)
          'little)
@@ -16871,7 +17119,8 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 4))])
-             (bytevector-u32-set! v
+             (bytevector-u32-set!
+               v
                0
                (apply little-endian->unsigned ls)
                'little)
@@ -16895,7 +17144,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          1
          (little-endian->unsigned #x80 #x00 #x00 #x00)
          'little)
@@ -16905,7 +17155,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          1
          (native->unsigned #x00 #x00 #x00 #x80)
          (native-endianness))
@@ -16915,7 +17166,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          1
          (native->unsigned #x7f #xff #xff #xff)
          (native-endianness))
@@ -16925,7 +17177,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          1
          (big-endian->unsigned #xff #xff #xff #x7f)
          'big)
@@ -16935,7 +17188,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          1
          (little-endian->unsigned #xff #xff #xff #xff)
          'little)
@@ -16952,7 +17206,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          5
          (native->unsigned #xf3 #x45 #x23 #x19)
          (native-endianness))
@@ -16962,7 +17217,8 @@
                     #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          10
          (little-endian->unsigned #x23 #xc7 #x72 #xe8)
          'little)
@@ -16972,7 +17228,8 @@
                     #xc7 #x72 #xe8 #xad #xad #xad #xad #xad #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          15
          (big-endian->unsigned #x3a #x1c #x22 #x59)
          'big)
@@ -16982,7 +17239,8 @@
                     #xc7 #x72 #xe8 #xad #x3a #x1c #x22 #x59 #xad #xad #xad
                     #xad))))
      (begin
-       (bytevector-u32-set! $v1
+       (bytevector-u32-set!
+         $v1
          19
          (little-endian->unsigned #xe3 #xd7 #xc2 #xa9)
          'little)
@@ -16999,13 +17257,15 @@
              (bytevector-u32-set! v 1 (apply big-endian->unsigned ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u32-set! v
+             (bytevector-u32-set!
+               v
                1
                (apply little-endian->unsigned (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u32-set! v
+             (bytevector-u32-set!
+               v
                1
                (apply native->unsigned ls)
                (native-endianness))
@@ -17018,7 +17278,8 @@
      (error? (bytevector-s40-ref #vu8(3 252 5 0 0)))
      (error? (bytevector-s40-ref #vu8(3 252 5 0 0) 0))
      (error? (begin
-               (bytevector-s40-ref #vu8(3 252 5 0 0)
+               (bytevector-s40-ref
+                 #vu8(3 252 5 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17031,7 +17292,8 @@
      ; invalid index
      (error? (bytevector-s40-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-s40-ref #vu8(3 252 5 0 0 0 0) 3 'little))
-     (error? (bytevector-s40-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-s40-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17046,14 +17308,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (bytevector-s40-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s40-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s40-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-s40-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-s40-ref (apply bytevector ls) 1 'big)
@@ -17063,17 +17324,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -17085,7 +17349,8 @@
      (error? (bytevector-u40-ref #vu8(3 252 5 0 0)))
      (error? (bytevector-u40-ref #vu8(3 252 5 0 0) 0))
      (error? (begin
-               (bytevector-u40-ref #vu8(3 252 5 0 0)
+               (bytevector-u40-ref
+                 #vu8(3 252 5 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17098,7 +17363,8 @@
      ; invalid index
      (error? (bytevector-u40-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-u40-ref #vu8(3 252 5 0 0 0 0) 3 'little))
-     (error? (bytevector-u40-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-u40-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17113,14 +17379,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (bytevector-u40-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u40-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u40-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-u40-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-u40-ref (apply bytevector ls) 1 'big)
@@ -17130,17 +17395,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u40-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u40-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -17165,7 +17433,8 @@
      ; not a bytevector
      (error? (bytevector-s40-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-s40-set! (make-vector 10)
+               (bytevector-s40-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17180,7 +17449,8 @@
 
      ; invalid value
      (error? (bytevector-s40-set! $v1 0 (expt 2 39) 'big))
-     (error? (bytevector-s40-set! $v1
+     (error? (bytevector-s40-set!
+               $v1
                4
                (- -1 (expt 2 39))
                (native-endianness)))
@@ -17205,13 +17475,15 @@
              (bytevector-s40-set! v 1 (apply big-endian->signed ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s40-set! v
+             (bytevector-s40-set!
+               v
                1
                (apply little-endian->signed (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s40-set! v
+             (bytevector-s40-set!
+               v
                1
                (apply native->signed ls)
                (native-endianness))
@@ -17222,19 +17494,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-             (eval `(bytevector-s40-set! ,v
+             (eval `(bytevector-s40-set!
+                      ,v
                       1
                       ,(apply big-endian->signed ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s40-set! ,v
+             (eval `(bytevector-s40-set!
+                      ,v
                       1
                       ,(apply little-endian->signed (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s40-set! ,v
+             (eval `(bytevector-s40-set!
+                      ,v
                       1
                       ,(apply native->signed ls)
                       (native-endianness)))
@@ -17260,7 +17535,8 @@
      ; not a bytevector
      (error? (bytevector-u40-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-u40-set! (make-vector 10)
+               (bytevector-u40-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17297,13 +17573,15 @@
              (bytevector-u40-set! v 1 (apply big-endian->unsigned ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u40-set! v
+             (bytevector-u40-set!
+               v
                1
                (apply little-endian->unsigned (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u40-set! v
+             (bytevector-u40-set!
+               v
                1
                (apply native->unsigned ls)
                (native-endianness))
@@ -17314,19 +17592,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 5))])
-             (eval `(bytevector-u40-set! ,v
+             (eval `(bytevector-u40-set!
+                      ,v
                       1
                       ,(apply big-endian->unsigned ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u40-set! ,v
+             (eval `(bytevector-u40-set!
+                      ,v
                       1
                       ,(apply little-endian->unsigned (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u40-set! ,v
+             (eval `(bytevector-u40-set!
+                      ,v
                       1
                       ,(apply native->unsigned ls)
                       (native-endianness)))
@@ -17339,7 +17620,8 @@
      (error? (bytevector-s48-ref #vu8(3 252 5 0 0 0)))
      (error? (bytevector-s48-ref #vu8(3 252 5 0 0 0) 0))
      (error? (begin
-               (bytevector-s48-ref #vu8(3 252 5 0 0 0)
+               (bytevector-s48-ref
+                 #vu8(3 252 5 0 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17352,7 +17634,8 @@
      ; invalid index
      (error? (bytevector-s48-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-s48-ref #vu8(3 252 5 0 0 0 0) 2 'little))
-     (error? (bytevector-s48-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-s48-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17367,14 +17650,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (bytevector-s48-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s48-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s48-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-s48-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-s48-ref (apply bytevector ls) 1 'big)
@@ -17384,17 +17666,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -17406,7 +17691,8 @@
      (error? (bytevector-u48-ref #vu8(3 252 5 0 0 0)))
      (error? (bytevector-u48-ref #vu8(3 252 5 0 0 0) 0))
      (error? (begin
-               (bytevector-u48-ref #vu8(3 252 5 0 0 0)
+               (bytevector-u48-ref
+                 #vu8(3 252 5 0 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17419,7 +17705,8 @@
      ; invalid index
      (error? (bytevector-u48-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-u48-ref #vu8(3 252 5 0 0 0 0) 2 'little))
-     (error? (bytevector-u48-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-u48-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17434,14 +17721,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (bytevector-u48-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u48-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u48-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-u48-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-u48-ref (apply bytevector ls) 1 'big)
@@ -17451,17 +17737,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u48-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u48-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -17486,7 +17775,8 @@
      ; not a bytevector
      (error? (bytevector-s48-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-s48-set! (make-vector 10)
+               (bytevector-s48-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17501,7 +17791,8 @@
 
      ; invalid value
      (error? (bytevector-s48-set! $v1 0 (expt 2 47) 'big))
-     (error? (bytevector-s48-set! $v1
+     (error? (bytevector-s48-set!
+               $v1
                4
                (- -1 (expt 2 47))
                (native-endianness)))
@@ -17526,13 +17817,15 @@
              (bytevector-s48-set! v 1 (apply big-endian->signed ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s48-set! v
+             (bytevector-s48-set!
+               v
                1
                (apply little-endian->signed (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s48-set! v
+             (bytevector-s48-set!
+               v
                1
                (apply native->signed ls)
                (native-endianness))
@@ -17543,19 +17836,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-             (eval `(bytevector-s48-set! ,v
+             (eval `(bytevector-s48-set!
+                      ,v
                       1
                       ,(apply big-endian->signed ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s48-set! ,v
+             (eval `(bytevector-s48-set!
+                      ,v
                       1
                       ,(apply little-endian->signed (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s48-set! ,v
+             (eval `(bytevector-s48-set!
+                      ,v
                       1
                       ,(apply native->signed ls)
                       (native-endianness)))
@@ -17581,7 +17877,8 @@
      ; not a bytevector
      (error? (bytevector-u48-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-u48-set! (make-vector 10)
+               (bytevector-u48-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17618,13 +17915,15 @@
              (bytevector-u48-set! v 1 (apply big-endian->unsigned ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u48-set! v
+             (bytevector-u48-set!
+               v
                1
                (apply little-endian->unsigned (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u48-set! v
+             (bytevector-u48-set!
+               v
                1
                (apply native->unsigned ls)
                (native-endianness))
@@ -17635,19 +17934,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 6))])
-             (eval `(bytevector-u48-set! ,v
+             (eval `(bytevector-u48-set!
+                      ,v
                       1
                       ,(apply big-endian->unsigned ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u48-set! ,v
+             (eval `(bytevector-u48-set!
+                      ,v
                       1
                       ,(apply little-endian->unsigned (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u48-set! ,v
+             (eval `(bytevector-u48-set!
+                      ,v
                       1
                       ,(apply native->unsigned ls)
                       (native-endianness)))
@@ -17660,7 +17962,8 @@
      (error? (bytevector-s56-ref #vu8(3 252 5 0 0 0 0)))
      (error? (bytevector-s56-ref #vu8(3 252 5 0 0 00) 0))
      (error? (begin
-               (bytevector-s56-ref #vu8(3 252 5 0 0 0 0)
+               (bytevector-s56-ref
+                 #vu8(3 252 5 0 0 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17673,7 +17976,8 @@
      ; invalid index
      (error? (bytevector-s56-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-s56-ref #vu8(3 252 5 0 0 0 0) 1 'little))
-     (error? (bytevector-s56-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-s56-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17688,14 +17992,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s56-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s56-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-s56-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-s56-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-s56-ref (apply bytevector ls) 1 'big)
@@ -17705,17 +18008,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->signed (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->signed (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-s56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-s56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->signed (cdr ls)))
@@ -17727,7 +18033,8 @@
      (error? (bytevector-u56-ref #vu8(3 252 5 0 0 0 0)))
      (error? (bytevector-u56-ref #vu8(3 252 5 0 0 00) 0))
      (error? (begin
-               (bytevector-u56-ref #vu8(3 252 5 0 0 0 0)
+               (bytevector-u56-ref
+                 #vu8(3 252 5 0 0 0 0)
                  0
                  (native-endianness)
                  0)
@@ -17740,7 +18047,8 @@
      ; invalid index
      (error? (bytevector-u56-ref #vu8(3 252 5 0 0 0 0) -1 'big))
      (error? (bytevector-u56-ref #vu8(3 252 5 0 0 0 0) 1 'little))
-     (error? (bytevector-u56-ref #vu8(3 252 5 0 0 0 0)
+     (error? (bytevector-u56-ref
+               #vu8(3 252 5 0 0 0 0)
                7
                (native-endianness)))
      (error? (begin
@@ -17755,14 +18063,13 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u56-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u56-ref
+                           (apply bytevector ls)
                            1
                            (native-endianness))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (bytevector-u56-ref (apply bytevector ls)
-                           1
-                           'little)
+           (unless (eqv? (bytevector-u56-ref (apply bytevector ls) 1 'little)
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
            (unless (eqv? (bytevector-u56-ref (apply bytevector ls) 1 'big)
@@ -17772,17 +18079,20 @@
      (do ([i 1000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   (native-endianness)))
                          (apply native->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (native)" ls))
-           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'little))
                          (apply little-endian->unsigned (cdr ls)))
                    (errorf #f "failed for ~s (little)" ls))
-           (unless (eqv? (eval `(bytevector-u56-ref ,(apply bytevector ls)
+           (unless (eqv? (eval `(bytevector-u56-ref
+                                  ,(apply bytevector ls)
                                   1
                                   'big))
                          (apply big-endian->unsigned (cdr ls)))
@@ -17807,7 +18117,8 @@
      ; not a bytevector
      (error? (bytevector-s56-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-s56-set! (make-vector 10)
+               (bytevector-s56-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17822,7 +18133,8 @@
 
      ; invalid value
      (error? (bytevector-s56-set! $v1 0 (expt 2 55) 'big))
-     (error? (bytevector-s56-set! $v1
+     (error? (bytevector-s56-set!
+               $v1
                4
                (- -1 (expt 2 55))
                (native-endianness)))
@@ -17847,13 +18159,15 @@
              (bytevector-s56-set! v 1 (apply big-endian->signed ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s56-set! v
+             (bytevector-s56-set!
+               v
                1
                (apply little-endian->signed (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s56-set! v
+             (bytevector-s56-set!
+               v
                1
                (apply native->signed ls)
                (native-endianness))
@@ -17864,19 +18178,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-             (eval `(bytevector-s56-set! ,v
+             (eval `(bytevector-s56-set!
+                      ,v
                       1
                       ,(apply big-endian->signed ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s56-set! ,v
+             (eval `(bytevector-s56-set!
+                      ,v
                       1
                       ,(apply little-endian->signed (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-s56-set! ,v
+             (eval `(bytevector-s56-set!
+                      ,v
                       1
                       ,(apply native->signed ls)
                       (native-endianness)))
@@ -17902,7 +18219,8 @@
      ; not a bytevector
      (error? (bytevector-u56-set! (make-vector 10) 0 0 (native-endianness)))
      (error? (begin
-               (bytevector-u56-set! (make-vector 10)
+               (bytevector-u56-set!
+                 (make-vector 10)
                  0
                  0
                  (native-endianness))
@@ -17939,13 +18257,15 @@
              (bytevector-u56-set! v 1 (apply big-endian->unsigned ls) 'big)
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u56-set! v
+             (bytevector-u56-set!
+               v
                1
                (apply little-endian->unsigned (reverse ls))
                'little)
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u56-set! v
+             (bytevector-u56-set!
+               v
                1
                (apply native->unsigned ls)
                (native-endianness))
@@ -17956,19 +18276,22 @@
        (do ([i 1000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 7))])
-             (eval `(bytevector-u56-set! ,v
+             (eval `(bytevector-u56-set!
+                      ,v
                       1
                       ,(apply big-endian->unsigned ls)
                       'big))
              (unless (equal? v (apply bytevector #xc7 ls))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u56-set! ,v
+             (eval `(bytevector-u56-set!
+                      ,v
                       1
                       ,(apply little-endian->unsigned (reverse ls))
                       'little))
              (unless (equal? v (apply bytevector #xc7 (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (eval `(bytevector-u56-set! ,v
+             (eval `(bytevector-u56-set!
+                      ,v
                       1
                       ,(apply native->unsigned ls)
                       (native-endianness)))
@@ -18088,7 +18411,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-native-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-s64-native-ref
+                           (apply bytevector ls)
                            0)
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -18208,7 +18532,8 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u64-native-ref (apply bytevector ls)
+           (unless (eqv? (bytevector-u64-native-ref
+                           (apply bytevector ls)
                            0)
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls)))))
@@ -18279,11 +18604,9 @@
      (begin
        (bytevector-s64-native-set! $v1 0 0)
        (bytevector-s64-native-set! $v1 8 -1)
-       (bytevector-s64-native-set! $v1
-         16
+       (bytevector-s64-native-set! $v1 16
          (native->signed #x7f #xff #xff #xff #xff #xff #xff #xff))
-       (bytevector-s64-native-set! $v1
-         24
+       (bytevector-s64-native-set! $v1 24
          (native->signed #xff #xff #xff #xff #xff #xff #xff #x7f))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18293,17 +18616,13 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-native-set! $v1
-         0
+       (bytevector-s64-native-set! $v1 0
          (native->signed #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00))
-       (bytevector-s64-native-set! $v1
-         8
+       (bytevector-s64-native-set! $v1 8
          (native->signed #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80))
-       (bytevector-s64-native-set! $v1
-         16
+       (bytevector-s64-native-set! $v1 16
          (native->signed #x80 #x00 #x00 #x00 #xff #xff #xff #xff))
-       (bytevector-s64-native-set! $v1
-         24
+       (bytevector-s64-native-set! $v1 24
          (native->signed #xff #xff #xff #xff #x00 #x00 #x00 #x80))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18313,17 +18632,13 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-native-set! $v1
-         0
+       (bytevector-s64-native-set! $v1 0
          (native->signed #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89))
-       (bytevector-s64-native-set! $v1
-         8
+       (bytevector-s64-native-set! $v1 8
          (native->signed #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12))
-       (bytevector-s64-native-set! $v1
-         16
+       (bytevector-s64-native-set! $v1 16
          (native->signed #x78 #x89 #x9a #xab #xbc #xcd #xde #xef))
-       (bytevector-s64-native-set! $v1
-         24
+       (bytevector-s64-native-set! $v1 24
          (native->signed #xef #xde #xcd #xbc #xab #x9a #x89 #x78))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18406,11 +18721,9 @@
      (begin
        (bytevector-u64-native-set! $v1 0 0)
        (bytevector-u64-native-set! $v1 8 #xffffffffffffffff)
-       (bytevector-u64-native-set! $v1
-         16
+       (bytevector-u64-native-set! $v1 16
          (native->unsigned #x7f #xff #xff #xff #xff #xff #xff #xff))
-       (bytevector-u64-native-set! $v1
-         24
+       (bytevector-u64-native-set! $v1 24
          (native->unsigned #xff #xff #xff #xff #xff #xff #xff #x7f))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18420,17 +18733,13 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-native-set! $v1
-         0
+       (bytevector-u64-native-set! $v1 0
          (native->unsigned #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00))
-       (bytevector-u64-native-set! $v1
-         8
+       (bytevector-u64-native-set! $v1 8
          (native->unsigned #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80))
-       (bytevector-u64-native-set! $v1
-         16
+       (bytevector-u64-native-set! $v1 16
          (native->unsigned #x80 #x00 #x00 #x00 #xff #xff #xff #xff))
-       (bytevector-u64-native-set! $v1
-         24
+       (bytevector-u64-native-set! $v1 24
          (native->unsigned #xff #xff #xff #xff #x00 #x00 #x00 #x80))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18440,17 +18749,13 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-native-set! $v1
-         0
+       (bytevector-u64-native-set! $v1 0
          (native->unsigned #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89))
-       (bytevector-u64-native-set! $v1
-         8
+       (bytevector-u64-native-set! $v1 8
          (native->unsigned #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12))
-       (bytevector-u64-native-set! $v1
-         16
+       (bytevector-u64-native-set! $v1 16
          (native->unsigned #x78 #x89 #x9a #xab #xbc #xcd #xde #xef))
-       (bytevector-u64-native-set! $v1
-         24
+       (bytevector-u64-native-set! $v1 24
          (native->unsigned #xef #xde #xcd #xbc #xab #x9a #x89 #x78))
        (and (bytevector? $v1)
             (equal? $v1
@@ -18539,9 +18844,7 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-ref (apply bytevector ls)
-                           0
-                           'little)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector ls) 0 'little)
                          (apply little-endian->signed ls))
                    (errorf #f "failed for ~s" ls))))
 
@@ -18633,17 +18936,17 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-s64-ref
+                           (apply bytevector #x3e ls)
                            1
                            (native-endianness))
                          (apply native->signed ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
-                           1
-                           'big)
+           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls) 1 'big)
                          (apply big-endian->signed ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-s64-ref (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-s64-ref
+                           (apply bytevector #x3e ls)
                            1
                            'little)
                          (apply little-endian->signed ls))
@@ -18698,7 +19001,8 @@
      (eqv? (bytevector-u64-ref $v1 0 'little) 0)
      (eqv? (bytevector-u64-ref $v1 8 'little) #xffffffffffffffff)
      (eqv? (bytevector-u64-ref $v1 16 'little)
-           (little-endian->unsigned #x7f
+           (little-endian->unsigned
+             #x7f
              #xff
              #xff
              #xff
@@ -18707,7 +19011,8 @@
              #xff
              #xff))
      (eqv? (bytevector-u64-ref $v1 24 'little)
-           (little-endian->unsigned #xff
+           (little-endian->unsigned
+             #xff
              #xff
              #xff
              #xff
@@ -18716,7 +19021,8 @@
              #xff
              #x7f))
      (eqv? (bytevector-u64-ref $v1 32 'little)
-           (little-endian->unsigned #x80
+           (little-endian->unsigned
+             #x80
              #x00
              #x00
              #x00
@@ -18725,7 +19031,8 @@
              #x00
              #x00))
      (eqv? (bytevector-u64-ref $v1 40 'little)
-           (little-endian->unsigned #x00
+           (little-endian->unsigned
+             #x00
              #x00
              #x00
              #x00
@@ -18734,7 +19041,8 @@
              #x00
              #x80))
      (eqv? (bytevector-u64-ref $v1 48 'little)
-           (little-endian->unsigned #x80
+           (little-endian->unsigned
+             #x80
              #x00
              #x00
              #x00
@@ -18743,7 +19051,8 @@
              #xff
              #xff))
      (eqv? (bytevector-u64-ref $v1 56 'little)
-           (little-endian->unsigned #xff
+           (little-endian->unsigned
+             #xff
              #xff
              #xff
              #xff
@@ -18752,7 +19061,8 @@
              #x00
              #x80))
      (eqv? (bytevector-u64-ref $v1 64 'little)
-           (little-endian->unsigned #x12
+           (little-endian->unsigned
+             #x12
              #x23
              #x34
              #x45
@@ -18761,7 +19071,8 @@
              #x78
              #x89))
      (eqv? (bytevector-u64-ref $v1 72 'little)
-           (little-endian->unsigned #x89
+           (little-endian->unsigned
+             #x89
              #x78
              #x67
              #x56
@@ -18770,7 +19081,8 @@
              #x23
              #x12))
      (eqv? (bytevector-u64-ref $v1 80 'little)
-           (little-endian->unsigned #x78
+           (little-endian->unsigned
+             #x78
              #x89
              #x9a
              #xab
@@ -18779,7 +19091,8 @@
              #xde
              #xef))
      (eqv? (bytevector-u64-ref $v1 88 'little)
-           (little-endian->unsigned #xef
+           (little-endian->unsigned
+             #xef
              #xde
              #xcd
              #xbc
@@ -18857,7 +19170,8 @@
      (eqv? (bytevector-u64-ref $v1 28 'big)
            (big-endian->unsigned #xff #xff #xff #xff #xff #xff #xff #x7f))
      (eqv? (bytevector-u64-ref $v1 37 'little)
-           (little-endian->unsigned #x80
+           (little-endian->unsigned
+             #x80
              #x00
              #x00
              #x00
@@ -18868,7 +19182,8 @@
      (eqv? (bytevector-u64-ref $v1 46 'big)
            (big-endian->unsigned #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80))
      (eqv? (bytevector-u64-ref $v1 55 'little)
-           (little-endian->unsigned #x80
+           (little-endian->unsigned
+             #x80
              #x00
              #x00
              #x00
@@ -18879,7 +19194,8 @@
      (eqv? (bytevector-u64-ref $v1 65 'big)
            (big-endian->unsigned #xff #xff #xff #xff #x00 #x00 #x00 #x80))
      (eqv? (bytevector-u64-ref $v1 74 'little)
-           (little-endian->unsigned #x12
+           (little-endian->unsigned
+             #x12
              #x23
              #x34
              #x45
@@ -18892,7 +19208,8 @@
      (eqv? (bytevector-u64-ref $v1 92 'big)
            (big-endian->unsigned #x78 #x89 #x9a #xab #xbc #xcd #xde #xef))
      (eqv? (bytevector-u64-ref $v1 101 'little)
-           (little-endian->unsigned #xef
+           (little-endian->unsigned
+             #xef
              #xde
              #xcd
              #xbc
@@ -18904,17 +19221,17 @@
      (do ([i 10000 (fx- i 1)])
          ((fx= i 0) #t)
          (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-u64-ref
+                           (apply bytevector #x3e ls)
                            1
                            (native-endianness))
                          (apply native->unsigned ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
-                           1
-                           'big)
+           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls) 1 'big)
                          (apply big-endian->unsigned ls))
                    (errorf #f "failed for ~s" ls))
-           (unless (eqv? (bytevector-u64-ref (apply bytevector #x3e ls)
+           (unless (eqv? (bytevector-u64-ref
+                           (apply bytevector #x3e ls)
                            1
                            'little)
                          (apply little-endian->unsigned ls))
@@ -18979,11 +19296,13 @@
      (begin
        (bytevector-s64-set! $v1 0 0 'little)
        (bytevector-s64-set! $v1 8 -1 'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (little-endian->signed #x7f #xff #xff #xff #xff #xff #xff #xff)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (little-endian->signed #xff #xff #xff #xff #xff #xff #xff #x7f)
          'little)
@@ -18995,19 +19314,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          0
          (little-endian->signed #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          8
          (little-endian->signed #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (little-endian->signed #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (little-endian->signed #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19019,19 +19342,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          0
          (little-endian->signed #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          8
          (little-endian->signed #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (little-endian->signed #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (little-endian->signed #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'little)
@@ -19046,11 +19373,13 @@
      (begin
        (bytevector-s64-set! $v1 0 0 'big)
        (bytevector-s64-set! $v1 8 -1 'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (big-endian->signed #x7f #xff #xff #xff #xff #xff #xff #xff)
          'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (big-endian->signed #xff #xff #xff #xff #xff #xff #xff #x7f)
          'big)
@@ -19062,19 +19391,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          0
          (little-endian->signed #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          8
          (little-endian->signed #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (little-endian->signed #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (little-endian->signed #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19086,19 +19419,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          0
          (little-endian->signed #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          8
          (little-endian->signed #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          16
          (little-endian->signed #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          24
          (little-endian->signed #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'little)
@@ -19114,19 +19451,22 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-             (bytevector-s64-set! v
+             (bytevector-s64-set!
+               v
                0
                (apply native->signed ls)
                (native-endianness))
              (unless (equal? v (apply bytevector ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s64-set! v
+             (bytevector-s64-set!
+               v
                0
                (apply big-endian->signed (reverse ls))
                'big)
              (unless (equal? v (apply bytevector (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-s64-set! v
+             (bytevector-s64-set!
+               v
                0
                (apply little-endian->signed ls)
                'little)
@@ -19147,11 +19487,13 @@
      (begin
        (bytevector-s64-set! $v1 1 0 'big)
        (bytevector-s64-set! $v1 10 -1 'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          19
          (big-endian->signed #x7f #xff #xff #xff #xff #xff #xff #xff)
          'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          28
          (little-endian->signed #xff #xff #xff #xff #xff #xff #xff #x7f)
          'little)
@@ -19173,19 +19515,23 @@
      ; 29
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          2
          (little-endian->signed #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          11
          (big-endian->signed #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          20
          (big-endian->signed #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          29
          (little-endian->signed #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19208,19 +19554,23 @@
      ; 30
 
      (begin
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          3
          (big-endian->signed #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'big)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          12
          (little-endian->signed #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          21
          (little-endian->signed #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-s64-set! $v1
+       (bytevector-s64-set!
+         $v1
          30
          (big-endian->signed #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'big)
@@ -19237,7 +19587,8 @@
            (let ([idx (fx+ (modulo i 7) 1)])
              (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
                (bytevector-fill! v #xc7)
-               (bytevector-s64-set! v
+               (bytevector-s64-set!
+                 v
                  idx
                  (apply native->signed ls)
                  (native-endianness))
@@ -19247,7 +19598,8 @@
                                    ls
                                    (make-list (fx- 7 idx) #xc7))))
                        (errorf #f "failed for ~s (native)" ls))
-               (bytevector-s64-set! v
+               (bytevector-s64-set!
+                 v
                  idx
                  (apply big-endian->signed (reverse ls))
                  'big)
@@ -19257,7 +19609,8 @@
                                    (reverse ls)
                                    (make-list (fx- 7 idx) #xc7))))
                        (errorf #f "failed for ~s (big)" ls))
-               (bytevector-s64-set! v
+               (bytevector-s64-set!
+                 v
                  idx
                  (apply little-endian->signed ls)
                  'little)
@@ -19327,11 +19680,13 @@
      (begin
        (bytevector-u64-set! $v1 0 0 'little)
        (bytevector-u64-set! $v1 8 #xffffffffffffffff 'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (little-endian->unsigned #x7f #xff #xff #xff #xff #xff #xff #xff)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (little-endian->unsigned #xff #xff #xff #xff #xff #xff #xff #x7f)
          'little)
@@ -19343,19 +19698,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          0
          (little-endian->unsigned #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          8
          (little-endian->unsigned #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (little-endian->unsigned #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (little-endian->unsigned #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19367,19 +19726,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          0
          (little-endian->unsigned #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          8
          (little-endian->unsigned #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (little-endian->unsigned #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (little-endian->unsigned #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'little)
@@ -19394,11 +19757,13 @@
      (begin
        (bytevector-u64-set! $v1 0 0 'big)
        (bytevector-u64-set! $v1 8 #xffffffffffffffff 'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (big-endian->unsigned #x7f #xff #xff #xff #xff #xff #xff #xff)
          'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (big-endian->unsigned #xff #xff #xff #xff #xff #xff #xff #x7f)
          'big)
@@ -19410,19 +19775,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          0
          (little-endian->unsigned #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          8
          (little-endian->unsigned #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (little-endian->unsigned #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (little-endian->unsigned #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19434,19 +19803,23 @@
                     #xad #xad #xad #xad #xad #xad))))
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          0
          (little-endian->unsigned #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          8
          (little-endian->unsigned #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          16
          (little-endian->unsigned #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          24
          (little-endian->unsigned #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'little)
@@ -19462,19 +19835,22 @@
        (do ([i 10000 (fx- i 1)])
            ((fx= i 0) #t)
            (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
-             (bytevector-u64-set! v
+             (bytevector-u64-set!
+               v
                0
                (apply native->unsigned ls)
                (native-endianness))
              (unless (equal? v (apply bytevector ls))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u64-set! v
+             (bytevector-u64-set!
+               v
                0
                (apply big-endian->unsigned (reverse ls))
                'big)
              (unless (equal? v (apply bytevector (reverse ls)))
                      (errorf #f "failed for ~s" ls))
-             (bytevector-u64-set! v
+             (bytevector-u64-set!
+               v
                0
                (apply little-endian->unsigned ls)
                'little)
@@ -19495,11 +19871,13 @@
      (begin
        (bytevector-u64-set! $v1 1 0 'big)
        (bytevector-u64-set! $v1 10 #xffffffffffffffff 'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          19
          (big-endian->unsigned #x7f #xff #xff #xff #xff #xff #xff #xff)
          'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          28
          (little-endian->unsigned #xff #xff #xff #xff #xff #xff #xff #x7f)
          'little)
@@ -19521,19 +19899,23 @@
      ; 29
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          2
          (little-endian->unsigned #x80 #x00 #x00 #x00 #x00 #x00 #x00 #x00)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          11
          (big-endian->unsigned #x00 #x00 #x00 #x00 #x00 #x00 #x00 #x80)
          'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          20
          (big-endian->unsigned #x80 #x00 #x00 #x00 #xff #xff #xff #xff)
          'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          29
          (little-endian->unsigned #xff #xff #xff #xff #x00 #x00 #x00 #x80)
          'little)
@@ -19556,19 +19938,23 @@
      ; 30
 
      (begin
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          3
          (big-endian->unsigned #x12 #x23 #x34 #x45 #x56 #x67 #x78 #x89)
          'big)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          12
          (little-endian->unsigned #x89 #x78 #x67 #x56 #x45 #x34 #x23 #x12)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          21
          (little-endian->unsigned #x78 #x89 #x9a #xab #xbc #xcd #xde #xef)
          'little)
-       (bytevector-u64-set! $v1
+       (bytevector-u64-set!
+         $v1
          30
          (big-endian->unsigned #xef #xde #xcd #xbc #xab #x9a #x89 #x78)
          'big)
@@ -19585,7 +19971,8 @@
            (let ([idx (fx+ (modulo i 7) 1)])
              (let ([ls (map (lambda (x) (random (expt 2 8))) (make-list 8))])
                (bytevector-fill! v #xc7)
-               (bytevector-u64-set! v
+               (bytevector-u64-set!
+                 v
                  idx
                  (apply native->unsigned ls)
                  (native-endianness))
@@ -19595,7 +19982,8 @@
                                    ls
                                    (make-list (fx- 7 idx) #xc7))))
                        (errorf #f "failed for ~s (native)" ls))
-               (bytevector-u64-set! v
+               (bytevector-u64-set!
+                 v
                  idx
                  (apply big-endian->unsigned (reverse ls))
                  'big)
@@ -19605,7 +19993,8 @@
                                    (reverse ls)
                                    (make-list (fx- 7 idx) #xc7))))
                        (errorf #f "failed for ~s (big)" ls))
-               (bytevector-u64-set! v
+               (bytevector-u64-set!
+                 v
                  idx
                  (apply little-endian->unsigned ls)
                  'little)
@@ -19645,9 +20034,8 @@
                   #xff #x80 #x00 #x00 ; -inf.0
                   #x01 #x02 #x03)]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (bytevector? $v1))
 
      ; wrong argument count
@@ -19734,9 +20122,8 @@
                   #xff #xf0 #x00 #x00 #x00 #x00 #x00 #x00 ; -inf.0
                   #x01 #x02 #x03 #x04 #x05 #x06 #x07)]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (bytevector? $v1))
 
      ; wrong argument count
@@ -19817,9 +20204,7 @@
 
      ; not a bytevector
      (error? (bytevector-ieee-single-native-set! '#(3 252 5 0 0 0 0) 0 0.0))
-     (error? (if (bytevector-ieee-single-native-set! '#(3 252 5 0 0 0 0)
-                   0
-                   0.0)
+     (error? (if (bytevector-ieee-single-native-set! '#(3 252 5 0 0 0 0) 0 0.0)
                  #f
                  #t))
 
@@ -19872,7 +20257,8 @@
        (bytevector-ieee-single-native-set! $v1 8 -1)
        (bytevector-ieee-single-native-set! $v1 12 3/2)
        (bytevector-ieee-single-native-set! $v1 16 -3/2)
-       (bytevector-ieee-single-native-set! $v1
+       (bytevector-ieee-single-native-set!
+         $v1
          20
          #b1.10101011110011010101101e1001100)
        (bytevector-ieee-single-native-set! $v1 24 +inf.0)
@@ -19901,9 +20287,8 @@
                        #xff #x80 #x00 #x00 ; -inf.0
                        #xeb #xeb #xeb)]
                 [else
-                 (errorf #f
-                   "mat doesn't handled endianness ~s"
-                   (native-endianness))])))))
+                 (errorf #f "mat doesn't handled endianness ~s"
+                         (native-endianness))])))))
 
 (mat bytevector-ieee-double-native-set!
      (begin
@@ -19926,9 +20311,7 @@
 
      ; not a bytevector
      (error? (bytevector-ieee-double-native-set! '#(3 252 5 0 0 0 0) 0 0.0))
-     (error? (if (bytevector-ieee-double-native-set! '#(3 252 5 0 0 0 0)
-                   0
-                   0.0)
+     (error? (if (bytevector-ieee-double-native-set! '#(3 252 5 0 0 0 0) 0 0.0)
                  #f
                  #t))
 
@@ -19996,7 +20379,8 @@
        (bytevector-ieee-double-native-set! $v1 16 -1)
        (bytevector-ieee-double-native-set! $v1 24 3/2)
        (bytevector-ieee-double-native-set! $v1 32 -3/2)
-       (bytevector-ieee-double-native-set! $v1
+       (bytevector-ieee-double-native-set!
+         $v1
          40
          #b-1.0011010001010110011110001001101010111100110111101111e-1000110101)
        (bytevector-ieee-double-native-set! $v1 48 +inf.0)
@@ -20027,9 +20411,8 @@
                        #xff #xf0 #x00 #x00 #x00 #x00 #x00 #x00 ; -inf.0
                        #xeb #xeb #xeb #xeb #xeb #xeb #xeb)]
                 [else
-                 (errorf #f
-                   "mat doesn't handled endianness ~s"
-                   (native-endianness))])))))
+                 (errorf #f "mat doesn't handled endianness ~s"
+                         (native-endianness))])))))
 
 (mat bytevector-ieee-single-ref
      (begin
@@ -20060,9 +20443,8 @@
            [(little) $vlittle]
            [(big) $vbig]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (andmap bytevector? (list $vlittle $vbig $vnative)))
 
      ; wrong argument count
@@ -20158,9 +20540,8 @@
            [(little) $vlittle]
            [(big) $vbig]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (andmap bytevector? (list $vlittle $vbig $vnative)))
 
      ; wrong argument count
@@ -20252,14 +20633,8 @@
                  #t))
 
      ; not a bytevector
-     (error? (bytevector-ieee-single-set! '#(3 252 5 0 0 0 0)
-               0
-               0.0
-               'little))
-     (error? (if (bytevector-ieee-single-set! '#(3 252 5 0 0 0 0)
-                   0
-                   0.0
-                   'little)
+     (error? (bytevector-ieee-single-set! '#(3 252 5 0 0 0 0) 0 0.0 'little))
+     (error? (if (bytevector-ieee-single-set! '#(3 252 5 0 0 0 0) 0 0.0 'little)
                  #f
                  #t))
 
@@ -20269,7 +20644,8 @@
      (error? (bytevector-ieee-single-set! $v1 37 0.0 'big))
      (error? (bytevector-ieee-single-set! $v1 38 0.0 'big))
      (error? (bytevector-ieee-single-set! $v1 39 0.0 'little))
-     (error? (if (bytevector-ieee-single-set! $v1
+     (error? (if (bytevector-ieee-single-set!
+                   $v1
                    4.0
                    0.0
                    (native-endianness))
@@ -20280,7 +20656,8 @@
      (error? (bytevector-ieee-single-set! $v1 0 1+2i 'big))
      (error? (bytevector-ieee-single-set! $v1 0 1.0+3.0i 'little))
      (error? (bytevector-ieee-single-set! $v1 0 1.0+0.0i 'big))
-     (error? (bytevector-ieee-single-set! $v1
+     (error? (bytevector-ieee-single-set!
+               $v1
                0
                1.0-0.0i
                (native-endianness)))
@@ -20327,9 +20704,8 @@
            [(little) $vlittle]
            [(big) $vbig]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (andmap bytevector? (list $vlittle $vbig $vnative)))
 
      (begin
@@ -20338,7 +20714,8 @@
        (bytevector-ieee-single-set! $v1 10 -1 (native-endianness))
        (bytevector-ieee-single-set! $v1 15 3/2 (native-endianness))
        (bytevector-ieee-single-set! $v1 20 -3/2 (native-endianness))
-       (bytevector-ieee-single-set! $v1
+       (bytevector-ieee-single-set!
+         $v1
          25
          #b1.10101011110011010101101e1001100
          (native-endianness))
@@ -20352,7 +20729,8 @@
        (bytevector-ieee-single-set! $v1 10 -1 'little)
        (bytevector-ieee-single-set! $v1 15 3/2 'little)
        (bytevector-ieee-single-set! $v1 20 -3/2 'little)
-       (bytevector-ieee-single-set! $v1
+       (bytevector-ieee-single-set!
+         $v1
          25
          #b1.10101011110011010101101e1001100
          'little)
@@ -20366,7 +20744,8 @@
        (bytevector-ieee-single-set! $v1 10 -1 'big)
        (bytevector-ieee-single-set! $v1 15 3/2 'big)
        (bytevector-ieee-single-set! $v1 20 -3/2 'big)
-       (bytevector-ieee-single-set! $v1
+       (bytevector-ieee-single-set!
+         $v1
          25
          #b1.10101011110011010101101e1001100
          'big)
@@ -20399,14 +20778,8 @@
                  #t))
 
      ; not a bytevector
-     (error? (bytevector-ieee-double-set! '#(3 252 5 0 0 0 0)
-               0
-               0.0
-               'little))
-     (error? (if (bytevector-ieee-double-set! '#(3 252 5 0 0 0 0)
-                   0
-                   0.0
-                   'little)
+     (error? (bytevector-ieee-double-set! '#(3 252 5 0 0 0 0) 0 0.0 'little))
+     (error? (if (bytevector-ieee-double-set! '#(3 252 5 0 0 0 0) 0 0.0 'little)
                  #f
                  #t))
 
@@ -20420,7 +20793,8 @@
      (error? (bytevector-ieee-double-set! $v1 69 0.0 'big))
      (error? (bytevector-ieee-double-set! $v1 70 0.0 'big))
      (error? (bytevector-ieee-double-set! $v1 71 0.0 'little))
-     (error? (if (bytevector-ieee-double-set! $v1
+     (error? (if (bytevector-ieee-double-set!
+                   $v1
                    4.0
                    0.0
                    (native-endianness))
@@ -20431,7 +20805,8 @@
      (error? (bytevector-ieee-double-set! $v1 0 1+2i 'big))
      (error? (bytevector-ieee-double-set! $v1 0 1.0+3.0i 'little))
      (error? (bytevector-ieee-double-set! $v1 0 1.0+0.0i 'big))
-     (error? (bytevector-ieee-double-set! $v1
+     (error? (bytevector-ieee-double-set!
+               $v1
                0
                1.0-0.0i
                (native-endianness)))
@@ -20485,9 +20860,8 @@
            [(little) $vlittle]
            [(big) $vbig]
            [else
-            (errorf #f
-              "mat doesn't handled endianness ~s"
-              (native-endianness))]))
+            (errorf #f "mat doesn't handled endianness ~s"
+                    (native-endianness))]))
        (andmap bytevector? (list $vlittle $vbig $vnative)))
 
      (begin
@@ -20496,7 +20870,8 @@
        (bytevector-ieee-double-set! $v1 18 -1 (native-endianness))
        (bytevector-ieee-double-set! $v1 27 3/2 (native-endianness))
        (bytevector-ieee-double-set! $v1 36 -3/2 (native-endianness))
-       (bytevector-ieee-double-set! $v1
+       (bytevector-ieee-double-set!
+         $v1
          45
          #b-1.0011010001010110011110001001101010111100110111101111e-1000110101
          (native-endianness))
@@ -20510,7 +20885,8 @@
        (bytevector-ieee-double-set! $v1 18 -1 'big)
        (bytevector-ieee-double-set! $v1 27 3/2 'big)
        (bytevector-ieee-double-set! $v1 36 -3/2 'big)
-       (bytevector-ieee-double-set! $v1
+       (bytevector-ieee-double-set!
+         $v1
          45
          #b-1.0011010001010110011110001001101010111100110111101111e-1000110101
          'big)
@@ -20524,7 +20900,8 @@
        (bytevector-ieee-double-set! $v1 18 -1 'little)
        (bytevector-ieee-double-set! $v1 27 3/2 'little)
        (bytevector-ieee-double-set! $v1 36 -3/2 'little)
-       (bytevector-ieee-double-set! $v1
+       (bytevector-ieee-double-set!
+         $v1
          45
          #b-1.0011010001010110011110001001101010111100110111101111e-1000110101
          'little)
@@ -20555,10 +20932,7 @@
 
      ; not a bytevector
      (error? (bytevector-sint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1))
-     (error? (if (bytevector-sint-ref '#(3 252 5 0 0 0 0 0 0 0 0)
-                   0
-                   'little
-                   1)
+     (error? (if (bytevector-sint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1)
                  #f
                  #t))
 
@@ -20692,10 +21066,7 @@
 
      ; not a bytevector
      (error? (bytevector-uint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1))
-     (error? (if (bytevector-uint-ref '#(3 252 5 0 0 0 0 0 0 0 0)
-                   0
-                   'little
-                   1)
+     (error? (if (bytevector-uint-ref '#(3 252 5 0 0 0 0 0 0 0 0) 0 'little 1)
                  #f
                  #t))
 
@@ -20735,11 +21106,13 @@
 
      ; invalid size
      (error? (bytevector-uint-ref $v1 0 'little 0))
-     (error? (bytevector-uint-ref $v1
+     (error? (bytevector-uint-ref
+               $v1
                0
                'little
                (+ (bytevector-length $v1) 1)))
-     (error? (bytevector-uint-ref $v1
+     (error? (bytevector-uint-ref
+               $v1
                7
                'little
                (- (bytevector-length $v1) 6)))
@@ -20838,12 +21211,9 @@
      (error? (if (bytevector-sint-set! $v1 0 7 'big 5 0) #f #t))
 
      ; not a bytevector
-     (error? (bytevector-sint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
-               0
-               7
-               'little
-               1))
-     (error? (if (bytevector-sint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (bytevector-sint-set! '#(3 252 5 0 0 0 0 0 0 0 0) 0 7 'little 1))
+     (error? (if (bytevector-sint-set!
+                   '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    7
                    'little
@@ -20901,13 +21271,15 @@
      (error? (bytevector-sint-set! $v1 0 #x8000000000000000 'big 8))
      (error? (bytevector-sint-set! $v1 0 #x8000000000000000 'little 8))
      (error? (bytevector-sint-set! $v1 0 #x-80000000000000000001 'big 10))
-     (error? (bytevector-sint-set! $v1
+     (error? (bytevector-sint-set!
+               $v1
                0
                #x-80000000000000000001
                'little
                10))
      (error? (bytevector-sint-set! $v1 0 #x80000000000000000000 'big 10))
-     (error? (if (bytevector-sint-set! $v1
+     (error? (if (bytevector-sint-set!
+                   $v1
                    0
                    #x80000000000000000000
                    'little
@@ -21058,12 +21430,9 @@
      (error? (if (bytevector-uint-set! $v1 0 7 'big 5 0) #f #t))
 
      ; not a bytevector
-     (error? (bytevector-uint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
-               0
-               7
-               'little
-               1))
-     (error? (if (bytevector-uint-set! '#(3 252 5 0 0 0 0 0 0 0 0)
+     (error? (bytevector-uint-set! '#(3 252 5 0 0 0 0 0 0 0 0) 0 7 'little 1))
+     (error? (if (bytevector-uint-set!
+                   '#(3 252 5 0 0 0 0 0 0 0 0)
                    0
                    7
                    'little
@@ -21123,7 +21492,8 @@
      (error? (bytevector-uint-set! $v1 0 #x-1 'big 10))
      (error? (bytevector-uint-set! $v1 0 #x-1 'little 10))
      (error? (bytevector-uint-set! $v1 0 #x100000000000000000000 'big 10))
-     (error? (if (bytevector-uint-set! $v1
+     (error? (if (bytevector-uint-set!
+                   $v1
                    0
                    #x100000000000000000000
                    'little
@@ -21293,7 +21663,8 @@
      (error? (bytevector-copy! $v1 'a $v2 0 0))
      (error? (bytevector-copy! $v1 0 $v2 0.0 0))
      (error? (bytevector-copy! $v1 (+ (most-positive-fixnum) 1) $v2 0 0))
-     (error? (if (bytevector-copy! $v1
+     (error? (if (bytevector-copy!
+                   $v1
                    0
                    $v2
                    (+ (most-positive-fixnum) 1)
@@ -21663,57 +22034,58 @@
      (error? (sint-list->bytevector '(0 #x-80000000000000000001 0)
                (native-endianness)
                10))
-     (error? (sint-list->bytevector '(0 #x-80000000000000000001 0)
-               'little
-               10))
+     (error? (sint-list->bytevector '(0 #x-80000000000000000001 0) 'little 10))
      (error? (sint-list->bytevector '(0 #x80000000000000000000 0) 'big 10))
      (error? (begin
-               (sint-list->bytevector '(0 #x80000000000000000000 0)
-                 'little
-                 10)
+               (sint-list->bytevector '(0 #x80000000000000000000 0) 'little 10)
                #t))
 
      ; invalid endianness
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                1))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                2))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                3))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                4))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                6))
      (error? (begin
-               (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (sint-list->bytevector
+                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'spam
                  12)
                #t))
 
      ; invalid size
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                -1))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
-               'big
-               0))
-     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50) 'big 0))
+     (error? (sint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                1.0))
      (error? (begin
-               (sint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (sint-list->bytevector
+                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'big
                  "oops")
                #t))
 
-     (equal? (sint-list->bytevector '(#x-1 #x01 #x02 #x-5 #x-80 #x7f)
-               'little
-               1)
+     (equal? (sint-list->bytevector '(#x-1 #x01 #x02 #x-5 #x-80 #x7f) 'little 1)
              #vu8(#xff #x01 #x02 #xfb #x80 #x7f))
 
      (equal? (sint-list->bytevector '(#x7f #x-80 -5 #x2 #x1 -1) 'big 1)
@@ -21743,7 +22115,8 @@
                   #xa2 #xb5 #xc1 #x99 5 2 3 4 6))
 
      (equal? (sint-list->bytevector
-               (list (little-endian->signed #xff
+               (list (little-endian->signed
+                       #xff
                        1
                        3
                        #xa0
@@ -21830,52 +22203,55 @@
      (error? (uint-list->bytevector '(0 x-1 0) 'little 10))
      (error? (uint-list->bytevector '(0 #x100000000000000000000 0) 'big 10))
      (error? (begin
-               (uint-list->bytevector '(0 #x100000000000000000000 0)
-                 'little
-                 10)
+               (uint-list->bytevector '(0 #x100000000000000000000 0) 'little 10)
                #t))
 
      ; invalid endianness
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                1))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                2))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                3))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                4))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'spam
                6))
      (error? (begin
-               (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (uint-list->bytevector
+                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'spam
                  12)
                #t))
 
      ; invalid size
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                -1))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
-               'big
-               0))
-     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+     (error? (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50) 'big 0))
+     (error? (uint-list->bytevector
+               '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                'big
                1.0))
      (error? (begin
-               (uint-list->bytevector '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
+               (uint-list->bytevector
+                 '(1 3 7 4 3 -3 5 -6 127 -128 -50 50)
                  'big
                  "oops")
                #t))
 
-     (equal? (uint-list->bytevector '(#xff #x01 #x02 #xfb #x80 #x7f)
-               'little
-               1)
+     (equal? (uint-list->bytevector '(#xff #x01 #x02 #xfb #x80 #x7f) 'little 1)
              #vu8(#xff #x01 #x02 #xfb #x80 #x7f))
 
      (equal? (uint-list->bytevector '(#x7f #x80 #xfb #x2 #x1 #xff) 'big 1)
@@ -21905,7 +22281,8 @@
                   #xa2 #xb5 #xc1 #x99 5 2 3 4 6))
 
      (equal? (uint-list->bytevector
-               (list (little-endian->unsigned #xff
+               (list (little-endian->unsigned
+                       #xff
                        1
                        3
                        #xa0
@@ -22036,19 +22413,16 @@
                  50)
                #t))
 
-     (equal? (bytevector->sint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->sint-list
+               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'little
                1)
              '(#x-1 #x01 #x02 #x-5 #x-80 #x7f))
 
-     (equal? (bytevector->sint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
-               'big
-               1)
+     (equal? (bytevector->sint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff) 'big 1)
              '(#x7f #x-80 -5 #x2 #x1 -1))
 
-     (equal? (bytevector->sint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
-               'big
-               2)
+     (equal? (bytevector->sint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f) 'big 2)
              '(#x-ff #x2FB #x-7f81))
 
      (equal? (bytevector->sint-list
@@ -22076,7 +22450,8 @@
                     #xc1 5 2 3 4)
                'little
                8)
-             (list (little-endian->signed #xff
+             (list (little-endian->signed
+                     #xff
                      1
                      3
                      #xa0
@@ -22203,19 +22578,16 @@
                  50)
                #t))
 
-     (equal? (bytevector->uint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
+     (equal? (bytevector->uint-list
+               #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
                'little
                1)
              '(#xff #x01 #x02 #xfb #x80 #x7f))
 
-     (equal? (bytevector->uint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff)
-               'big
-               1)
+     (equal? (bytevector->uint-list #vu8(#x7f #x80 #xfb #x2 #x1 #xff) 'big 1)
              '(#x7f #x80 #xfb #x2 #x1 #xff))
 
-     (equal? (bytevector->uint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f)
-               'big
-               2)
+     (equal? (bytevector->uint-list #vu8(#xff #x01 #x02 #xfb #x80 #x7f) 'big 2)
              '(#xff01 #x2FB #x807f))
 
      (equal? (bytevector->uint-list
@@ -22243,7 +22615,8 @@
                     #xc1 5 2 3 4)
                'little
                8)
-             (list (little-endian->unsigned #xff
+             (list (little-endian->unsigned
+                     #xff
                      1
                      3
                      #xa0
@@ -22314,10 +22687,10 @@
            (when (eq? v1 v2)
                  (errorf #f "copy is eq to original"))
            (unless (bytevector=? v1 v2)
-             (pretty-print v1)
-             (errorf #f
-               "first bytevector=? failed for ~s (see output for vector)"
-               n))
+                   (pretty-print v1)
+                   (errorf #f
+                           "first bytevector=? failed for ~s (see output for vector)"
+                           n))
            (do ([i 0 (fx+ i 1)])
                ((fx= i n))
                (let ([k (bytevector-u8-ref v2 i)])
@@ -22326,16 +22699,16 @@
                        (pretty-print v1)
                        (pretty-print v2)
                        (errorf #f
-                         "second bytevector=? failed for n=~s and i=~s (see output for vector)"
-                         n
-                         i))
+                               "second bytevector=? failed for n=~s and i=~s (see output for vector)"
+                               n
+                               i))
                  (bytevector-u8-set! v2 i k))
                (unless (bytevector=? v1 v2)
-                 (pretty-print v1)
-                 (errorf #f
-                   "third bytevector=? failed for n=~s and i=~s (see output for vector)"
-                   n
-                   i))))))
+                       (pretty-print v1)
+                       (errorf #f
+                               "third bytevector=? failed for n=~s and i=~s (see output for vector)"
+                               n
+                               i))))))
 
 (mat r6rs-bytevector-examples
      (equal? (let ([b (u8-list->bytevector '(1 2 3 4 5 6 7 8))])
@@ -22366,7 +22739,8 @@
        (bytevector? $bv))
 
      (eqv? (begin
-             (bytevector-uint-set! $bv
+             (bytevector-uint-set!
+               $bv
                0
                (- (expt 2 128) 3)
                (endianness little)
@@ -22380,7 +22754,8 @@
        '(253 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255))
 
      (eqv? (begin
-             (bytevector-uint-set! $bv
+             (bytevector-uint-set!
+               $bv
                0
                (- (expt 2 128) 3)
                (endianness big)
@@ -22564,7 +22939,8 @@
 
                   (let ()
                     (define b (make-bytevector 16 -127))
-                    (bytevector-uint-set! b
+                    (bytevector-uint-set!
+                      b
                       0
                       (- (expt 2 128) 3)
                       (endianness little)
@@ -22596,7 +22972,8 @@
                                255
                                255))
 
-                    (bytevector-uint-set! b
+                    (bytevector-uint-set!
+                      b
                       0
                       (- (expt 2 128) 3)
                       (endianness big)
@@ -22606,9 +22983,7 @@
                           =>
                           #xfffffffffffffffffffffffffffffffd)
 
-                    (test (bytevector-sint-ref b 0 (endianness big) 16)
-                          =>
-                          -3)
+                    (test (bytevector-sint-ref b 0 (endianness big) 16) => -3)
 
                     (test (bytevector->u8-list b)
                           =>
@@ -22651,21 +23026,15 @@
                           =>
                           65023)
 
-                    (test (bytevector-s16-ref b 14 (endianness little))
-                          =>
-                          -513)
+                    (test (bytevector-s16-ref b 14 (endianness little)) => -513)
 
-                    (test (bytevector-u16-ref b 14 (endianness big))
-                          =>
-                          65533)
+                    (test (bytevector-u16-ref b 14 (endianness big)) => 65533)
 
                     (test (bytevector-s16-ref b 14 (endianness big)) => -3)
 
                     (bytevector-u16-set! b 0 12345 (endianness little))
 
-                    (test (bytevector-u16-ref b 0 (endianness little))
-                          =>
-                          12345)
+                    (test (bytevector-u16-ref b 0 (endianness little)) => 12345)
 
                     (bytevector-u16-native-set! b 0 12345)
 
@@ -22784,12 +23153,8 @@
                     (test (bytevector=? b (bytevector-copy b)) => #t))
 
                   (let ((b (u8-list->bytevector '(1 2 3 255 1 2 1 2))))
-                    (test (bytevector->sint-list b (endianness little) 2)
-                          =>
-                          (513 -253 513 513))
-                    (test (bytevector->uint-list b (endianness little) 2)
-                          =>
-                          (513 65283 513 513))))
+                    (test (bytevector->sint-list b (endianness little) 2) => (513 -253 513 513))
+                    (test (bytevector->uint-list b (endianness little) 2) => (513 65283 513 513))))
 
                 (define (ieee-bytevector-tests)
 
@@ -22799,14 +23164,16 @@
                       (getter b k endness)))
 
                   (define (->single x)
-                    (roundtrip x
+                    (roundtrip
+                      x
                       bytevector-ieee-single-ref
                       bytevector-ieee-single-set!
                       0
                       'big))
 
                   (define (->double x)
-                    (roundtrip x
+                    (roundtrip
+                      x
                       bytevector-ieee-double-ref
                       bytevector-ieee-double-set!
                       0
@@ -22814,7 +23181,8 @@
 
                   ; Single precision, offset 0, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22822,7 +23190,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22830,7 +23199,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    0
@@ -22839,7 +23209,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22847,7 +23218,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22857,7 +23229,8 @@
 
                   ; Single precision, offset 0, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22865,7 +23238,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22873,7 +23247,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    0
@@ -22882,7 +23257,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22890,7 +23266,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           0
@@ -22900,7 +23277,8 @@
 
                   ; Single precision, offset 1, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22908,7 +23286,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22916,7 +23295,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    1
@@ -22925,7 +23305,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22933,7 +23314,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22943,7 +23325,8 @@
 
                   ; Single precision, offset 1, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22951,7 +23334,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22959,7 +23343,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    1
@@ -22968,7 +23353,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22976,7 +23362,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           1
@@ -22986,7 +23373,8 @@
 
                   ; Single precision, offset 2, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -22994,7 +23382,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23002,7 +23391,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    2
@@ -23011,7 +23401,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23019,7 +23410,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23029,7 +23421,8 @@
 
                   ; Single precision, offset 2, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23037,7 +23430,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23045,7 +23439,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    2
@@ -23054,7 +23449,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23062,7 +23458,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           2
@@ -23072,7 +23469,8 @@
 
                   ; Single precision, offset 3, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23080,7 +23478,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23088,7 +23487,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    3
@@ -23097,7 +23497,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23105,7 +23506,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23115,7 +23517,8 @@
 
                   ; Single precision, offset 3, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23123,7 +23526,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23131,7 +23535,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-single-ref
                                    bytevector-ieee-single-set!
                                    3
@@ -23140,7 +23545,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23148,7 +23554,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-single-ref
                           bytevector-ieee-single-set!
                           3
@@ -23158,7 +23565,8 @@
 
                   ; Double precision, offset 0, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23166,7 +23574,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23174,7 +23583,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    0
@@ -23183,7 +23593,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23191,7 +23602,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23201,7 +23613,8 @@
 
                   ; Double precision, offset 0, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23209,7 +23622,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23217,7 +23631,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    0
@@ -23226,7 +23641,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23234,7 +23650,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           0
@@ -23244,7 +23661,8 @@
 
                   ; Double precision, offset 1, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23252,7 +23670,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23260,7 +23679,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    1
@@ -23269,7 +23689,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23277,7 +23698,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23287,7 +23709,8 @@
 
                   ; Double precision, offset 1, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23295,7 +23718,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23303,7 +23727,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    1
@@ -23312,7 +23737,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23320,7 +23746,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           1
@@ -23330,7 +23757,8 @@
 
                   ; Double precision, offset 2, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23338,7 +23766,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23346,7 +23775,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    2
@@ -23355,7 +23785,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23363,7 +23794,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23373,7 +23805,8 @@
 
                   ; Double precision, offset 2, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23381,7 +23814,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23389,7 +23823,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    2
@@ -23398,7 +23833,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23406,7 +23842,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           2
@@ -23416,7 +23853,8 @@
 
                   ; Double precision, offset 3, big-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23424,7 +23862,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23432,7 +23871,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    3
@@ -23441,7 +23881,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23449,7 +23890,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23459,7 +23901,8 @@
 
                   ; Double precision, offset 3, little-endian
 
-                  (test (roundtrip +inf.0
+                  (test (roundtrip
+                          +inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23467,7 +23910,8 @@
                         =>
                         +inf.0)
 
-                  (test (roundtrip -inf.0
+                  (test (roundtrip
+                          -inf.0
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23475,7 +23919,8 @@
                         =>
                         -inf.0)
 
-                  (test (let ((x (roundtrip +nan.0
+                  (test (let ((x (roundtrip
+                                   +nan.0
                                    bytevector-ieee-double-ref
                                    bytevector-ieee-double-set!
                                    3
@@ -23484,7 +23929,8 @@
                         =>
                         #f)
 
-                  (test (roundtrip 1e10
+                  (test (roundtrip
+                          1e10
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23492,7 +23938,8 @@
                         =>
                         1e10)
 
-                  (test (roundtrip -0.2822580337524414
+                  (test (roundtrip
+                          -0.2822580337524414
                           bytevector-ieee-double-ref
                           bytevector-ieee-double-set!
                           3
@@ -23666,7 +24113,8 @@
                         =>
                         #t)
 
-                  (test-roundtrip (random-bytevector 10)
+                  (test-roundtrip
+                    (random-bytevector 10)
                     utf8->string
                     string->utf8)
 
@@ -23702,7 +24150,8 @@
                         #t)
 
                   (test (bytevector=?
-                          (string->utf16 "\x010000;\xfdcba;\x10ffff;"
+                          (string->utf16
+                            "\x010000;\xfdcba;\x10ffff;"
                             'little)
                           '#vu8(#x00 #xd8 #x00 #xdc #xb7 #xdb #xba #xdc #xff
                                 #xdb #xff #xdf))
@@ -23711,7 +24160,8 @@
 
                   (test (bytevector=?
                           (string->utf16 "ab\x010000;\xfdcba;\x10ffff;cd")
-                          (string->utf16 "ab\x010000;\xfdcba;\x10ffff;cd"
+                          (string->utf16
+                            "ab\x010000;\xfdcba;\x10ffff;cd"
                             'big))
                         =>
                         #t)
@@ -23968,7 +24418,8 @@
                     (test-char-range #xd0000 #xdffff tostring tobytevector)
                     (test-char-range #xe0000 #xeffff tostring tobytevector)
                     (test-char-range #xf0000 #xfffff tostring tobytevector)
-                    (test-char-range #x100000
+                    (test-char-range
+                      #x100000
                       #x10ffff
                       tostring
                       tobytevector))
@@ -23977,45 +24428,40 @@
 
                   (define (timeit x) x)
 
-                  (timeit (test-exhaustively "UTF-8"
+                  (timeit (test-exhaustively
+                            "UTF-8"
                             utf8->string
                             string->utf8))
 
                   #;
                   ; rkd: utf16->string requires endianness argument
-                  (timeit (test-exhaustively "UTF-16"
+                  (timeit (test-exhaustively
+                            "UTF-16"
                             utf16->string
                             string->utf16))
 
                   (timeit (test-exhaustively "UTF-16BE"
-                            (lambda (bv)
-                              (utf16->string bv 'big))
-                            (lambda (s)
-                              (string->utf16 s 'big))))
+                            (lambda (bv) (utf16->string bv 'big))
+                            (lambda (s) (string->utf16 s 'big))))
 
                   (timeit (test-exhaustively "UTF-16LE"
-                            (lambda (bv)
-                              (utf16->string bv 'little))
-                            (lambda (s)
-                              (string->utf16 s 'little))))
+                            (lambda (bv) (utf16->string bv 'little))
+                            (lambda (s) (string->utf16 s 'little))))
 
                   #;
                   ; rkd: utf32->string requires endianness argument
-                  (timeit (test-exhaustively "UTF-32"
+                  (timeit (test-exhaustively
+                            "UTF-32"
                             utf32->string
                             string->utf32))
 
                   (timeit (test-exhaustively "UTF-32BE"
-                            (lambda (bv)
-                              (utf32->string bv 'big))
-                            (lambda (s)
-                              (string->utf32 s 'big))))
+                            (lambda (bv) (utf32->string bv 'big))
+                            (lambda (s) (string->utf32 s 'big))))
 
                   (timeit (test-exhaustively "UTF-32LE"
-                            (lambda (bv)
-                              (utf32->string bv 'little))
-                            (lambda (s)
-                              (string->utf32 s 'little)))))
+                            (lambda (bv) (utf32->string bv 'little))
+                            (lambda (s) (string->utf32 s 'little)))))
 
                 (basic-bytevector-tests)
                 (ieee-bytevector-tests)
@@ -24122,10 +24568,8 @@
                       (equal? (bytevector-u32-native-ref $v 0) #x1234fe56)
                       (equal? (bytevector-s32-native-ref $v 0) #x1234fe56)
                       (equal? (bytevector-s32-native-ref $v 4) #x-23458768)
-                      (equal? (bytevector-u64-native-ref $v 0)
-                              #x1234fe56dcba7898)
-                      (equal? (bytevector-s64-native-ref $v 0)
-                              #x1234fe56dcba7898))]
+                      (equal? (bytevector-u64-native-ref $v 0) #x1234fe56dcba7898)
+                      (equal? (bytevector-s64-native-ref $v 0) #x1234fe56dcba7898))]
                [(little)
                 (list (equal? (bytevector-u16-native-ref $v 2) #x56fe)
                       (equal? (bytevector-s16-native-ref $v 2) #x56fe)
@@ -24133,14 +24577,11 @@
                       (equal? (bytevector-u32-native-ref $v 0) #x56fe3412)
                       (equal? (bytevector-s32-native-ref $v 0) #x56fe3412)
                       (equal? (bytevector-s32-native-ref $v 4) #x-67874524)
-                      (equal? (bytevector-u64-native-ref $v 0)
-                              #x9878badc56fe3412)
-                      (equal? (bytevector-s64-native-ref $v 0)
-                              #x-67874523a901cbee))]
+                      (equal? (bytevector-u64-native-ref $v 0) #x9878badc56fe3412)
+                      (equal? (bytevector-s64-native-ref $v 0) #x-67874523a901cbee))]
                [else
-                (errorf #f
-                  "mat does not handle endianness ~s"
-                  (native-endianness))])
+                (errorf #f "mat does not handle endianness ~s"
+                        (native-endianness))])
              '(#t #t #t #t #t #t #t #t))
 
      (let ()
@@ -24153,9 +24594,8 @@
          [(little)
           (equal? v #vu8(#x56 #xfe #x56 #xfe #x98 #x78 #x00 #x00))]
          [else
-          (errorf #f
-            "mat does not handle endianness ~s"
-            (native-endianness))]))
+          (errorf #f "mat does not handle endianness ~s"
+                  (native-endianness))]))
      (let ()
        (define v (make-bytevector 16 0))
        (bytevector-u32-native-set! v 0 #x1234fe56)
@@ -24171,9 +24611,8 @@
             #vu8(#x56 #xfe #x34 #x12 #x56 #xfe #x34 #x12 #x98 #x78 #xba #xdc
                  #x00 #x00 #x00 #x00))]
          [else
-          (errorf #f
-            "mat does not handle endianness ~s"
-            (native-endianness))]))
+          (errorf #f "mat does not handle endianness ~s"
+                  (native-endianness))]))
      (let ()
        (define v (make-bytevector 24 0))
        (bytevector-u64-native-set! v 0 #x1234fe56dcba7898)
@@ -24189,9 +24628,8 @@
             #vu8(#x98 #x78 #xba #xdc #x56 #xfe #x34 #x12 #x98 #x78 #xba #xdc
                  #x56 #xfe #x34 #x12 #x12 #x34 #xfe #x56 #xdc #xba #x78 #x98))]
          [else
-          (errorf #f
-            "mat does not handle endianness ~s"
-            (native-endianness))]))
+          (errorf #f "mat does not handle endianness ~s"
+                  (native-endianness))]))
 
      (begin
        (define $v
@@ -24248,10 +24686,7 @@
             (equal? (bytevector-sint-ref v 2 'big 1) #x-02)
             (equal? (bytevector-sint-ref v 1 'little 6) #x78badc56fe34)
             (equal? (bytevector-sint-ref v 2 'little 7) #x-6567874523a902)
-            (equal? (bytevector-sint-ref (make-bytevector 1000 -1)
-                      0
-                      'big
-                      1000)
+            (equal? (bytevector-sint-ref (make-bytevector 1000 -1) 0 'big 1000)
                     -1)))
 
      (let ()
@@ -24322,7 +24757,8 @@
                          (if (fx= len 0)
                              0
                              (bytevector-uint-ref bv 0 endianness len)))
-                       (bytevector-uint-set! new
+                       (bytevector-uint-set!
+                         new
                          0
                          (f (uint-ref bv1 len1) (uint-ref bv2 len2))
                          endianness
@@ -24344,13 +24780,15 @@
                  bv
                  (let ([new (make-bytevector len)])
                    #;
-                   (bytevector-uint-set! new
+                   (bytevector-uint-set!
+                     new
                      0
                      (- (- (expt 256 len) 1)
                         (bytevector-uint-ref bv 0 (native-endianness) len))
                      (native-endianness)
                      len)
-                   (bytevector-sint-set! new
+                   (bytevector-sint-set!
+                     new
                      0
                      (bitwise-not
                        (bytevector-sint-ref bv 0 (native-endianness) len))
@@ -24601,57 +25039,57 @@
              (unless (equal? (bytevector-and bv1 bv2)
                              ($bytevector-and bv1 bv2))
                      (errorf #f
-                       "bytevector-and failed on ~s and ~s"
-                       bv1
-                       bv2))
+                             "bytevector-and failed on ~s and ~s"
+                             bv1
+                             bv2))
              (unless (equal? (bytevector-and bv2 bv1)
                              ($bytevector-and bv2 bv1))
                      (errorf #f
-                       "bytevector-and failed on ~s and ~s"
-                       bv2
-                       bv1))
+                             "bytevector-and failed on ~s and ~s"
+                             bv2
+                             bv1))
              (unless (equal? (bytevector-and bv1 bv1)
                              ($bytevector-and bv1 bv1))
                      (errorf #f
-                       "bytevector-and failed on ~s and ~s"
-                       bv1
-                       bv1))
+                             "bytevector-and failed on ~s and ~s"
+                             bv1
+                             bv1))
              (unless (equal? (bytevector-ior bv1 bv2)
                              ($bytevector-ior bv1 bv2))
                      (errorf #f
-                       "bytevector-ior failed on ~s and ~s"
-                       bv1
-                       bv2))
+                             "bytevector-ior failed on ~s and ~s"
+                             bv1
+                             bv2))
              (unless (equal? (bytevector-ior bv2 bv1)
                              ($bytevector-ior bv2 bv1))
                      (errorf #f
-                       "bytevector-ior failed on ~s and ~s"
-                       bv2
-                       bv1))
+                             "bytevector-ior failed on ~s and ~s"
+                             bv2
+                             bv1))
              (unless (equal? (bytevector-ior bv1 bv1)
                              ($bytevector-ior bv1 bv1))
                      (errorf #f
-                       "bytevector-ior failed on ~s and ~s"
-                       bv1
-                       bv1))
+                             "bytevector-ior failed on ~s and ~s"
+                             bv1
+                             bv1))
              (unless (equal? (bytevector-xor bv1 bv2)
                              ($bytevector-xor bv1 bv2))
                      (errorf #f
-                       "bytevector-xor failed on ~s and ~s"
-                       bv1
-                       bv2))
+                             "bytevector-xor failed on ~s and ~s"
+                             bv1
+                             bv2))
              (unless (equal? (bytevector-xor bv2 bv1)
                              ($bytevector-xor bv2 bv1))
                      (errorf #f
-                       "bytevector-xor failed on ~s and ~s"
-                       bv2
-                       bv1))
+                             "bytevector-xor failed on ~s and ~s"
+                             bv2
+                             bv1))
              (unless (equal? (bytevector-xor bv1 bv1)
                              ($bytevector-xor bv1 bv1))
                      (errorf #f
-                       "bytevector-xor failed on ~s and ~s"
-                       bv1
-                       bv1))))))
+                             "bytevector-xor failed on ~s and ~s"
+                             bv1
+                             bv1))))))
 
 (mat bytevector->immutable-bytevector
      (begin
@@ -24675,166 +25113,168 @@
             (bytevector-copy immutable-100-bytevector)))
 
      ;; Make sure `...set!` functions check for mutability:
-     (error? (bytevector-uint-set! immutable-100-bytevector
+     (error? (bytevector-uint-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)
                4))
-     (error? (bytevector-sint-set! immutable-100-bytevector
+     (error? (bytevector-sint-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)
                4))
      (error? (bytevector-u8-set! immutable-100-bytevector 0 1))
      (error? (bytevector-s8-set! immutable-100-bytevector 0 1))
-     (error? (bytevector-u16-set! immutable-100-bytevector
+     (error? (bytevector-u16-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s16-set! immutable-100-bytevector
+     (error? (bytevector-s16-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
      (error? (bytevector-u16-native-set! immutable-100-bytevector 0 1))
      (error? (bytevector-s16-native-set! immutable-100-bytevector 0 1))
-     (error? (bytevector-u24-set! immutable-100-bytevector
+     (error? (bytevector-u24-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s24-set! immutable-100-bytevector
+     (error? (bytevector-s24-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-u32-set! immutable-100-bytevector
+     (error? (bytevector-u32-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s32-set! immutable-100-bytevector
+     (error? (bytevector-s32-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
      (error? (bytevector-u32-native-set! immutable-100-bytevector 0 1))
      (error? (bytevector-s32-native-set! immutable-100-bytevector 0 1))
-     (error? (bytevector-u40-set! immutable-100-bytevector
+     (error? (bytevector-u40-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s40-set! immutable-100-bytevector
+     (error? (bytevector-s40-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-u48-set! immutable-100-bytevector
+     (error? (bytevector-u48-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s48-set! immutable-100-bytevector
+     (error? (bytevector-s48-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-u56-set! immutable-100-bytevector
+     (error? (bytevector-u56-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s56-set! immutable-100-bytevector
+     (error? (bytevector-s56-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-u64-set! immutable-100-bytevector
+     (error? (bytevector-u64-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
-     (error? (bytevector-s64-set! immutable-100-bytevector
+     (error? (bytevector-s64-set!
+               immutable-100-bytevector
                0
                1
                (endianness big)))
      (error? (bytevector-u64-native-set! immutable-100-bytevector 0 1))
      (error? (bytevector-s64-native-set! immutable-100-bytevector 0 1))
-     (error? (bytevector-ieee-single-set! immutable-100-bytevector
+     (error? (bytevector-ieee-single-set!
+               immutable-100-bytevector
                0
                1.0
                (endianness big)))
-     (error? (bytevector-ieee-double-set! immutable-100-bytevector
+     (error? (bytevector-ieee-double-set!
+               immutable-100-bytevector
                0
                1.0
                (endianness big)))
-     (error? (bytevector-ieee-single-native-set! immutable-100-bytevector
-               0
-               1.0))
-     (error? (bytevector-ieee-double-native-set! immutable-100-bytevector
-               0
-               1.0))
+     (error? (bytevector-ieee-single-native-set! immutable-100-bytevector 0 1.0))
+     (error? (bytevector-ieee-double-native-set! immutable-100-bytevector 0 1.0))
      (error? (bytevector-fill! immutable-100-bytevector 0))
      (error? (bytevector-copy! '#vu8(4 5 6) 0 immutable-100-bytevector 0 3))
      (error? (bytevector-truncate! immutable-100-bytevector 1))
 
      ;; Make sure `...ref!` functions *don't* accidentally check for mutability:
-     (number? (bytevector-uint-ref immutable-100-bytevector
+     (number? (bytevector-uint-ref
+                immutable-100-bytevector
                 0
                 (endianness big)
                 4))
-     (number? (bytevector-sint-ref immutable-100-bytevector
+     (number? (bytevector-sint-ref
+                immutable-100-bytevector
                 0
                 (endianness big)
                 4))
      (number? (bytevector-u8-ref immutable-100-bytevector 0))
      (number? (bytevector-s8-ref immutable-100-bytevector 0))
-     (number? (bytevector-u16-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u16-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s16-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s16-ref immutable-100-bytevector 0
                 (endianness big)))
      (number? (bytevector-u16-native-ref immutable-100-bytevector 0))
      (number? (bytevector-s16-native-ref immutable-100-bytevector 0))
-     (number? (bytevector-u24-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u24-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s24-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s24-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-u32-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u32-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s32-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s32-ref immutable-100-bytevector 0
                 (endianness big)))
      (number? (bytevector-u32-native-ref immutable-100-bytevector 0))
      (number? (bytevector-s32-native-ref immutable-100-bytevector 0))
-     (number? (bytevector-u40-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u40-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s40-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s40-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-u48-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u48-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s48-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s48-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-u56-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u56-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s56-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s56-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-u64-ref immutable-100-bytevector
-                0
+     (number? (bytevector-u64-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-s64-ref immutable-100-bytevector
-                0
+     (number? (bytevector-s64-ref immutable-100-bytevector 0
                 (endianness big)))
      (number? (bytevector-u64-native-ref immutable-100-bytevector 0))
      (number? (bytevector-s64-native-ref immutable-100-bytevector 0))
-     (number? (bytevector-ieee-single-ref immutable-100-bytevector
-                0
+     (number? (bytevector-ieee-single-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-ieee-double-ref immutable-100-bytevector
-                0
+     (number? (bytevector-ieee-double-ref immutable-100-bytevector 0
                 (endianness big)))
-     (number? (bytevector-ieee-single-native-ref immutable-100-bytevector
+     (number? (bytevector-ieee-single-native-ref
+                immutable-100-bytevector
                 0))
-     (number? (bytevector-ieee-double-native-ref immutable-100-bytevector
+     (number? (bytevector-ieee-double-native-ref
+                immutable-100-bytevector
                 0)))
 
 
@@ -24928,10 +25368,11 @@
            locs)
          (let f ([q thread-list])
            (unless (null? q)
-             ((car q)
-              10
-              (lambda (t . r) (f (cdr q)))
-              (lambda (x) (f (append (cdr q) (list x)))))))
+                   ((car q)
+                    10
+                    (lambda (t . r) (f (cdr q)))
+                    (lambda (x)
+                      (f (append (cdr q) (list x)))))))
          (map car locs))
 
        (equal? (engine-eval-test 7) '(890 890 890 890 890 890 890))))
@@ -25037,8 +25478,7 @@
                                    ...)
                              (iota (length '(x ...))))
                         (and (with-mutex m
-                               (condition-wait c
-                                 m
+                               (condition-wait c m
                                  (make-time 'time-duration 0 60)))
                              (vector->list v)))]))
                  (parallel-list (fatfib 26)
@@ -25052,16 +25492,14 @@
        (let ([m (make-mutex)] [c (make-condition)])
          (with-mutex m
            (let* ([start (current-time)]
-                  [r (condition-wait c
-                       m
+                  [r (condition-wait c m
                        (make-time 'time-duration 250000000 1))]
                   [stop (current-time)])
              (and (not r) ($time-in-range? start stop 1.25)))))
        (let ([m (make-mutex)] [c (make-condition)])
          (with-mutex m
            (let* ([start (current-time)]
-                  [r (condition-wait c
-                       m
+                  [r (condition-wait c m
                        (add-duration start
                          (make-time 'time-duration 250000000 1)))]
                   [stop (current-time)])
@@ -25075,8 +25513,7 @@
        (let ([m (make-mutex)] [c (make-condition)])
          (with-mutex m
            (let* ([start (current-time)]
-                  [r (condition-wait c
-                       m
+                  [r (condition-wait c m
                        (add-duration start (make-time 'time-duration 0 -1)))]
                   [stop (current-time)])
              (and (not r) ($time-in-range? start stop 0.0)))))
@@ -25087,8 +25524,7 @@
                (with-mutex m
                  (sleep (make-time 'time-duration 250000000 0)))))
            (let* ([start (current-time)]
-                  [r (condition-wait c
-                       m
+                  [r (condition-wait c m
                        (make-time 'time-duration 100000000 0))]
                   [stop (current-time)])
              (and (not r) ($time-in-range? start stop 0.25)))))
@@ -25261,9 +25697,9 @@
          (define mgrab
            (lambda (n)
              (unless (fxzero? n)
-               (mutex-acquire m)
-               (mutex-release m)
-               (mgrab (fx- n 1)))))
+                     (mutex-acquire m)
+                     (mutex-release m)
+                     (mgrab (fx- n 1)))))
          (mgrab 100)
          #t)
        ($thread-check)
@@ -25274,9 +25710,9 @@
              (set! m (make-mutex))
              (let f ([n n])
                (unless (fxzero? n)
-                 (mutex-acquire m)
-                 (f (fx- n 1))
-                 (mutex-release m)))
+                       (mutex-acquire m)
+                       (f (fx- n 1))
+                       (mutex-release m)))
              (fork-thread
                (lambda ()
                  (mutex-acquire m)
@@ -25347,39 +25783,39 @@
                (with-mutex mutex
                  (let loop ()
                    (unless (bounded-queue-die? bq)
-                     (if (zero? (bounded-queue-i bq))
-                         (begin
-                           (condition-wait (bounded-queue-room bq) mutex)
-                           ; we grab the mutex when we wake up, but some other thread may
-                           ; beat us to the punch
-                           (loop))
-                         (let ([i (- (bounded-queue-i bq) 1)])
-                           (vector-set! (bounded-queue-vec bq) i item)
-                           (set-bounded-queue-i! bq i)
-                           (unless (zero? (bounded-queue-waiting bq))
-                                   (condition-signal (bounded-queue-ready bq)))))))))))
+                           (if (zero? (bounded-queue-i bq))
+                               (begin
+                                 (condition-wait (bounded-queue-room bq) mutex)
+                                 ; we grab the mutex when we wake up, but some other thread may
+                                 ; beat us to the punch
+                                 (loop))
+                               (let ([i (- (bounded-queue-i bq) 1)])
+                                 (vector-set! (bounded-queue-vec bq) i item)
+                                 (set-bounded-queue-i! bq i)
+                                 (unless (zero? (bounded-queue-waiting bq))
+                                         (condition-signal (bounded-queue-ready bq)))))))))))
          (define dequeue!
            (lambda (bq)
              (let ([mutex (bounded-queue-mutex bq)])
                (with-mutex mutex
                  (let loop ()
                    (unless (bounded-queue-die? bq)
-                     (if (= (bounded-queue-i bq)
-                            (vector-length (bounded-queue-vec bq)))
-                         (begin
-                           (set-bounded-queue-waiting! bq
-                             (+ (bounded-queue-waiting bq) 1))
-                           (condition-wait (bounded-queue-ready bq) mutex)
-                           (set-bounded-queue-waiting! bq
-                             (- (bounded-queue-waiting bq) 1))
-                           ; we grab the mutex when we wake up, but some other thread may
-                           ; beat us to the punch
-                           (loop))
-                         (let ([i (bounded-queue-i bq)])
-                           (let ([item (vector-ref (bounded-queue-vec bq) i)])
-                             (set-bounded-queue-i! bq (+ i 1))
-                             (condition-signal (bounded-queue-room bq))
-                             item)))))))))
+                           (if (= (bounded-queue-i bq)
+                                  (vector-length (bounded-queue-vec bq)))
+                               (begin
+                                 (set-bounded-queue-waiting! bq
+                                   (+ (bounded-queue-waiting bq) 1))
+                                 (condition-wait (bounded-queue-ready bq) mutex)
+                                 (set-bounded-queue-waiting! bq
+                                   (- (bounded-queue-waiting bq) 1))
+                                 ; we grab the mutex when we wake up, but some other thread may
+                                 ; beat us to the punch
+                                 (loop))
+                               (let ([i (bounded-queue-i bq)])
+                                 (let ([item (vector-ref (bounded-queue-vec bq) i)])
+                                   (set-bounded-queue-i! bq (+ i 1))
+                                   (condition-signal (bounded-queue-room bq))
+                                   item)))))))))
          (define job-queue)
          (define fib
            (lambda (n)
@@ -25409,12 +25845,9 @@
                       (if (bounded-queue-die? job-queue)
                           (printf "consumer ~s dying\n" n)
                           (begin
-                            (printf "consumer ~s executing job #~s~%"
-                                    n
+                            (printf "consumer ~s executing job #~s~%" n
                                     (car job))
-                            (printf "consumer ~s computed:  ~s~%"
-                                    n
-                                    ((cdr job)))
+                            (printf "consumer ~s computed:  ~s~%" n ((cdr job)))
                             (consumer))))))))
          (define (bq-test np nc)
            (set! job-queue (make-bounded-queue (max nc np)))
@@ -25432,11 +25865,11 @@
          (let ()
            (let f ()
              (unless (= (length ($threads)) nthreads)
-               (with-mutex (bounded-queue-mutex job-queue)
-                 (condition-signal (bounded-queue-room job-queue))
-                 (condition-signal (bounded-queue-ready job-queue)))
-               ($yield)
-               (f))))
+                     (with-mutex (bounded-queue-mutex job-queue)
+                       (condition-signal (bounded-queue-room job-queue))
+                       (condition-signal (bounded-queue-ready job-queue)))
+                     ($yield)
+                     (f))))
          (eqv? ans 9227465))
        ($thread-check)
        (let ([ans #f])
@@ -25520,9 +25953,9 @@
          (define spin
            (lambda ()
              (unless done?
-               (if (mutex-acquire m #f)
-                   (set! done? #t)
-                   (begin ($yield) (spin))))))
+                     (if (mutex-acquire m #f)
+                         (set! done? #t)
+                         (begin ($yield) (spin))))))
          (fork-thread spin)
          (fork-thread spin)
          (spin)
@@ -25559,7 +25992,9 @@
                  (bar 1200)
                  (bar 1100)
                  (let f ()
-                   (unless (= (accumulator-increments acc) 9) ($yield) (f)))
+                   (unless (= (accumulator-increments acc) 9)
+                           ($yield)
+                           (f)))
                  (accumulator-acc acc)))
              30777)
        ($thread-check)
@@ -25584,28 +26019,32 @@
               (let f ([n 100])
                 (let ([q 0])
                   (unless (= n 0)
-                    (let ([p (lambda ()
-                               (let ([count 10])
-                                 (define chew
-                                   (lambda (x)
-                                     (when (> count 0)
-                                           (chew (list 0)))))
-                                 (parameterize
-                                   ([collect-request-handler
-                                      (lambda ()
-                                        (set! count
-                                          (- count 1))
-                                        (collect))])
-                                   (chew 0)))
-                               (set! q (+ q 7)))])
-                      (lock-object p)
-                      (bt p)
-                      (let f () (when (= q 0) ($yield) (f)))
-                      (let f ()
-                        (unless (= (length ($threads)) 1) ($yield) (f)))
-                      (unlock-object p))
-                    (unless (= q 14) (errorf #f "~s isn't 14" q))
-                    (f (- n 1)))))
+                          (let ([p (lambda ()
+                                     (let ([count 10])
+                                       (define chew
+                                         (lambda (x)
+                                           (when (> count 0)
+                                                 (chew (list 0)))))
+                                       (parameterize
+                                         ([collect-request-handler
+                                            (lambda ()
+                                              (set! count
+                                                (- count 1))
+                                              (collect))])
+                                         (chew 0)))
+                                     (set! q (+ q 7)))])
+                            (lock-object p)
+                            (bt p)
+                            (let f ()
+                              (when (= q 0) ($yield) (f)))
+                            (let f ()
+                              (unless (= (length ($threads)) 1)
+                                      ($yield)
+                                      (f)))
+                            (unlock-object p))
+                          (unless (= q 14)
+                                  (errorf #f "~s isn't 14" q))
+                          (f (- n 1)))))
               'cool)
             'cool)
        ($thread-check)
@@ -25617,23 +26056,23 @@
          (with-mutex m
            (let f ([n nthreads])
              (unless (= n 0)
-               (fork-thread
-                 (lambda ()
-                   (guard (c [else (set! saved-condition c)])
-                     (let g ([k 1000])
-                       (unless (= k 0)
-                         (let ([op (open-file-output-port
-                                     (format "testfile~s.ss" n)
-                                     (file-options replace))])
-                           (port-file-compressed! op)
-                           (put-u8 op 104)
-                           (close-port op))
-                         (g (- k 1)))))
-                   (with-mutex m
-                     (set! nthreads (- nthreads 1))
-                     (when (= nthreads 0)
-                           (condition-signal c)))))
-               (f (- n 1))))
+                     (fork-thread
+                       (lambda ()
+                         (guard (c [else (set! saved-condition c)])
+                           (let g ([k 1000])
+                             (unless (= k 0)
+                                     (let ([op (open-file-output-port
+                                                 (format "testfile~s.ss" n)
+                                                 (file-options replace))])
+                                       (port-file-compressed! op)
+                                       (put-u8 op 104)
+                                       (close-port op))
+                                     (g (- k 1)))))
+                         (with-mutex m
+                           (set! nthreads (- nthreads 1))
+                           (when (= nthreads 0)
+                                 (condition-signal c)))))
+                     (f (- n 1))))
            (condition-wait c m))
          (when saved-condition (raise saved-condition))
          #t)
@@ -25646,23 +26085,23 @@
          (with-mutex m
            (let f ([n nthreads])
              (unless (= n 0)
-               (fork-thread
-                 (lambda ()
-                   (guard (c [else (set! saved-condition c)])
-                     (let g ([k 1000])
-                       (unless (= k 0)
-                         (let ([ip (open-file-input-port (format "testfile~s.ss" n))])
-                           (port-file-compressed! ip)
-                           (let ([b (get-u8 ip)])
-                             (unless (eqv? b 104)
-                               (error #f "thread ~s read wrong value ~s" n b)))
-                           (close-port ip))
-                         (g (- k 1)))))
-                   (with-mutex m
-                     (set! nthreads (- nthreads 1))
-                     (when (= nthreads 0)
-                           (condition-signal c)))))
-               (f (- n 1))))
+                     (fork-thread
+                       (lambda ()
+                         (guard (c [else (set! saved-condition c)])
+                           (let g ([k 1000])
+                             (unless (= k 0)
+                                     (let ([ip (open-file-input-port (format "testfile~s.ss" n))])
+                                       (port-file-compressed! ip)
+                                       (let ([b (get-u8 ip)])
+                                         (unless (eqv? b 104)
+                                                 (error #f "thread ~s read wrong value ~s" n b)))
+                                       (close-port ip))
+                                     (g (- k 1)))))
+                         (with-mutex m
+                           (set! nthreads (- nthreads 1))
+                           (when (= nthreads 0)
+                                 (condition-signal c)))))
+                     (f (- n 1))))
            (condition-wait c m))
          (when saved-condition (raise saved-condition))
          #t)
@@ -25983,18 +26422,17 @@
                    (syntax-case x ()
                      [(_ expr)
                       #'(or expr
-                            (errorf 'ASSERT
-                              "failed: ~s"
-                              (IFCHEZ #'expr (format-syntax #'expr))))]
+                            (errorf 'ASSERT "failed: ~s"
+                                    (IFCHEZ #'expr (format-syntax #'expr))))]
                      ;; This form is (ASSERT integer? x) returning the value of x.
                      [(_ fun val)
                       #'(let ([v val])
                           (if (fun v)
                               v
                               (errorf 'ASSERT
-                                "failed: ~s\n Value which did not satisfy above predicate: ~s"
-                                (IFCHEZ #'fun (format-syntax #'fun))
-                                v)))])))
+                                      "failed: ~s\n Value which did not satisfy above predicate: ~s"
+                                      (IFCHEZ #'fun (format-syntax #'fun))
+                                      v)))])))
                (define test-depth 25)
                ;; Make a tree with 2^test-depth nodes.
                (define vector-build
@@ -26025,7 +26463,8 @@
                (define threads-registered 1)
                ;; A new stack has no frames, but has a (hopefully) unique ID:
                (define (new-stack)
-                 (make-shadowstack (random 10000)
+                 (make-shadowstack
+                   (random 10000)
                    0
                    ;; Head pointer.
                    0
@@ -26044,8 +26483,8 @@
                    ; attempt to prevent apparent occasional starvation on openbsd
                    (when (= n 0)
                          (printf "  ~s ~s\n"
-                           threads-registered
-                           numprocessors))
+                                 threads-registered
+                                 numprocessors))
                    (unless (= threads-registered numprocessors)
                            (wait-for-threads (mod n 1000)))))
                ;; DEBUGGING:
@@ -26118,8 +26557,7 @@
                    (lambda ()
                      (this-stack stack)
                      ;; Initialize stack. 
-                     (with-mutex global-mut
-                       ;; Register our existence.
+                     (with-mutex global-mut ;; Register our existence.
                        (set! threads-registered
                          (add1 threads-registered)))
                      ;; Steal work forever:
@@ -26408,10 +26846,10 @@
              (define (bump)
                (let loop ([i 0])
                  (unless (= i N)
-                   (let ([v (container-ref container)])
-                     (if (container-cas! container v (add1 v))
-                         (loop (add1 i))
-                         (loop i)))))
+                         (let ([v (container-ref container)])
+                           (if (container-cas! container v (add1 v))
+                               (loop (add1 i))
+                               (loop i)))))
                (mutex-acquire m)
                (set! done (add1 done))
                (condition-signal c)
@@ -26513,12 +26951,8 @@
 (mat vector-set!
      (let ((v (vector 'a 'b 'c)))
        (and (begin (vector-set! v 0 'x) (equal? v '#(x b c)))
-            (begin
-              (vector-set! v 1 'y)
-              (equal? v '#(x y c)))
-            (begin
-              (vector-set! v 2 'z)
-              (equal? v '#(x y z)))))
+            (begin (vector-set! v 1 'y) (equal? v '#(x y c)))
+            (begin (vector-set! v 2 'z) (equal? v '#(x y z)))))
      (error? (vector-set! (vector 'a 'b 'c) 3 'd))
      (error? (vector-set! (vector 'a 'b 'c) -1 'd))
      (error? (vector-set! (vector 'a 'b 'c) 'a 'd))
@@ -26527,25 +26961,15 @@
 (mat vector-set-fixnum!
      (let ((v (vector 'a 'b 'c)))
        (and (begin (vector-set-fixnum! v 0 5) (equal? v '#(5 b c)))
-            (begin
-              (vector-set-fixnum! v 1 6)
-              (equal? v '#(5 6 c)))
-            (begin
-              (vector-set-fixnum! v 2 7)
-              (equal? v '#(5 6 7)))))
+            (begin (vector-set-fixnum! v 1 6) (equal? v '#(5 6 c)))
+            (begin (vector-set-fixnum! v 2 7) (equal? v '#(5 6 7)))))
      (let ((v (vector 'a 'b 'c)) (n -1))
        (and (begin
               (set! n (+ n 1))
               (vector-set-fixnum! v n (+ (* n n) 1))
               (equal? v '#(1 b c)))
-            (begin
-              (set! n (+ n 1))
-              (vector-set-fixnum! v n (+ (* n n) 1))
-              (equal? v '#(1 2 c)))
-            (begin
-              (set! n (+ n 1))
-              (vector-set-fixnum! v n (+ (* n n) 1))
-              (equal? v '#(1 2 5)))))
+            (begin (set! n (+ n 1)) (vector-set-fixnum! v n (+ (* n n) 1)) (equal? v '#(1 2 c)))
+            (begin (set! n (+ n 1)) (vector-set-fixnum! v n (+ (* n n) 1)) (equal? v '#(1 2 5)))))
      (error? (vector-set-fixnum! (vector 'a 'b 'c) 3 0))
      (error? (vector-set-fixnum! (vector 'a 'b 'c) -1 3))
      (error? (vector-set-fixnum! (vector 'a 'b 'c) 'a 4))
@@ -26696,21 +27120,19 @@
 (mat fxvector-set!
      (let ((v (fxvector '3 '4 '5)))
        (and (begin (fxvector-set! v 0 '33) (equal? v '#vfx(33 4 5)))
-            (begin
-              (fxvector-set! v 1 '44)
-              (equal? v '#vfx(33 44 5)))
-            (begin
-              (fxvector-set! v 2 '55)
-              (equal? v '#vfx(33 44 55)))))
+            (begin (fxvector-set! v 1 '44) (equal? v '#vfx(33 44 5)))
+            (begin (fxvector-set! v 2 '55) (equal? v '#vfx(33 44 55)))))
      (error? (fxvector-set! (fxvector '3 '4 '5) 3 'd))
      (error? (fxvector-set! (fxvector '3 '4 '5) -1 'd))
      (error? (fxvector-set! (fxvector '3 '4 '5) 'a 'd))
      (error? (fxvector-set! (fxvector '3 '4 '5) 2 'd))
      (error? (fxvector-set! (list '3 '4 '5) 2 'd))
-     (error? (fxvector-set! (fxvector 3 4 5)
+     (error? (fxvector-set!
+               (fxvector 3 4 5)
                1
                (- (most-negative-fixnum) 1)))
-     (error? (fxvector-set! (fxvector 3 4 5)
+     (error? (fxvector-set!
+               (fxvector 3 4 5)
                0
                (+ (most-positive-fixnum) 1)))
      (begin
@@ -26734,10 +27156,12 @@
                (- (most-negative-fixnum) 1)
                9))
      (error? (test-fxvector-set! (fxvector 3 4 5) 'a 9))
-     (error? (test-fxvector-set! (fxvector 3 4 5)
+     (error? (test-fxvector-set!
+               (fxvector 3 4 5)
                2
                (+ (most-positive-fixnum) 1)))
-     (error? (test-fxvector-set! (fxvector 3 4 5)
+     (error? (test-fxvector-set!
+               (fxvector 3 4 5)
                2
                (- (most-negative-fixnum) 1)))
      (error? (test-fxvector-set! (fxvector 3 4 5) 2 'a)))
@@ -26869,38 +27293,38 @@
                  (set! next 0)))
            (let ([m next])
              (unless (= m n)
-               (set! next (fx+ next 1))
-               (let ([p (vector-ref orig-v m)])
-                 (unless (eqv? (cdr p) m)
-                   (errorf #f
-                     "unexpected cdr value (~s instead of ~s)"
-                     (cdr p)
-                     m))
-                 ((car p) n)))))
+                     (set! next (fx+ next 1))
+                     (let ([p (vector-ref orig-v m)])
+                       (unless (eqv? (cdr p) m)
+                               (errorf #f
+                                       "unexpected cdr value (~s instead of ~s)"
+                                       (cdr p)
+                                       m))
+                       ((car p) n)))))
          (eqv? next n)))
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#())
-                 (vector-map p '#() x1)
-                 (vector-map p '#() x1 x2)
-                 (vector-map p '#() x1 x2 x3)
-                 (vector-map p '#() x1 x2 x3 x4)
-                 (vector-map p '#() x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#())
-                 (vector-map p x1 '#() x2)
-                 (vector-map p x1 '#() x2 x3)
-                 (vector-map p x1 '#() x2 x3 x4)
-                 (vector-map p x1 '#() x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#())
-                 (vector-map p x1 x2 '#() x3)
-                 (vector-map p x1 x2 '#() x3 x4)
-                 (vector-map p x1 x2 '#() x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#())
-                 (vector-map p x1 x2 x3 '#() x4)
-                 (vector-map p x1 x2 x3 '#() x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#())
-                 (vector-map p x1 x2 x3 x4 '#() x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#())))
+           (vector-map p '#() x1)
+           (vector-map p '#() x1 x2)
+           (vector-map p '#() x1 x2 x3)
+           (vector-map p '#() x1 x2 x3 x4)
+           (vector-map p '#() x1 x2 x3 x4 x5)
+           (vector-map p x1 '#())
+           (vector-map p x1 '#() x2)
+           (vector-map p x1 '#() x2 x3)
+           (vector-map p x1 '#() x2 x3 x4)
+           (vector-map p x1 '#() x2 x3 x4 x5)
+           (vector-map p x1 x2 '#())
+           (vector-map p x1 x2 '#() x3)
+           (vector-map p x1 x2 '#() x3 x4)
+           (vector-map p x1 x2 '#() x3 x4 x5)
+           (vector-map p x1 x2 x3 '#())
+           (vector-map p x1 x2 x3 '#() x4)
+           (vector-map p x1 x2 x3 '#() x4 x5)
+           (vector-map p x1 x2 x3 x4 '#())
+           (vector-map p x1 x2 x3 x4 '#() x5)
+           (vector-map p x1 x2 x3 x4 x5 '#())))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector '#() '#() '#() '#() '#())
              '#(#()
@@ -26927,26 +27351,26 @@
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#(a))
-                 (vector-map p '#(a) x1)
-                 (vector-map p '#(a) x1 x2)
-                 (vector-map p '#(a) x1 x2 x3)
-                 (vector-map p '#(a) x1 x2 x3 x4)
-                 (vector-map p '#(a) x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#(a))
-                 (vector-map p x1 '#(a) x2)
-                 (vector-map p x1 '#(a) x2 x3)
-                 (vector-map p x1 '#(a) x2 x3 x4)
-                 (vector-map p x1 '#(a) x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#(a))
-                 (vector-map p x1 x2 '#(a) x3)
-                 (vector-map p x1 x2 '#(a) x3 x4)
-                 (vector-map p x1 x2 '#(a) x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#(a))
-                 (vector-map p x1 x2 x3 '#(a) x4)
-                 (vector-map p x1 x2 x3 '#(a) x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#(a))
-                 (vector-map p x1 x2 x3 x4 '#(a) x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#(a))))
+           (vector-map p '#(a) x1)
+           (vector-map p '#(a) x1 x2)
+           (vector-map p '#(a) x1 x2 x3)
+           (vector-map p '#(a) x1 x2 x3 x4)
+           (vector-map p '#(a) x1 x2 x3 x4 x5)
+           (vector-map p x1 '#(a))
+           (vector-map p x1 '#(a) x2)
+           (vector-map p x1 '#(a) x2 x3)
+           (vector-map p x1 '#(a) x2 x3 x4)
+           (vector-map p x1 '#(a) x2 x3 x4 x5)
+           (vector-map p x1 x2 '#(a))
+           (vector-map p x1 x2 '#(a) x3)
+           (vector-map p x1 x2 '#(a) x3 x4)
+           (vector-map p x1 x2 '#(a) x3 x4 x5)
+           (vector-map p x1 x2 x3 '#(a))
+           (vector-map p x1 x2 x3 '#(a) x4)
+           (vector-map p x1 x2 x3 '#(a) x4 x5)
+           (vector-map p x1 x2 x3 x4 '#(a))
+           (vector-map p x1 x2 x3 x4 '#(a) x5)
+           (vector-map p x1 x2 x3 x4 x5 '#(a))))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector '#(1) '#(4) '#(d) '#(g) '#(7))
        '#(#(#(a))
@@ -26973,26 +27397,26 @@
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#(a b))
-                 (vector-map p '#(a b) x1)
-                 (vector-map p '#(a b) x1 x2)
-                 (vector-map p '#(a b) x1 x2 x3)
-                 (vector-map p '#(a b) x1 x2 x3 x4)
-                 (vector-map p '#(a b) x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#(a b))
-                 (vector-map p x1 '#(a b) x2)
-                 (vector-map p x1 '#(a b) x2 x3)
-                 (vector-map p x1 '#(a b) x2 x3 x4)
-                 (vector-map p x1 '#(a b) x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#(a b))
-                 (vector-map p x1 x2 '#(a b) x3)
-                 (vector-map p x1 x2 '#(a b) x3 x4)
-                 (vector-map p x1 x2 '#(a b) x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#(a b))
-                 (vector-map p x1 x2 x3 '#(a b) x4)
-                 (vector-map p x1 x2 x3 '#(a b) x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#(a b))
-                 (vector-map p x1 x2 x3 x4 '#(a b) x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#(a b))))
+           (vector-map p '#(a b) x1)
+           (vector-map p '#(a b) x1 x2)
+           (vector-map p '#(a b) x1 x2 x3)
+           (vector-map p '#(a b) x1 x2 x3 x4)
+           (vector-map p '#(a b) x1 x2 x3 x4 x5)
+           (vector-map p x1 '#(a b))
+           (vector-map p x1 '#(a b) x2)
+           (vector-map p x1 '#(a b) x2 x3)
+           (vector-map p x1 '#(a b) x2 x3 x4)
+           (vector-map p x1 '#(a b) x2 x3 x4 x5)
+           (vector-map p x1 x2 '#(a b))
+           (vector-map p x1 x2 '#(a b) x3)
+           (vector-map p x1 x2 '#(a b) x3 x4)
+           (vector-map p x1 x2 '#(a b) x3 x4 x5)
+           (vector-map p x1 x2 x3 '#(a b))
+           (vector-map p x1 x2 x3 '#(a b) x4)
+           (vector-map p x1 x2 x3 '#(a b) x4 x5)
+           (vector-map p x1 x2 x3 x4 '#(a b))
+           (vector-map p x1 x2 x3 x4 '#(a b) x5)
+           (vector-map p x1 x2 x3 x4 x5 '#(a b))))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector
                '#(1 2)
@@ -27024,26 +27448,26 @@
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#(a b c))
-                 (vector-map p '#(a b c) x1)
-                 (vector-map p '#(a b c) x1 x2)
-                 (vector-map p '#(a b c) x1 x2 x3)
-                 (vector-map p '#(a b c) x1 x2 x3 x4)
-                 (vector-map p '#(a b c) x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#(a b c))
-                 (vector-map p x1 '#(a b c) x2)
-                 (vector-map p x1 '#(a b c) x2 x3)
-                 (vector-map p x1 '#(a b c) x2 x3 x4)
-                 (vector-map p x1 '#(a b c) x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#(a b c))
-                 (vector-map p x1 x2 '#(a b c) x3)
-                 (vector-map p x1 x2 '#(a b c) x3 x4)
-                 (vector-map p x1 x2 '#(a b c) x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#(a b c))
-                 (vector-map p x1 x2 x3 '#(a b c) x4)
-                 (vector-map p x1 x2 x3 '#(a b c) x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#(a b c))
-                 (vector-map p x1 x2 x3 x4 '#(a b c) x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#(a b c))))
+           (vector-map p '#(a b c) x1)
+           (vector-map p '#(a b c) x1 x2)
+           (vector-map p '#(a b c) x1 x2 x3)
+           (vector-map p '#(a b c) x1 x2 x3 x4)
+           (vector-map p '#(a b c) x1 x2 x3 x4 x5)
+           (vector-map p x1 '#(a b c))
+           (vector-map p x1 '#(a b c) x2)
+           (vector-map p x1 '#(a b c) x2 x3)
+           (vector-map p x1 '#(a b c) x2 x3 x4)
+           (vector-map p x1 '#(a b c) x2 x3 x4 x5)
+           (vector-map p x1 x2 '#(a b c))
+           (vector-map p x1 x2 '#(a b c) x3)
+           (vector-map p x1 x2 '#(a b c) x3 x4)
+           (vector-map p x1 x2 '#(a b c) x3 x4 x5)
+           (vector-map p x1 x2 x3 '#(a b c))
+           (vector-map p x1 x2 x3 '#(a b c) x4)
+           (vector-map p x1 x2 x3 '#(a b c) x4 x5)
+           (vector-map p x1 x2 x3 x4 '#(a b c))
+           (vector-map p x1 x2 x3 x4 '#(a b c) x5)
+           (vector-map p x1 x2 x3 x4 x5 '#(a b c))))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector
                '#(1 2 3)
@@ -27075,26 +27499,26 @@
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#(a b c d))
-                 (vector-map p '#(a b c d) x1)
-                 (vector-map p '#(a b c d) x1 x2)
-                 (vector-map p '#(a b c d) x1 x2 x3)
-                 (vector-map p '#(a b c d) x1 x2 x3 x4)
-                 (vector-map p '#(a b c d) x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#(a b c d))
-                 (vector-map p x1 '#(a b c d) x2)
-                 (vector-map p x1 '#(a b c d) x2 x3)
-                 (vector-map p x1 '#(a b c d) x2 x3 x4)
-                 (vector-map p x1 '#(a b c d) x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#(a b c d))
-                 (vector-map p x1 x2 '#(a b c d) x3)
-                 (vector-map p x1 x2 '#(a b c d) x3 x4)
-                 (vector-map p x1 x2 '#(a b c d) x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#(a b c d))
-                 (vector-map p x1 x2 x3 '#(a b c d) x4)
-                 (vector-map p x1 x2 x3 '#(a b c d) x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#(a b c d))
-                 (vector-map p x1 x2 x3 x4 '#(a b c d) x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#(a b c d))))
+           (vector-map p '#(a b c d) x1)
+           (vector-map p '#(a b c d) x1 x2)
+           (vector-map p '#(a b c d) x1 x2 x3)
+           (vector-map p '#(a b c d) x1 x2 x3 x4)
+           (vector-map p '#(a b c d) x1 x2 x3 x4 x5)
+           (vector-map p x1 '#(a b c d))
+           (vector-map p x1 '#(a b c d) x2)
+           (vector-map p x1 '#(a b c d) x2 x3)
+           (vector-map p x1 '#(a b c d) x2 x3 x4)
+           (vector-map p x1 '#(a b c d) x2 x3 x4 x5)
+           (vector-map p x1 x2 '#(a b c d))
+           (vector-map p x1 x2 '#(a b c d) x3)
+           (vector-map p x1 x2 '#(a b c d) x3 x4)
+           (vector-map p x1 x2 '#(a b c d) x3 x4 x5)
+           (vector-map p x1 x2 x3 '#(a b c d))
+           (vector-map p x1 x2 x3 '#(a b c d) x4)
+           (vector-map p x1 x2 x3 '#(a b c d) x4 x5)
+           (vector-map p x1 x2 x3 x4 '#(a b c d))
+           (vector-map p x1 x2 x3 x4 '#(a b c d) x5)
+           (vector-map p x1 x2 x3 x4 x5 '#(a b c d))))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector
                '#(1 2 3 4)
@@ -27126,26 +27550,26 @@
      (begin
        (define ($vector-map-f1 p x1 x2 x3 x4 x5)
          (vector (vector-map p '#(a b c d e))
-                 (vector-map p '#(a b c d e) x1)
-                 (vector-map p '#(a b c d e) x1 x2)
-                 (vector-map p '#(a b c d e) x1 x2 x3)
-                 (vector-map p '#(a b c d e) x1 x2 x3 x4)
-                 (vector-map p '#(a b c d e) x1 x2 x3 x4 x5)
-                 (vector-map p x1 '#(a b c d e))
-                 (vector-map p x1 '#(a b c d e) x2)
-                 (vector-map p x1 '#(a b c d e) x2 x3)
-                 (vector-map p x1 '#(a b c d e) x2 x3 x4)
-                 (vector-map p x1 '#(a b c d e) x2 x3 x4 x5)
-                 (vector-map p x1 x2 '#(a b c d e))
-                 (vector-map p x1 x2 '#(a b c d e) x3)
-                 (vector-map p x1 x2 '#(a b c d e) x3 x4)
-                 (vector-map p x1 x2 '#(a b c d e) x3 x4 x5)
-                 (vector-map p x1 x2 x3 '#(a b c d e))
-                 (vector-map p x1 x2 x3 '#(a b c d e) x4)
-                 (vector-map p x1 x2 x3 '#(a b c d e) x4 x5)
-                 (vector-map p x1 x2 x3 x4 '#(a b c d e))
-                 (vector-map p x1 x2 x3 x4 '#(a b c d e) x5)
-                 (vector-map p x1 x2 x3 x4 x5 '#(a b c d e))))
+           (vector-map p '#(a b c d e) x1)
+           (vector-map p '#(a b c d e) x1 x2)
+           (vector-map p '#(a b c d e) x1 x2 x3)
+           (vector-map p '#(a b c d e) x1 x2 x3 x4)
+           (vector-map p '#(a b c d e) x1 x2 x3 x4 x5)
+           (vector-map p x1 '#(a b c d e))
+           (vector-map p x1 '#(a b c d e) x2)
+           (vector-map p x1 '#(a b c d e) x2 x3)
+           (vector-map p x1 '#(a b c d e) x2 x3 x4)
+           (vector-map p x1 '#(a b c d e) x2 x3 x4 x5)
+           (vector-map p x1 x2 '#(a b c d e))
+           (vector-map p x1 x2 '#(a b c d e) x3)
+           (vector-map p x1 x2 '#(a b c d e) x3 x4)
+           (vector-map p x1 x2 '#(a b c d e) x3 x4 x5)
+           (vector-map p x1 x2 x3 '#(a b c d e))
+           (vector-map p x1 x2 x3 '#(a b c d e) x4)
+           (vector-map p x1 x2 x3 '#(a b c d e) x4 x5)
+           (vector-map p x1 x2 x3 x4 '#(a b c d e))
+           (vector-map p x1 x2 x3 x4 '#(a b c d e) x5)
+           (vector-map p x1 x2 x3 x4 x5 '#(a b c d e))))
        (procedure? $vector-map-f1))
      (equal? ($vector-map-f1 vector
                '#(1 2 3 4 5)
@@ -27819,7 +28243,8 @@
                      (let ([k 100000] [v '#(a b c)])
                        (let ([n k] [m 0])
                          (define (f)
-                           (unless (fx= n 0) (vector-for-each foo v)))
+                           (unless (fx= n 0)
+                                   (vector-for-each foo v)))
                          (define (foo x)
                            (set! m (+ m 1))
                            (when (eq? x (vector-ref v (fx- (vector-length v) 1)))
@@ -27836,7 +28261,8 @@
                      (let ([k 100000] [v '#(a b c)])
                        (let ([n k] [m 0])
                          (define (f)
-                           (unless (fx= n 0) (vector-for-each foo v)))
+                           (unless (fx= n 0)
+                                   (vector-for-each foo v)))
                          (define (foo x)
                            (set! m (+ m 1))
                            (when (eq? x (vector-ref v (fx- (vector-length v) 1)))
@@ -28279,7 +28705,8 @@
      (error? (open-input-file "nonexistent file"))
      (error? (open-input-file "nonexistent file" 'compressed))
      (error? (open-output-file "/nonexistent/directory/nonexistent/file"))
-     (error? (open-output-file "/nonexistent/directory/nonexistent/file"
+     (error? (open-output-file
+               "/nonexistent/directory/nonexistent/file"
                'replace))
      (error? (open-input-output-file
                "/nonexistent/directory/nonexistent/file"))
@@ -28712,9 +29139,14 @@
        (a ; second comment
           #;
           (third ; comment in comment
-            comment
-            #;
-            (comment #1=e in . #; (comment in comment in comment) comment))
+                 comment
+                 #;
+                 (comment #1=e
+                          in
+                          .
+                          #;
+                          (comment in comment in comment)
+                          comment))
           b
           ; fourth comment
           c
@@ -28767,7 +29199,8 @@
      (error? (read-test-graph "#0=#[foo #0# #0#]"))
      (read-test-graph "#(123 #[foo #0=(a b c) #0#])")
      (read-test-graph "#(#0=#[foo #1=(a b c) #1#] 0 #0#)")
-     (read-test-graph "#(#1# 0 #1=#[foo #0=(a b c) #0#])"
+     (read-test-graph
+       "#(#1# 0 #1=#[foo #0=(a b c) #0#])"
        "#(#0=#[foo #1=(a b c) #1#] 0 #0#)")
      (read-test-graph "#(123 #0=(#0#))")
      (read-test-graph "#(123 #0=(#0#))")
@@ -28788,8 +29221,7 @@
      (let ([p (open-output-file "testfile.ss" 'truncate)])
        (block-write p "hi there")
        (display " mom" p)
-       (block-write p
-         ", how are you?xxxx"
+       (block-write p ", how are you?xxxx"
          (string-length ", how are you?"))
        (newline p)
        (let ([s (make-string 100 #\X)])
@@ -28984,8 +29416,7 @@
             (char-ready? x)
             (eof-object? (read-char x)))))
 
-(mat clear-input-port
-     ; test interactively
+(mat clear-input-port ; test interactively
      (procedure? clear-input-port))
 
 ;;; pretty-equal? is like equal? except that it considers gensyms
@@ -29068,7 +29499,10 @@
               (lambda ()
                 (let ([x1 (read p1)] [x2 (read p2)])
                   (unless (pretty-equal? x1 x2)
-                    (errorf 'pretty-equal "~s is not equal to ~s" x1 x2))
+                          (errorf 'pretty-equal
+                                  "~s is not equal to ~s"
+                                  x1
+                                  x2))
                   (or (eof-object? x1) (loop)))))
          (lambda ()
            (close-input-port p1)
@@ -29124,7 +29558,10 @@
               (lambda ()
                 (let ([x1 (read p1)] [x2 (read p2)])
                   (unless (pretty-equal? x1 x2)
-                    (errorf 'pretty-equal "~s is not equal to ~s" x1 x2))
+                          (errorf 'pretty-equal
+                                  "~s is not equal to ~s"
+                                  x1
+                                  x2))
                   (or (eof-object? x1) (loop)))))
          (lambda ()
            (close-input-port p1)
@@ -29154,7 +29591,8 @@
              (integer-64 x7)
              (char x8)
              (unsigned-64 x9)))
-       (let ([x (make-frob '#(#&3+4i 3.456+723i 3/4)
+       (let ([x (make-frob
+                  '#(#&3+4i 3.456+723i 3/4)
                   7500000
                   (most-negative-fixnum)
                   +nan.0
@@ -29245,12 +29683,10 @@
                        (weak-pair? (cdddr ls)))))
              '(#t #f #t #t #f #t)))
 
-(mat clear-output-port
-     ; test interactively
+(mat clear-output-port ; test interactively
      (procedure? clear-output-port))
 
-(mat flush-output-port
-     ; test interactively
+(mat flush-output-port ; test interactively
      (procedure? flush-output-port))
 
 ;;; section 6-3:
@@ -29549,10 +29985,11 @@
                  ;                     [block-read (p s n) #f]
                  [block-write (p s n)
                    (unless (null? ports)
-                     (with-interrupts-disabled (flush-output-port p)
-                       (for-each
-                         (lambda (p) (block-write p s n))
-                         ports)))]
+                           (with-interrupts-disabled (flush-output-port p)
+                             (for-each
+                               (lambda (p)
+                                 (block-write p s n))
+                               ports)))]
                  ;                     [char-ready? (p) (char-ready? ip)]
                  ;                     [clear-input-port (p) (clear-input-port ip)]
                  [clear-output-port (p) (set-port-output-index! p 0)]
@@ -29567,11 +30004,12 @@
                  [flush-output-port (p)
                    (with-interrupts-disabled
                      (unless (null? ports)
-                       (let ([b (port-output-buffer p)]
-                             [i (port-output-index p)])
-                         (for-each
-                           (lambda (p) (block-write p b i))
-                           ports)))
+                             (let ([b (port-output-buffer p)]
+                                   [i (port-output-index p)])
+                               (for-each
+                                 (lambda (p)
+                                   (block-write p b i))
+                                 ports)))
                      (set-port-output-index! p 0))]
                  ;                     [peek-char (p) (peek-char ip)]
                  [port-name (p) "broadcast port"]
@@ -29580,15 +30018,15 @@
                  [write-char (c p)
                    (with-interrupts-disabled
                      (unless (null? ports)
-                       (let ([b (port-output-buffer p)]
-                             [i (port-output-index p)])
-                         ; could check here to be sure that we really need
-                         ; to flush
-                         (string-set! b i c)
-                         (for-each
-                           (lambda (p)
-                             (block-write p b (fx+ i 1)))
-                           ports)))
+                             (let ([b (port-output-buffer p)]
+                                   [i (port-output-index p)])
+                               ; could check here to be sure that we really need
+                               ; to flush
+                               (string-set! b i c)
+                               (for-each
+                                 (lambda (p)
+                                   (block-write p b (fx+ i 1)))
+                                 ports)))
                      (set-port-output-index! p 0))]
                  [else
                   (errorf 'broadcast-port "operation ~s not handled" msg)])))
@@ -29692,8 +30130,8 @@
                    (with-interrupts-disabled
                      (let ([c (peek-char p)])
                        (unless (eof-object? c)
-                         (set-port-input-index! p
-                           (fx+ (port-input-index p) 1)))
+                               (set-port-input-index! p
+                                 (fx+ (port-input-index p) 1)))
                        c))]
                  [unread-char (c p)
                    (with-interrupts-disabled
@@ -29702,8 +30140,8 @@
                            [s (port-input-size p)])
                        (when (fx= i 0)
                              (errorf 'unread-char
-                               "tried to unread too far on ~s"
-                               p))
+                                     "tried to unread too far on ~s"
+                                     p))
                        (set-port-input-index! p (fx- i 1))
                        ; following could be skipped; supposed to be
                        ; same character
@@ -29881,18 +30319,12 @@
      (let ([ip (open-input-string "(cons 33 #;hello \"rot\")")])
        (and (let-values ([vals (read-token ip)])
               (equal? vals '(lparen #f 0 1)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(atomic cons 1 5)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(atomic 33 6 8)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(quote datum-comment 9 11)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(atomic hello 11 16)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(atomic "rot" 17 22)))
-            (let-values ([vals (read-token ip)])
-              (equal? vals '(rparen #f 22 23)))))
+            (let-values ([vals (read-token ip)]) (equal? vals '(atomic cons 1 5)))
+            (let-values ([vals (read-token ip)]) (equal? vals '(atomic 33 6 8)))
+            (let-values ([vals (read-token ip)]) (equal? vals '(quote datum-comment 9 11)))
+            (let-values ([vals (read-token ip)]) (equal? vals '(atomic hello 11 16)))
+            (let-values ([vals (read-token ip)]) (equal? vals '(atomic "rot" 17 22)))
+            (let-values ([vals (read-token ip)]) (equal? vals '(rparen #f 22 23)))))
      (let ()
        (define with-input-from-string
          (lambda (s p)
@@ -31355,7 +31787,8 @@
      (time? (file-change-time "testdir\x3bb;/ra\x3bb;ts"))
      (time? (file-modification-time "testdir\x3bb;/ra\x3bb;ts"))
      (eqv? (rename-file "testdir\x3bb;" "testdir\x3bb;x") (void))
-     (eqv? (rename-file "testdir\x3bb;x/ra\x3bb;ts"
+     (eqv? (rename-file
+             "testdir\x3bb;x/ra\x3bb;ts"
              "testdir\x3bb;x/sta\x3bb;r")
            (void))
      (not (delete-file "testdir\x3bb;x/ra\x3bb;ts" #f))
@@ -31465,7 +31898,8 @@
                        last
                        root
                        extension)))
-           (print-row "path"
+           (print-row
+             "path"
              " abs"
              " first"
              " rest"
@@ -31486,16 +31920,17 @@
                (lambda (x expected* actual*)
                  (define uscore
                    (lambda (s) (if (eqv? s "") "_" s)))
-                 (apply print-row
-                   x
-                   (map (lambda (expected actual)
-                          (format "~a~a"
-                            (if (string=? expected actual)
-                                " "
-                                (begin (set! okay? #f) "*"))
-                            (uscore actual)))
-                        expected*
-                        actual*)))
+                 (apply print-row x
+                        (map (lambda (expected actual)
+                               (format "~a~a"
+                                 (if (string=? expected actual)
+                                     " "
+                                     (begin
+                                       (set! okay? #f)
+                                       "*"))
+                                 (uscore actual)))
+                             expected*
+                             actual*)))
                x*
                expected**
                actual**))))
@@ -31566,7 +32001,8 @@
              ("c:/abc" "t" "c:/" "abc" "c:/" "abc" "c:/abc" "")
              ("c:abc" "f" "c:" "abc" "c:" "abc" "c:abc" "")
              ("c:abc/def" "f" "c:" "abc/def" "c:abc" "def" "c:abc/def" "")
-             ("c:/abc/def" "t"
+             ("c:/abc/def"
+               "t"
                "c:/"
                "abc/def"
                "c:/abc"
@@ -31579,56 +32015,64 @@
              ("//x.com" "t" "//x.com" "" "//x.com" "" "//x.com" "")
              ("\\\\?\\" "t" "\\\\?\\" "" "\\\\?\\" "" "\\\\?\\" "")
              ("\\\\?\\c:" "t" "\\\\?\\c:" "" "\\\\?\\c:" "" "\\\\?\\c:" "")
-             ("\\\\?\\c:\\" "t"
+             ("\\\\?\\c:\\"
+               "t"
                "\\\\?\\c:\\"
                ""
                "\\\\?\\c:\\"
                ""
                "\\\\?\\c:\\"
                "")
-             ("\\\\?\\UNC\\" "t"
+             ("\\\\?\\UNC\\"
+               "t"
                "\\\\?\\UNC\\"
                ""
                "\\\\?\\UNC\\"
                ""
                "\\\\?\\UNC\\"
                "")
-             ("\\\\?\\Unc\\" "t"
+             ("\\\\?\\Unc\\"
+               "t"
                "\\\\?\\Unc\\"
                ""
                "\\\\?\\Unc\\"
                ""
                "\\\\?\\Unc\\"
                "")
-             ("\\\\?\\uNc\\\\" "t"
+             ("\\\\?\\uNc\\\\"
+               "t"
                "\\\\?\\uNc\\\\"
                ""
                "\\\\?\\uNc\\\\"
                ""
                "\\\\?\\uNc\\\\"
                "")
-             ("\\\\?\\unc\\x.com" "t"
+             ("\\\\?\\unc\\x.com"
+               "t"
                "\\\\?\\unc\\x.com"
                ""
                "\\\\?\\unc\\x.com"
                ""
                "\\\\?\\unc\\x.com"
                "")
-             ("\\\\?\\unc\\x.com\\rot.foo" "t"
+             ("\\\\?\\unc\\x.com\\rot.foo"
+               "t"
                "\\\\?\\unc\\x.com"
                "rot.foo"
                "\\\\?\\unc\\x.com"
                "rot.foo"
                "\\\\?\\unc\\x.com\\rot"
                "foo")
-             ("\\\\?\\unc\\\\x.com\\rot.foo" "t"
+             ("\\\\?\\unc\\\\x.com\\rot.foo"
+               "t"
                "\\\\?\\unc\\\\x.com"
                "rot.foo"
                "\\\\?\\unc\\\\x.com"
                "rot.foo"
                "\\\\?\\unc\\\\x.com\\rot"
                "foo")
-             ("\\\\?\\unc\\x.com/rot.foo" "t"
+             ("\\\\?\\unc\\x.com/rot.foo"
+               "t"
                "\\\\?\\unc\\x.com/rot.foo"
                ""
                "\\\\?\\unc\\x.com/rot.foo"
@@ -31646,7 +32090,8 @@
              ("c:/abc" "f" "c:" "abc" "c:" "abc" "c:/abc" "")
              ("c:abc" "f" "" "c:abc" "" "c:abc" "c:abc" "")
              ("c:abc/def" "f" "c:abc" "def" "c:abc" "def" "c:abc/def" "")
-             ("c:/abc/def" "f"
+             ("c:/abc/def"
+               "f"
                "c:"
                "abc/def"
                "c:/abc"
@@ -32345,8 +32790,7 @@
                    (put-u8 iop 17)
                    (let ([b2 (get-u8 iop)])
                      (close-port iop)
-                     (list b1
-                           b2
+                     (list b1 b2
                            (call-with-port
                              (open-file-input-port "testfile.ss")
                              get-bytevector-all))))))
@@ -32364,8 +32808,7 @@
                    (write-char #\! iop)
                    (let ([c2 (read-char iop)])
                      (close-port iop)
-                     (list c1
-                           c2
+                     (list c1 c2
                            (with-input-from-file "testfile.ss"
                              (lambda ()
                                (list->string
@@ -32442,14 +32885,10 @@
 (if (embedded?)
     (mat iconv-codec
          (error? (errorf 'iconv-codec "-73 is not a string"))
-         (error? (errorf 'transcoded-port
-                   "unsupported encoding almost certainly bogus"))
-         (error? (errorf 'close-port
-                   "iconv CP1252 codec cannot encode #\\x3BB"))
-         (error? (errorf 'close-port
-                   "iconv CP1252 codec cannot encode #\\newline with eol-style ls"))
-         (error? (errorf 'close-port
-                   "latin-1 codec cannot encode #\\newline with eol-style ls")))
+         (error? (errorf 'transcoded-port "unsupported encoding almost certainly bogus"))
+         (error? (errorf 'close-port "iconv CP1252 codec cannot encode #\\x3BB"))
+         (error? (errorf 'close-port "iconv CP1252 codec cannot encode #\\newline with eol-style ls"))
+         (error? (errorf 'close-port "latin-1 codec cannot encode #\\newline with eol-style ls")))
     (mat iconv-codec
          (error? ; invalid codec
                  (iconv-codec -73))
@@ -32777,7 +33216,7 @@
                (error-handling-mode replace)))
            (define ip (transcoded-port bp transcoder))
            (equal? (get-string-all ip)
-             "\x20ac;\xfffd;\x201a;\x0152;\xfffd;\x017d;\xfffd;\xfffd;\x2018;\x0153;\xfffd;\x017e;"))
+                   "\x20ac;\xfffd;\x201a;\x0152;\xfffd;\x017d;\xfffd;\xfffd;\x2018;\x0153;\xfffd;\x017e;"))
          #;
          (let ()
            (define bp
@@ -32791,7 +33230,7 @@
                (error-handling-mode ignore)))
            (define ip (transcoded-port bp transcoder))
            (equal? (get-string-all ip)
-             "\x20ac;\x201a;\x0152;\x017d;\x2018;\x0153;\x017e;"))
+                   "\x20ac;\x201a;\x0152;\x017d;\x2018;\x0153;\x017e;"))
          #;
          (error? ; decoding error
            (let ()
@@ -32806,7 +33245,7 @@
                  (error-handling-mode raise)))
              (define ip (transcoded-port bp transcoder))
              (equal? (get-string-all ip)
-               "\x20ac;\xfffd;\x201a;\x0152;\xfffd;\x017d;\xfffd;\xfffd;\x2018;\x0153;\xfffd;\x017e;")))
+                     "\x20ac;\xfffd;\x201a;\x0152;\xfffd;\x017d;\xfffd;\xfffd;\x2018;\x0153;\xfffd;\x017e;")))
          (let ()
            ; SBCS CP1252
            (define cp1252
@@ -33084,9 +33523,9 @@
            (put-string op s)
            (let loop ([i 0] [n (string-length s)])
              (unless (fx= n 0)
-               (let ([k (fx+ (random n) 1)])
-                 (put-string op s i k)
-                 (loop (fx+ i k) (fx- n k)))))
+                     (let ([k (fx+ (random n) 1)])
+                       (put-string op s i k)
+                       (loop (fx+ i k) (fx- n k)))))
            (close-port op)
            (and (equal? (call-with-port
                           (open-file-input-port "testfile.ss")
@@ -33103,9 +33542,9 @@
                             (let ([t (make-string (string-length s))])
                               (let loop ([i 0] [n (string-length s)])
                                 (unless (fx= n 0)
-                                  (let ([k (fx+ (random n) 1)])
-                                    (get-string-n! ip t i k)
-                                    (loop (fx+ i k) (fx- n k)))))
+                                        (let ([k (fx+ (random n) 1)])
+                                          (get-string-n! ip t i k)
+                                          (loop (fx+ i k) (fx- n k)))))
                               t)))
                         s)))
          (let ()
@@ -33145,9 +33584,9 @@
            (put-string op s)
            (let loop ([i 0] [n (string-length s)])
              (unless (fx= n 0)
-               (let ([k (fx+ (random n) 1)])
-                 (put-string op s i k)
-                 (loop (fx+ i k) (fx- n k)))))
+                     (let ([k (fx+ (random n) 1)])
+                       (put-string op s i k)
+                       (loop (fx+ i k) (fx- n k)))))
            (close-port op)
            (and (equal? (call-with-port
                           (open-file-input-port "testfile.ss"
@@ -33169,9 +33608,9 @@
                             (let ([t (make-string (string-length s))])
                               (let loop ([i 0] [n (string-length s)])
                                 (unless (fx= n 0)
-                                  (let ([k (fx+ (random n) 1)])
-                                    (get-string-n! ip t i k)
-                                    (loop (fx+ i k) (fx- n k)))))
+                                        (let ([k (fx+ (random n) 1)])
+                                          (get-string-n! ip t i k)
+                                          (loop (fx+ i k) (fx- n k)))))
                               t)))
                         s)))
          (error? ; encoding error
@@ -34098,7 +34537,8 @@
               (eqv? (textual-port-output-index p) 0)
               (eqv? (textual-port-output-count p) (string-length ob)))))
      (let ([name "foo"] [ib "hay!"] [ob "hey!"])
-       (let ([p (#%$make-textual-input/output-port name
+       (let ([p (#%$make-textual-input/output-port
+                  name
                   $handler-standin
                   ib
                   ob)])
@@ -34119,7 +34559,8 @@
               (eqv? (textual-port-output-index p) 0)
               (eqv? (textual-port-output-count p) (string-length ob)))))
      (let ([name "foo"] [info "info"] [ib "hay!"] [ob "hey!"])
-       (let ([p (#%$make-textual-input/output-port name
+       (let ([p (#%$make-textual-input/output-port
+                  name
                   $handler-standin
                   ib
                   ob
@@ -34197,7 +34638,8 @@
               (eqv? (binary-port-output-index p) 0)
               (eqv? (binary-port-output-count p) (bytevector-length ob)))))
      (let ([name "foo"] [ib #vu8(4 3 2 1)] [ob #vu8(1 2 3 4)])
-       (let ([p (#%$make-binary-input/output-port name
+       (let ([p (#%$make-binary-input/output-port
+                  name
                   $handler-standin
                   ib
                   ob)])
@@ -34221,7 +34663,8 @@
            [info "info"]
            [ib #vu8(4 3 2 1)]
            [ob #vu8(1 2 3 4)])
-       (let ([p (#%$make-binary-input/output-port name
+       (let ([p (#%$make-binary-input/output-port
+                  name
                   $handler-standin
                   ib
                   ob
@@ -34313,15 +34756,18 @@
        (define (compress-file-test fmt)
          (let ([orig (fnlength "prettytest.ss")]
                [low (compress-file "prettytest.ss" "testfile.ss" fmt 'low)]
-               [medium (compress-file "prettytest.ss"
+               [medium (compress-file
+                         "prettytest.ss"
                          "testfile.ss"
                          fmt
                          'medium)]
-               [high (compress-file "prettytest.ss"
+               [high (compress-file
+                       "prettytest.ss"
                        "testfile.ss"
                        fmt
                        'high)]
-               [maximum (compress-file "prettytest.ss"
+               [maximum (compress-file
+                          "prettytest.ss"
                           "testfile.ss"
                           fmt
                           'maximum)])
@@ -34329,12 +34775,16 @@
              (syntax-rules ()
                [(_ level)
                 (unless (< level orig)
-                  (errorf #f "~s ~s did not compress" fmt 'level))]))
+                        (errorf #f "~s ~s did not compress" fmt 'level))]))
            (define-syntax test2
              (syntax-rules ()
                [(_ level1 level2)
                 (unless (<= level2 level1)
-                  (errorf #f "~s ~s did worse than ~s" fmt 'level2 'level1))]))
+                        (errorf #f
+                                "~s ~s did worse than ~s"
+                                fmt
+                                'level2
+                                'level1))]))
            (test1 low)
            (test1 medium)
            (test1 high)
@@ -34343,7 +34793,7 @@
            (test2 medium high)
            (test2 high maximum)
            (unless (< maximum low)
-             (errorf #f "~s maximum didn't do better than low" fmt))))
+                   (errorf #f "~s maximum didn't do better than low" fmt))))
        (compress-file-test 'lz4)
        (compress-file-test 'gzip)
        #t))
@@ -34553,9 +35003,11 @@
             (eq? (get-u8 x) 1)
             (begin (set-port-position! x 4) #t)
             (eq? (get-u8 x) #!eof)))
-     (error? (set-port-position! (open-bytevector-input-port #vu8(1 2 3 4))
+     (error? (set-port-position!
+               (open-bytevector-input-port #vu8(1 2 3 4))
                -1))
-     (error? (set-port-position! (open-bytevector-input-port #vu8(1 2 3 4))
+     (error? (set-port-position!
+               (open-bytevector-input-port #vu8(1 2 3 4))
                5))
 
      (let ()
@@ -34598,8 +35050,8 @@
              (lambda (bv s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (bytevector-u8-set! bv i (modulo (+ pos i) 256))
-                   (loop (+ 1 i))))
+                         (bytevector-u8-set! bv i (modulo (+ pos i) 256))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda () pos)
@@ -34707,8 +35159,8 @@
              (lambda (bv s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (bytevector-u8-set! bv i (modulo (+ pos i) 256))
-                   (loop (+ 1 i))))
+                         (bytevector-u8-set! bv i (modulo (+ pos i) 256))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (bv s c)
@@ -34791,8 +35243,8 @@
              (lambda (bv s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (bytevector-u8-set! bv i (modulo (+ pos i) 256))
-                   (loop (+ 1 i))))
+                         (bytevector-u8-set! bv i (modulo (+ pos i) 256))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (bv s c)
@@ -34829,8 +35281,8 @@
              (lambda (bv s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (bytevector-u8-set! bv i (modulo (+ pos i) 256))
-                   (loop (+ 1 i))))
+                         (bytevector-u8-set! bv i (modulo (+ pos i) 256))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (bv s c)
@@ -34874,8 +35326,8 @@
              (lambda (bv s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (bytevector-u8-set! bv i (modulo (+ pos i) 256))
-                   (loop (+ 1 i))))
+                         (bytevector-u8-set! bv i (modulo (+ pos i) 256))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (bv s c)
@@ -34923,10 +35375,9 @@
              (lambda (str s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (string-set! str
-                     i
-                     (string-ref chars (modulo (+ pos i) 36)))
-                   (loop (+ 1 i))))
+                         (string-set! str i
+                           (string-ref chars (modulo (+ pos i) 36)))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda () pos)
@@ -35032,10 +35483,9 @@
              (lambda (str s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (string-set! str
-                     i
-                     (string-ref chars (modulo (+ pos i) 36)))
-                   (loop (+ 1 i))))
+                         (string-set! str i
+                           (string-ref chars (modulo (+ pos i) 36)))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (str s c)
@@ -35113,10 +35563,9 @@
              (lambda (str s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (string-set! str
-                     i
-                     (string-ref chars (modulo (+ pos i) 36)))
-                   (loop (+ 1 i))))
+                         (string-set! str i
+                           (string-ref chars (modulo (+ pos i) 36)))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (str s c)
@@ -35153,10 +35602,9 @@
              (lambda (str s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (string-set! str
-                     i
-                     (string-ref chars (modulo (+ pos i) 36)))
-                   (loop (+ 1 i))))
+                         (string-set! str i
+                           (string-ref chars (modulo (+ pos i) 36)))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (str s c)
@@ -35200,10 +35648,9 @@
              (lambda (str s c)
                (let loop ([i s])
                  (unless (eq? i (+ s c))
-                   (string-set! str
-                     i
-                     (string-ref chars (modulo (+ pos i) 36)))
-                   (loop (+ 1 i))))
+                         (string-set! str i
+                           (string-ref chars (modulo (+ pos i) 36)))
+                         (loop (+ 1 i))))
                (set! pos (+ pos c))
                c)
              (lambda (str s c)
@@ -35316,7 +35763,8 @@
                        (do ([i 0 (fx+ i 1)])
                            ((fx= i buf-size))
                            (let ([c (get-char ip)])
-                             (unless (eof-object? c) (put-char op c))))
+                             (unless (eof-object? c)
+                                     (put-char op c))))
                        (let ([n (get-string-n! ip buf 0 buf-size)])
                          (unless (eof-object? n)
                                  (put-string op buf 0 n)
@@ -35343,10 +35791,10 @@
                                          (if (char=? c1 c2)
                                              (test (+ 1 i) (+ pos 1))
                                              (errorf #f
-                                               "ip1 c = ~s =/= ip2 c = ~s at pos ~s"
-                                               c1
-                                               c2
-                                               pos))))))))))))))))
+                                                     "ip1 c = ~s =/= ip2 c = ~s at pos ~s"
+                                                     c1
+                                                     c2
+                                                     pos))))))))))))))))
        (define (in fn compressed? codec)
          (open-file-input-port fn
            (if compressed?
@@ -35432,9 +35880,12 @@
                (do ([i 0 (fx+ i 1)])
                    ((fx= i buf-size))
                    (let ([c (get-char ip)])
-                     (unless (eof-object? c) (put-char op c))))
+                     (unless (eof-object? c)
+                             (put-char op c))))
                (let ([n (get-string-n! ip buf 0 buf-size)])
-                 (unless (eof-object? n) (put-string op buf 0 n) (loop)))))))
+                 (unless (eof-object? n)
+                         (put-string op buf 0 n)
+                         (loop)))))))
        (define cmp
          (lambda (src1 src2)
            (define buf-size 64)
@@ -35457,10 +35908,10 @@
                                          (if (char=? c1 c2)
                                              (test (+ 1 i) (+ pos 1))
                                              (errorf #f
-                                               "ip1 c = ~s =/= ip2 c = ~s at pos ~s"
-                                               c1
-                                               c2
-                                               pos))))))))))))))))
+                                                     "ip1 c = ~s =/= ip2 c = ~s at pos ~s"
+                                                     c1
+                                                     c2
+                                                     pos))))))))))))))))
        (define (in fn compressed? codec)
          (open-file-input-port fn
            (if compressed?
@@ -35501,10 +35952,8 @@
                (lambda ()
                  (write (list (eq? (r6rs:current-input-port)
                                    (current-input-port))
-                              (eq? (r6rs:current-output-port)
-                                   (current-output-port))
-                              (eq? (r6rs:current-error-port)
-                                   (current-error-port))))))
+                              (eq? (r6rs:current-output-port) (current-output-port))
+                              (eq? (r6rs:current-error-port) (current-error-port))))))
              "(#t #t #t)")
      (error? (current-input-port (standard-input-port)))
      (error? (current-output-port (standard-output-port)))
@@ -35537,7 +35986,8 @@
          (lambda ()
            (and (eqv? (read) '\x3bb;12345)
                 (eof-object? (read))))))
-     (equal? (call-with-port (open-file-input-port "testfile.ss")
+     (equal? (call-with-port
+               (open-file-input-port "testfile.ss")
                get-bytevector-all)
              #vu8(#xBB #x3 #x31 #x0 #x32 #x0 #x33 #x0 #x34 #x0 #x35 #x0)))
 
@@ -35627,7 +36077,8 @@
                            (lambda () i)
                            (lambda (p) (set! i p))
                            #f))
-                       (make-transcoder (utf-16-codec)
+                       (make-transcoder
+                         (utf-16-codec)
                          eol
                          (error-handling-mode replace)))])
              (call-with-string-output-port
@@ -35651,9 +36102,9 @@
              (do ([i 0 (fx+ i 2)])
                  ((fx>= i (fx- n 1))
                   (unless (fx= i n)
-                    (bytevector-u8-set! newbv
-                      (fx+ i 2)
-                      (bytevector-u8-ref bv i))))
+                          (bytevector-u8-set! newbv
+                            (fx+ i 2)
+                            (bytevector-u8-ref bv i))))
                  (bytevector-u8-set! newbv
                    (fx+ i 2)
                    (bytevector-u8-ref bv i))
@@ -35669,9 +36120,9 @@
              (do ([i 0 (fx+ i 2)])
                  ((fx>= i (fx- n 1))
                   (unless (fx= i n)
-                    (bytevector-u8-set! newbv
-                      (fx+ i 2)
-                      (bytevector-u8-ref bv i))))
+                          (bytevector-u8-set! newbv
+                            (fx+ i 2)
+                            (bytevector-u8-ref bv i))))
                  (bytevector-u8-set! newbv
                    (fx+ i 2)
                    (bytevector-u8-ref bv (fx+ i 1)))
@@ -35687,10 +36138,10 @@
                             (equal? (utf-16->string eol (big bv)) s)
                             (equal? (utf-16->string eol (little bv)) s))
                        (errorf #f
-                         "failed, seed = ~s, bv = ~s, s = ~s"
-                         seed
-                         bv
-                         s)))))
+                               "failed, seed = ~s, bv = ~s, s = ~s"
+                               seed
+                               bv
+                               s)))))
        (test 'lf #vu8(#x00 #x61 #x00 #x0a) "a\n")
        (test 'lf
              #vu8(#x00 #x61 #x00 #x0d #x00 #x0a #x00 #x0d #x00 #x85 #x00
@@ -35728,7 +36179,8 @@
                                          (lambda () i)
                                          #f
                                          #f))
-                                     (make-transcoder (utf-16be-codec)
+                                     (make-transcoder
+                                       (utf-16be-codec)
                                        eol
                                        (error-handling-mode replace)))
                                    getbv))])
@@ -35755,21 +36207,19 @@
              (let ([seed (random-seed)])
                (unless (equal? (string->utf-16 eol s) bv)
                        (errorf #f
-                         "failed, seed = ~s, s = ~s, bv = ~s"
-                         seed
-                         s
-                         bv)))))
+                               "failed, seed = ~s, s = ~s, bv = ~s"
+                               seed
+                               s
+                               bv)))))
        (test 'lf "a\n" #vu8(#x00 #x61 #x00 #x0a))
        (test 'crlf "a\n" #vu8(#x00 #x61 #x00 #x0d #x00 #x0a))
        (test 'crnel "a\n" #vu8(#x00 #x61 #x00 #x0d #x00 #x85))
        (test 'nel "a\n" #vu8(#x00 #x61 #x00 #x85))
        (test 'ls "a\n" #vu8(#x00 #x61 #x20 #x28))
-       (test 'none
-             "a\r\n\r\x85;\r\r\n\r\x2028;"
+       (test 'none "a\r\n\r\x85;\r\r\n\r\x2028;"
              #vu8(#x00 #x61 #x00 #x0d #x00 #x0a #x00 #x0d #x00 #x85 #x00
                   #x0d #x00 #x0d #x00 #x0a #x00 #x0d #x20 #x28))
-       (test 'lf
-             "a\x10000;\x10ffff;\n"
+       (test 'lf "a\x10000;\x10ffff;\n"
              #vu8(#x00 #x61 #xd8 #x00 #xdc #x00 #xdb #xff #xdf #xff #x00
                   #x0a))
        #t))
@@ -36216,9 +36666,9 @@
            s))
        (define (check who s1 s2)
          (unless (string=? s1 s2)
-           (errorf who
-             "failed for ~a"
-             (parameterize ([print-unicode #f]) (format "~s" s1)))))
+                 (errorf who "failed for ~a"
+                         (parameterize ([print-unicode #f])
+                           (format "~s" s1)))))
        (time (let ([latin-1-tx
                      (make-transcoder (latin-1-codec)
                        (eol-style none)
@@ -36226,11 +36676,10 @@
                (do ([n 1000 (fx- n 1)])
                    ((fx= n 0) #t)
                    (let ([s (random-string (random 50))])
-                     (check 'latin-1-test4
-                       s
-                       (bytevector->string
-                         (string->bytevector s latin-1-tx)
-                         latin-1-tx)))))))
+                     (check 'latin-1-test4 s
+                            (bytevector->string
+                              (string->bytevector s latin-1-tx)
+                              latin-1-tx)))))))
      (let ()
        (define (random-string n)
          (define (random-char)
@@ -36241,21 +36690,22 @@
                    k))))
          (let ([s (make-string n)])
            (unless (fx= n 0)
-             ; don't let a BOM sneak in at first character
-             (string-set! s
-               0
-               (let f ()
-                 (let ([c (random-char)])
-                   (if (memv c '(#\xfeff #\xfffe)) (f) c))))
-             (do ([i 1 (fx+ i 1)])
-                 ((fx= i n))
-                 (string-set! s i (random-char))))
+                   ; don't let a BOM sneak in at first character
+                   (string-set! s 0
+                     (let f ()
+                       (let ([c (random-char)])
+                         (if (memv c '(#\xfeff #\xfffe))
+                             (f)
+                             c))))
+                   (do ([i 1 (fx+ i 1)])
+                       ((fx= i n))
+                       (string-set! s i (random-char))))
            s))
        (define (check who s1 s2)
          (unless (string=? s1 s2)
-           (errorf who
-             "failed for ~a"
-             (parameterize ([print-unicode #f]) (format "~s" s1)))))
+                 (errorf who "failed for ~a"
+                         (parameterize ([print-unicode #f])
+                           (format "~s" s1)))))
        (time (let ()
                (define utf-8-tx
                  (make-transcoder (utf-8-codec)
@@ -36277,68 +36727,60 @@
                    ((fx= n 0) #t)
                    (let ([s (random-string (random 50))])
                      (check 'utf-8-test1 s (utf8->string (string->utf8 s)))
-                     (check 'utf-8-test2
-                       s
-                       (utf8->string (string->bytevector s utf-8-tx)))
-                     (check 'utf-8-test3
-                       s
-                       (bytevector->string (string->utf8 s) utf-8-tx))
-                     (check 'utf-8-test4
-                       s
-                       (bytevector->string (string->bytevector s utf-8-tx)
-                         utf-8-tx))
-                     (check 'utf-16-test1a
-                       s
-                       (utf16->string (string->utf16 s 'big) 'big))
-                     (check 'utf-16-test1b
-                       s
-                       (utf16->string (string->utf16 s 'big) 'big #t))
-                     (check 'utf-16-test2a
-                       s
-                       (utf16->string (string->bytevector s utf-16-tx)
-                         'big))
-                     (check 'utf-16-test2b
-                       s
-                       (utf16->string (string->bytevector s utf-16be-tx)
-                         'big
-                         #t))
-                     (check 'utf-16-test2c
-                       s
-                       (utf16->string (string->bytevector s utf-16le-tx)
-                         'little
-                         #t))
-                     (check 'utf-16-test3a
-                       s
-                       (bytevector->string (string->utf16 s 'big)
-                         utf-16-tx))
-                     (check 'utf-16-test3b
-                       s
-                       (bytevector->string (string->utf16 s 'big)
-                         utf-16be-tx))
-                     (check 'utf-16-test3c
-                       s
-                       (bytevector->string (string->utf16 s 'little)
-                         utf-16le-tx))
-                     (check 'utf-16-test4a
-                       s
-                       (bytevector->string (string->bytevector s utf-16-tx)
-                         utf-16-tx))
-                     (check 'utf-16-test4b
-                       s
-                       (bytevector->string
-                         (string->bytevector s utf-16le-tx)
-                         utf-16le-tx))
-                     (check 'utf-16-test4c
-                       s
-                       (bytevector->string
-                         (string->bytevector s utf-16be-tx)
-                         utf-16be-tx))
-                     (check 'utf-16-test5a
-                       s
-                       (utf16->string (string->utf16 s 'little) 'little))
-                     (check 'utf-16-test5b
-                       s
-                       (utf16->string (string->utf16 s 'little) 'little #t))
+                     (check 'utf-8-test2 s
+                            (utf8->string (string->bytevector s utf-8-tx)))
+                     (check 'utf-8-test3 s
+                            (bytevector->string (string->utf8 s) utf-8-tx))
+                     (check 'utf-8-test4 s
+                            (bytevector->string
+                              (string->bytevector s utf-8-tx)
+                              utf-8-tx))
+                     (check 'utf-16-test1a s
+                            (utf16->string (string->utf16 s 'big) 'big))
+                     (check 'utf-16-test1b s
+                            (utf16->string (string->utf16 s 'big) 'big #t))
+                     (check 'utf-16-test2a s
+                            (utf16->string
+                              (string->bytevector s utf-16-tx)
+                              'big))
+                     (check 'utf-16-test2b s
+                            (utf16->string
+                              (string->bytevector s utf-16be-tx)
+                              'big
+                              #t))
+                     (check 'utf-16-test2c s
+                            (utf16->string
+                              (string->bytevector s utf-16le-tx)
+                              'little
+                              #t))
+                     (check 'utf-16-test3a s
+                            (bytevector->string
+                              (string->utf16 s 'big)
+                              utf-16-tx))
+                     (check 'utf-16-test3b s
+                            (bytevector->string
+                              (string->utf16 s 'big)
+                              utf-16be-tx))
+                     (check 'utf-16-test3c s
+                            (bytevector->string
+                              (string->utf16 s 'little)
+                              utf-16le-tx))
+                     (check 'utf-16-test4a s
+                            (bytevector->string
+                              (string->bytevector s utf-16-tx)
+                              utf-16-tx))
+                     (check 'utf-16-test4b s
+                            (bytevector->string
+                              (string->bytevector s utf-16le-tx)
+                              utf-16le-tx))
+                     (check 'utf-16-test4c s
+                            (bytevector->string
+                              (string->bytevector s utf-16be-tx)
+                              utf-16be-tx))
+                     (check 'utf-16-test5a s
+                            (utf16->string (string->utf16 s 'little) 'little))
+                     (check 'utf-16-test5b s
+                            (utf16->string (string->utf16 s 'little) 'little #t))
                      (let* ([bv (string->bytevector s utf-16be-tx)]
                             [bvn (bytevector-length bv)]
                             [bv^ (make-bytevector (fx+ bvn 2))])
@@ -36347,9 +36789,8 @@
                        (bytevector-u8-set! bv^ 1 #xff)
                        (bytevector-copy! bv 0 bv^ 2 bvn)
                        (check 'utf-16-test6 s (utf16->string bv^ 'big))
-                       (check 'utf-16-test7
-                         s
-                         (bytevector->string bv^ utf-16-tx)))
+                       (check 'utf-16-test7 s
+                              (bytevector->string bv^ utf-16-tx)))
                      (let* ([bv (string->utf16 s 'little)]
                             [bvn (bytevector-length bv)]
                             [bv^ (make-bytevector (fx+ bvn 2))])
@@ -36358,21 +36799,16 @@
                        (bytevector-u8-set! bv^ 1 #xfe)
                        (bytevector-copy! bv 0 bv^ 2 bvn)
                        (check 'utf-16-test8 s (utf16->string bv^ 'little))
-                       (check 'utf-16-test9
-                         s
-                         (bytevector->string bv^ utf-16-tx)))
-                     (check 'utf-32-test1a
-                       s
-                       (utf32->string (string->utf32 s 'big) 'big))
-                     (check 'utf-32-test1a
-                       s
-                       (utf32->string (string->utf32 s 'big) 'big #t))
-                     (check 'utf-32-test2a
-                       s
-                       (utf32->string (string->utf32 s 'little) 'little))
-                     (check 'utf-32-test2b
-                       s
-                       (utf32->string (string->utf32 s 'little) 'little #f))))))))
+                       (check 'utf-16-test9 s
+                              (bytevector->string bv^ utf-16-tx)))
+                     (check 'utf-32-test1a s
+                            (utf32->string (string->utf32 s 'big) 'big))
+                     (check 'utf-32-test1a s
+                            (utf32->string (string->utf32 s 'big) 'big #t))
+                     (check 'utf-32-test2a s
+                            (utf32->string (string->utf32 s 'little) 'little))
+                     (check 'utf-32-test2b s
+                            (utf32->string (string->utf32 s 'little) 'little #f))))))))
 
 (mat string<->bytevector-conversions
      ; adapted with minor modifications from bv2string.sch, which is:
@@ -36438,7 +36874,8 @@
          ;
          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-         (define (string-bytevector-tests *random-stress-tests*
+         (define (string-bytevector-tests
+                   *random-stress-tests*
                    *random-stress-test-max-size*)
 
            (define (test-roundtrip bvec tostring tobvec)
@@ -36588,7 +37025,8 @@
                            "abcd")
                  #t)
 
-           (test-roundtrip (random-bytevector 10)
+           (test-roundtrip
+             (random-bytevector 10)
              utf8->string
              string->utf8)
 
@@ -36608,7 +37046,8 @@
 
            (test "utf-16le, BMP"
                  (bytevector=?
-                   (string->utf16 "k\x007f;\x0080;\x07ff;\x0800;\xffff;"
+                   (string->utf16
+                     "k\x007f;\x0080;\x07ff;\x0800;\xffff;"
                      'little)
                    '#vu8(#x6b #x00 #x7f #x00 #x80 #x00 #xff #x07 #x00 #x08
                          #xff #xff))
@@ -36967,7 +37406,7 @@
                  (errorf #f "~s is not as it should be" p))
          (let ([fd (port-file-descriptor p)])
            (unless (fixnum? fd)
-             (errorf #f "unexpected file descriptor ~s" fd)))
+                   (errorf #f "unexpected file descriptor ~s" fd)))
          (when (or (port-has-port-position? p)
                    (port-has-set-port-position!? p)
                    (port-has-port-length? p)
@@ -36978,8 +37417,8 @@
                       (err? (port-length p))
                       (err? (set-port-length! p 0)))
                  (errorf #f
-                   "no error for getting/setting port position/length on ~s"
-                   p)))
+                         "no error for getting/setting port position/length on ~s"
+                         p)))
        (define $emit-dot
          (let ([n 0])
            (lambda ()
@@ -37011,9 +37450,8 @@
              ($check-port from-stdout input-port? binary-port?)
              ($check-port from-stderr input-port? binary-port?)
              (when (input-port-ready? from-stderr)
-                   (errorf #f
-                     "input ready on from-stderr ~s"
-                     (get-string-some from-stderr)))
+                   (errorf #f "input ready on from-stderr ~s"
+                           (get-string-some from-stderr)))
              (if (input-port-ready? from-stdout)
                  (let ([s (get-string-n from-stdout 10)])
                    (unless (equal? s "life in th")
@@ -37021,13 +37459,12 @@
                  (begin ($emit-dot) (f))))
            (let f ([all ""])
              (unless (equal? all "e fast lane\n")
-               (when (input-port-ready? from-stderr)
-                     (errorf #f
-                       "input ready on from-stderr ~s"
-                       (get-string-some from-stderr)))
-               (let ([s (get-string-some from-stdout)])
-                 ($emit-dot)
-                 (f (string-append all s)))))
+                     (when (input-port-ready? from-stderr)
+                           (errorf #f "input ready on from-stderr ~s"
+                                   (get-string-some from-stderr)))
+                     (let ([s (get-string-some from-stdout)])
+                       ($emit-dot)
+                       (f (string-append all s)))))
            (and (not (input-port-ready? from-stderr))
                 (not (input-port-ready? from-stdout))
                 (begin
@@ -37066,9 +37503,8 @@
            (flush-output-port to-stdin)
            (let f ()
              (when (input-port-ready? from-stderr)
-                   (errorf #f
-                     "input ready on from-stderr ~s"
-                     (get-string-some from-stderr)))
+                   (errorf #f "input ready on from-stderr ~s"
+                           (get-string-some from-stderr)))
              (if (input-port-ready? from-stdout)
                  (let ([s (get-string-n from-stdout 10)])
                    (unless (equal? s "life in th")
@@ -37076,13 +37512,12 @@
                  (begin ($emit-dot) (f))))
            (let f ([all ""])
              (unless (equal? all "e fast lane\n")
-               (when (input-port-ready? from-stderr)
-                     (errorf #f
-                       "input ready on from-stderr ~s"
-                       (get-string-some from-stderr)))
-               (let ([s (get-string-some from-stdout)])
-                 ($emit-dot)
-                 (f (string-append all s)))))
+                     (when (input-port-ready? from-stderr)
+                           (errorf #f "input ready on from-stderr ~s"
+                                   (get-string-some from-stderr)))
+                     (let ([s (get-string-some from-stdout)])
+                       ($emit-dot)
+                       (f (string-append all s)))))
            (and (not (input-port-ready? from-stderr))
                 (not (input-port-ready? from-stdout))
                 (begin
@@ -37111,9 +37546,8 @@
            (flush-output-port to-stdin)
            (let f ()
              (when (input-port-ready? from-stderr)
-                   (errorf #f
-                     "input ready on from-stderr ~s"
-                     (get-string-some from-stderr)))
+                   (errorf #f "input ready on from-stderr ~s"
+                           (get-string-some from-stderr)))
              (if (input-port-ready? from-stdout)
                  (let ([s (get-string-n from-stdout 10)])
                    (unless (equal? s "life in th")
@@ -37121,13 +37555,12 @@
                  (begin ($emit-dot) (f))))
            (let f ([all ""])
              (unless (equal? all "e fast lane\n")
-               (when (input-port-ready? from-stderr)
-                     (errorf #f
-                       "input ready on from-stderr ~s"
-                       (get-string-some from-stderr)))
-               (let ([s (get-string-some from-stdout)])
-                 ($emit-dot)
-                 (f (string-append all s)))))
+                     (when (input-port-ready? from-stderr)
+                           (errorf #f "input ready on from-stderr ~s"
+                                   (get-string-some from-stderr)))
+                     (let ([s (get-string-some from-stdout)])
+                       ($emit-dot)
+                       (f (string-append all s)))))
            (and (not (input-port-ready? from-stderr))
                 (not (input-port-ready? from-stdout))
                 (begin
@@ -37156,9 +37589,8 @@
            (flush-output-port to-stdin)
            (let f ()
              (when (input-port-ready? from-stderr)
-                   (errorf #f
-                     "input ready on from-stderr ~s"
-                     (get-string-some from-stderr)))
+                   (errorf #f "input ready on from-stderr ~s"
+                           (get-string-some from-stderr)))
              (if (input-port-ready? from-stdout)
                  (let ([s (get-string-n from-stdout 10)])
                    (unless (equal? s "life in th")
@@ -37166,13 +37598,12 @@
                  (begin ($emit-dot) (f))))
            (let f ([all ""])
              (unless (equal? all "e fast lane\n")
-               (when (input-port-ready? from-stderr)
-                     (errorf #f
-                       "input ready on from-stderr ~s"
-                       (get-string-some from-stderr)))
-               (let ([s (get-string-some from-stdout)])
-                 ($emit-dot)
-                 (f (string-append all s)))))
+                     (when (input-port-ready? from-stderr)
+                           (errorf #f "input ready on from-stderr ~s"
+                                   (get-string-some from-stderr)))
+                     (let ([s (get-string-some from-stdout)])
+                       ($emit-dot)
+                       (f (string-append all s)))))
            (and (not (input-port-ready? from-stderr))
                 (not (input-port-ready? from-stdout))
                 (begin
@@ -37201,9 +37632,8 @@
            (flush-output-port to-stdin)
            (let f ()
              (when (input-port-ready? from-stderr)
-                   (errorf #f
-                     "input ready on from-stderr ~s"
-                     (get-string-some from-stderr)))
+                   (errorf #f "input ready on from-stderr ~s"
+                           (get-string-some from-stderr)))
              (if (input-port-ready? from-stdout)
                  (let ([s (get-string-n from-stdout 10)])
                    (unless (equal? s "life in th")
@@ -37211,13 +37641,12 @@
                  (begin ($emit-dot) (f))))
            (let f ([all ""])
              (unless (equal? all "e fast lane\n")
-               (when (input-port-ready? from-stderr)
-                     (errorf #f
-                       "input ready on from-stderr ~s"
-                       (get-string-some from-stderr)))
-               (let ([s (get-string-some from-stdout)])
-                 ($emit-dot)
-                 (f (string-append all s)))))
+                     (when (input-port-ready? from-stderr)
+                           (errorf #f "input ready on from-stderr ~s"
+                                   (get-string-some from-stderr)))
+                     (let ([s (get-string-some from-stdout)])
+                       ($emit-dot)
+                       (f (string-append all s)))))
            (and (not (input-port-ready? from-stderr))
                 (not (input-port-ready? from-stdout))
                 (begin
@@ -37256,7 +37685,8 @@
                        '()
                        (cons (cond
                                [(gensym? x)
-                                (string-append (symbol->string x)
+                                (string-append
+                                  (symbol->string x)
                                   "%"
                                   (gensym->unique-string x))]
                                [(symbol? x) (symbol->string x)]
@@ -37288,16 +37718,16 @@
      (equal? ($readit #f "#!no-fold-case ab\\x43;de") "abCde")
      ; verify case folding still works when string changes size
      (equal? ($readit #t
-               "Stra\xDF;e #!no-fold-case Stra\xDF;e #!fold-case Stra\xDF;e")
+                      "Stra\xDF;e #!no-fold-case Stra\xDF;e #!fold-case Stra\xDF;e")
              "Stra\xDF;e$Stra\xDF;e$strasse")
      (equal? ($readit #f
-               "Stra\xDF;e #!no-fold-case Stra\xDF;e #!fold-case Stra\xDF;e")
+                      "Stra\xDF;e #!no-fold-case Stra\xDF;e #!fold-case Stra\xDF;e")
              "strasse$Stra\xDF;e$strasse")
      (equal? ($readit #t
-               "Stra\xDF;e #!fold-case Stra\xDF;e #!no-fold-case Stra\xDF;e")
+                      "Stra\xDF;e #!fold-case Stra\xDF;e #!no-fold-case Stra\xDF;e")
              "Stra\xDF;e$strasse$Stra\xDF;e")
      (equal? ($readit #f
-               "Stra\xDF;e #!fold-case Stra\xDF;e #!no-fold-case Stra\xDF;e")
+                      "Stra\xDF;e #!fold-case Stra\xDF;e #!no-fold-case Stra\xDF;e")
              "strasse$strasse$Stra\xDF;e")
      (equal? ($readit #t "Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
@@ -37306,16 +37736,16 @@
      (equal? ($readit #f "Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
      (equal? ($readit #t
-               "#!fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
+                      "#!fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
      (equal? ($readit #f
-               "#!fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
+                      "#!fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
      (equal? ($readit #t
-               "#!no-fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
+                      "#!no-fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
      (equal? ($readit #f
-               "#!no-fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
+                      "#!no-fold-case Aa|b C|dE abC|D e|Fg \\#Ab\\ C a\\B\\ cd")
              "Aab CdE$abCD eFg$#Ab C$aB cd")
      ; verify proper case folding for gensyms
      (equal? ($readit #t "#{aBc DeF1}") "aBc%DeF1")
@@ -37481,7 +37911,7 @@
      (error? (format "~23:(abc)"))
      (error? (format "~,:(abc)"))
      (error? (format "~(abc" #|)|#
-        ))
+       ))
      (error? (format "~:(abc)"))
      (error? (format #|(|# "abc~)"))
      (error? (format "~(~r ~(~a~)~) ~:@(~a)" 1621 "piNK" "bLuE"))
@@ -37524,7 +37954,7 @@
      (error? (format "~?" "~a" '()))
      ;  (error? (format "~@?" "abc" '())) ; too many args
      (error? (format "~@?" "~(abc" #|)|#
-        ))
+       ))
      (error? (format "~@?" "~:?"))
      (equal? (format "==> ~? <==" "~a" '(5)) "==> 5 <==")
      (equal? (format "<~@?>" "abc") "<abc>")
@@ -37558,7 +37988,8 @@
                  (+ ctl-index 3)
                  ctl-string))
        (procedure? format-error))
-     (equal? (format-error 16
+     (equal? (format-error
+               16
                "The item is a ~[Foo~;Bar~;Loser~]."
                "ERROR: The argument to the format ~s command must be a number."
                "~[")
@@ -37733,7 +38164,8 @@
      (equal? (format "~%;; ~{~<~%;; ~1:; ~s~>~^,~}.~%" '(a b c))
              "\n;;  a, b, c.\n")
      (equal? (format "~%;; ~{~<~%;; ~1:; ~s~>~^,~}.~%"
-               '(list-procedure stack
+               '(list-procedure
+                  stack
                   $system-environment
                   $active-threads
                   #{source yqrk281einmw7sg-a}
@@ -37764,7 +38196,8 @@
                   write-radix-sign?))
              "\n;;  list-procedure, stack, $system-environment, $active-threads,\n;;  #{source yqrk281einmw7sg-a}, $c-info, placeholder, make-record-type,\n;;  join-subst, trace-let, set-top-level-value!, integer?, error,\n;;  result, make-resolved-interface, single->double, word, eleven,\n;;  clear-input-port, reverse!, eighteen, zero, write-radix-commas?,\n;;  symbol-value, exact->inexact, subst!, type, $apply-procedure,\n;;  loop/p, write-radix-sign?.\n")
      (equal? (format "~%;; ~{~<~%;; ~1,50:; ~s~>~^,~}.~%"
-               '(list-procedure stack
+               '(list-procedure
+                  stack
                   $system-environment
                   $active-threads
                   #{source yqrk281einmw7sg-a}
@@ -37795,7 +38228,8 @@
                   write-radix-sign?))
              "\n;;  list-procedure, stack, $system-environment,\n;;  $active-threads, #{source yqrk281einmw7sg-a},\n;;  $c-info, placeholder, make-record-type,\n;;  join-subst, trace-let, set-top-level-value!,\n;;  integer?, error, result,\n;;  make-resolved-interface, single->double, word,\n;;  eleven, clear-input-port, reverse!, eighteen,\n;;  zero, write-radix-commas?, symbol-value,\n;;  exact->inexact, subst!, type,\n;;  $apply-procedure, loop/p, write-radix-sign?.\n")
      (equal? (format "~&;; ~{~<~%~&;; ~1:; ~s~>~^,~}.~&"
-               '(list-procedure stack
+               '(list-procedure
+                  stack
                   $system-environment
                   $active-threads
                   #{source yqrk281einmw7sg-a}
@@ -37854,16 +38288,16 @@
      (error? (format "+~{<~s~:^~s>~}+~{<~s~:^~s>~}+" '(a b c d) '(a b c)))
      ; too few args
      (equal? (format "~a~{~}~a"
-               "^"
-               "+~{<~s~^~s>~}+"
-               '((a b c d) (a b c) () (a))
-               "$")
+                     "^"
+                     "+~{<~s~^~s>~}+"
+                     '((a b c d) (a b c) () (a))
+                     "$")
              "^+<ab><cd>++<ab><c++++<a+$")
      (error? (format "~a~{~}~a"
-               "^"
-               "+~{<~s~s>~}+"
-               '((a b c d) (a b c) () (a))
-               "$"))
+                     "^"
+                     "+~{<~s~s>~}+"
+                     '((a b c d) (a b c) () (a))
+                     "$"))
      ; too few args for "+~{<~s~s>~}+"
 
      ; ~:{...}
@@ -38069,9 +38503,9 @@
      (equal? (format "~r" -2) "minus two")
      (equal? (format "~r" -1023) "minus one thousand twenty-three")
      (equal? (format "~r" 999999999)
-       "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine")
+             "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-nine")
      (equal? (format "~r" -954321098)
-       "minus nine hundred fifty-four million three hundred twenty-one thousand ninety-eight")
+             "minus nine hundred fifty-four million three hundred twenty-one thousand ninety-eight")
      (equal? (format "~r" 2599) "two thousand five hundred ninety-nine")
      (equal? (format "~r" 4736) "four thousand seven hundred thirty-six")
      (equal? (format "~r" -4730)
@@ -38114,12 +38548,12 @@
      (equal? (format "~:r" -2) "minus second")
      (equal? (format "~:r" -1023) "minus one thousand twenty-third")
      (equal? (format "~:r" 999999999)
-       "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-ninth")
+             "nine hundred ninety-nine million nine hundred ninety-nine thousand nine hundred ninety-ninth")
      (equal? (format "~:r" 999000000) "nine hundred ninety-nine millionth")
      (equal? (format "~:r" -999000000)
              "minus nine hundred ninety-nine millionth")
      (equal? (format "~:r" 912304000)
-       "nine hundred twelve million three hundred four thousandth")
+             "nine hundred twelve million three hundred four thousandth")
      (equal? (format "~:r" 912004000)
              "nine hundred twelve million four thousandth")
      (equal? (format "~:r" -312001900)
@@ -38180,8 +38614,7 @@
      (equal? (format "~8,3f" .0023456789) "   0.002")
      (equal? (format "~8,3f" .002) "   0.002")
      (equal? (format "~8,3@f" 123456789) "+123456789.000")
-     (equal? (format "~8,3@f" 123456789123456789)
-             "+12345678912345678#.###")
+     (equal? (format "~8,3@f" 123456789123456789) "+12345678912345678#.###")
      (equal? (format "~8,3f" 12345678912345678) "12345678912345678.###")
      (equal? (format "~8,3f" 1234567891234567) "1234567891234567.0##")
      (equal? (format "~8,3f" 12345678912345) "12345678912345.000")
@@ -38397,12 +38830,10 @@
        (define (foo x)
          (format "~6,2F|~6,2,1,'*F|~6,2,,'?F|~6F|~,2F|~F" x x x x x x))
        (and (equal? (foo 3.14159)
-              "  3.14| 31.42|  3.14|3.1416|3.14|3.14159")
-            (equal? (foo -3.14159)
-              " -3.14|-31.42| -3.14|-3.142|-3.14|-3.14159")
+                    "  3.14| 31.42|  3.14|3.1416|3.14|3.14159")
+            (equal? (foo -3.14159) " -3.14|-31.42| -3.14|-3.142|-3.14|-3.14159")
             (equal? (foo 100.0) "100.00|******|100.00| 100.0|100.00|100.0")
-            (equal? (foo 1234.0)
-              "1234.00|******|??????|1234.0|1234.00|1234.0")
+            (equal? (foo 1234.0) "1234.00|******|??????|1234.0|1234.00|1234.0")
             (equal? (foo 0.006) "  0.01|  0.06|  0.01| 0.006|0.01|0.006")
             (equal? (foo 0.0) "  0.00|  0.00|  0.00|   0.0|0.00|0.0")
             (equal? (foo -0.0) " -0.00| -0.00| -0.00|  -0.0|-0.00|-0.0"))))
@@ -38526,23 +38957,14 @@
      (let ()
        ; example adapted from cltl2
        (define (foo x)
-         (format "~9,2,1,,'*E|~10,3,2,2,'?,,'$E|~9,3,2,-2,'%@E|~9,2E"
-                 x
-                 x
-                 x
-                 x))
+         (format "~9,2,1,,'*E|~10,3,2,2,'?,,'$E|~9,3,2,-2,'%@E|~9,2E" x x x x))
        (and (equal? (foo 3.14159)
-              "  3.14e+0| 31.42$-01|+.003e+03|  3.14e+0")
-            (equal? (foo -3.14159)
-              " -3.14e+0|-31.42$-01|-.003e+03| -3.14e+0")
-            (equal? (foo 1100.0)
-              "  1.10e+3| 11.00$+02|+.001e+06|  1.10e+3")
-            (equal? (foo 1.1E13)
-              "*********| 11.00$+12|+.001e+16| 1.10e+13")
-            (equal? (foo 1.1E120)
-              "*********|??????????|%%%%%%%%%|1.10e+120")
-            (equal? (foo 1.1E1200)
-              "   +inf.0|    +inf.0|   +inf.0|   +inf.0")
+                    "  3.14e+0| 31.42$-01|+.003e+03|  3.14e+0")
+            (equal? (foo -3.14159) " -3.14e+0|-31.42$-01|-.003e+03| -3.14e+0")
+            (equal? (foo 1100.0) "  1.10e+3| 11.00$+02|+.001e+06|  1.10e+3")
+            (equal? (foo 1.1E13) "*********| 11.00$+12|+.001e+16| 1.10e+13")
+            (equal? (foo 1.1E120) "*********|??????????|%%%%%%%%%|1.10e+120")
+            (equal? (foo 1.1E1200) "   +inf.0|    +inf.0|   +inf.0|   +inf.0")
             ; cltl2 assumes L (128-bit?) floats
             (equal? (foo 0.0) "  0.00e+0|  0.00$+00|+.000e+00|  0.00e+0")
             (equal? (foo -0.0) " -0.00e+0| -0.00$+00|-.000e+00| -0.00e+0")))
@@ -38551,17 +38973,12 @@
        (define (foo x)
          (format "~9,,1,,'*E|~10,,2,2,'?,,'$E|~9,,2,-2,'%@E|~9E" x x x x))
        (and (equal? (foo 3.14159)
-              "3.1416e+0|31.416$-01|+.003e+03|3.1416e+0")
-            (equal? (foo -3.14159)
-              "-3.142e+0|-31.42$-01|-.003e+03|-3.142e+0")
-            (equal? (foo 1100.0)
-              "   1.1e+3|  11.0$+02|+.001e+06|   1.1e+3")
-            (equal? (foo 1.1E13)
-              "*********|  11.0$+12|+.001e+16|  1.1e+13")
-            (equal? (foo 1.1E120)
-              "*********|??????????|%%%%%%%%%| 1.1e+120")
-            (equal? (foo 1.1E1200)
-              "   +inf.0|    +inf.0|   +inf.0|   +inf.0")
+                    "3.1416e+0|31.416$-01|+.003e+03|3.1416e+0")
+            (equal? (foo -3.14159) "-3.142e+0|-31.42$-01|-.003e+03|-3.142e+0")
+            (equal? (foo 1100.0) "   1.1e+3|  11.0$+02|+.001e+06|   1.1e+3")
+            (equal? (foo 1.1E13) "*********|  11.0$+12|+.001e+16|  1.1e+13")
+            (equal? (foo 1.1E120) "*********|??????????|%%%%%%%%%| 1.1e+120")
+            (equal? (foo 1.1E1200) "   +inf.0|    +inf.0|   +inf.0|   +inf.0")
             ; cltl2 assumes L (128-bit?) floats
             (equal? (foo 0.0) "   0.0e+0|   0.0$+00| +0.0e+00|   0.0e+0")
             (equal? (foo -0.0) "  -0.0e+0|  -0.0$+00| -0.0e+00|  -0.0e+0")))
@@ -38596,25 +39013,16 @@
        (define (foo x)
          (format "~9,2,1,,'*G|~9,3,2,3,'?,,'$G|~9,3,2,0,'%G|~9,2G" x x x x))
        (and (equal? (foo 0.0314159)
-              "  3.14e-2|314.2$-04|0.314e-01|  3.14e-2")
-            (equal? (foo 0.314159)
-              "  0.31   |0.314    |0.314    | 0.31    ")
-            (equal? (foo 3.14159)
-              "   3.1   | 3.14    | 3.14    |  3.1    ")
-            (equal? (foo 31.4159)
-              "   31.   | 31.4    | 31.4    |  31.    ")
-            (equal? (foo 314.159)
-              "  3.14e+2| 314.    | 314.    |  3.14e+2")
-            (equal? (foo 3141.59)
-              "  3.14e+3|314.2$+01|0.314e+04|  3.14e+3")
-            (equal? (foo 3141.59L0)
-              "  3.14e+3|314.2$+01|0.314e+04|  3.14e+3")
-            (equal? (foo 3.14E12)
-              "*********|314.0$+10|0.314e+13| 3.14e+12")
-            (equal? (foo 3.14L120)
-              "*********|?????????|%%%%%%%%%|3.14e+120")
-            (equal? (foo 3.14L1200)
-              "   +inf.0|   +inf.0|   +inf.0|   +inf.0")))
+                    "  3.14e-2|314.2$-04|0.314e-01|  3.14e-2")
+            (equal? (foo 0.314159) "  0.31   |0.314    |0.314    | 0.31    ")
+            (equal? (foo 3.14159) "   3.1   | 3.14    | 3.14    |  3.1    ")
+            (equal? (foo 31.4159) "   31.   | 31.4    | 31.4    |  31.    ")
+            (equal? (foo 314.159) "  3.14e+2| 314.    | 314.    |  3.14e+2")
+            (equal? (foo 3141.59) "  3.14e+3|314.2$+01|0.314e+04|  3.14e+3")
+            (equal? (foo 3141.59L0) "  3.14e+3|314.2$+01|0.314e+04|  3.14e+3")
+            (equal? (foo 3.14E12) "*********|314.0$+10|0.314e+13| 3.14e+12")
+            (equal? (foo 3.14L120) "*********|?????????|%%%%%%%%%|3.14e+120")
+            (equal? (foo 3.14L1200) "   +inf.0|   +inf.0|   +inf.0|   +inf.0")))
      (equal? (list (format "~,3g" .9999)
                    (format "~,3g" .999)
                    (format "~,3g" 1.0))
@@ -38995,8 +39403,7 @@
      ; changed 42 to #\* below
      (equal? (format "~v,,,va" 10 #\* "abc") "abc*******"))
 
-(mat format-slib18
-     ; number of remaining arguments as parameter
+(mat format-slib18 ; number of remaining arguments as parameter
      (equal? (format "~#,,,'*@a ~a ~a ~a" 1 1 1 1) "***1 1 1 1"))
 
 (mat format-slib19
@@ -39602,7 +40009,8 @@
      (error? ; .ss file does not exist
              (maybe-compile-file "probably-does-not-exist.ss"))
      (error? ; .ss file does not exist
-       (maybe-compile-file "probably-does-not-exist.ss"
+       (maybe-compile-file
+         "probably-does-not-exist.ss"
          "probably-does-not-exist.so"))
      (begin
        (with-output-to-file "testfile-mc.ss"
@@ -39623,7 +40031,8 @@
      (error? ; .ss file does not exist
              (maybe-compile-program "probably-does-not-exist.ss"))
      (error? ; .ss file does not exist
-       (maybe-compile-program "probably-does-not-exist.ss"
+       (maybe-compile-program
+         "probably-does-not-exist.ss"
          "probably-does-not-exist.so"))
      (begin
        (with-output-to-file "testfile-mc.ss"
@@ -39634,7 +40043,8 @@
          'replace)
        #t)
      (error? ; cannot create .so file
-       (maybe-compile-program "testfile-mc.ss"
+       (maybe-compile-program
+         "testfile-mc.ss"
          "/probably/does/not/exist.so"))
      (error? ; not a string
              (maybe-compile-library '(spam)))
@@ -39645,7 +40055,8 @@
      (error? ; .ss file does not exist
              (maybe-compile-library "probably-does-not-exist.ss"))
      (error? ; .ss file does not exist
-       (maybe-compile-library "probably-does-not-exist.ss"
+       (maybe-compile-library
+         "probably-does-not-exist.ss"
          "probably-does-not-exist.so"))
      (begin
        (with-output-to-file "testfile-mc.ss"
@@ -39654,7 +40065,8 @@
          'replace)
        #t)
      (error? ; cannot create .so file
-       (maybe-compile-library "testfile-mc.ss"
+       (maybe-compile-library
+         "testfile-mc.ss"
          "/probably/does/not/exist.so"))
      (begin
        (with-output-to-file "testfile-mc.ss"
@@ -39736,7 +40148,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = =))
@@ -39986,7 +40399,8 @@
      (begin
        (for-each
          delete-file
-         '("testfile-mc-a.so" "testfile-mc-b.so"
+         '("testfile-mc-a.so"
+            "testfile-mc-b.so"
             "testfile-mc-e.so"
             "testfile-mc-f.so"
             "testfile-mc-foo.so"))
@@ -40044,8 +40458,7 @@
                (include "testfile-mc-c.ss")
                (include "testfile-mc-d.ss")
                (import M)
-               (meta define
-                     build-something-f
+               (meta define build-something-f
                      (lambda (k something)
                        (import (testfile-mc-f))
                        (datum->syntax k
@@ -40069,7 +40482,8 @@
      (equal? (separate-eval '(load "testfile-mc-foo.so"))
              "(\"a\" \"b\" \"c\" #(\"b\" \"a\") e-f)\n")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40083,7 +40497,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40091,7 +40506,8 @@
              '(= = = = =))
      (touch "testfile-mc-foo.so" "testfile-mc-foo.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40105,7 +40521,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40113,7 +40530,8 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-a.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40127,14 +40545,16 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40148,7 +40568,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40156,7 +40577,8 @@
              '(> > = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-c.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40170,7 +40592,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40178,7 +40601,8 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-e.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40192,14 +40616,16 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40213,7 +40639,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40221,7 +40648,8 @@
              '(= = > = >))
      (touch "testfile-mc-foo.so" "testfile-mc-e-import.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40235,7 +40663,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40243,7 +40672,8 @@
              '(= = = = >))
      (touch "testfile-mc-foo.so" "testfile-mc-f.ss")
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40257,14 +40687,16 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
                     mt*))
              '(= = = = =))
      (equal? (let ([mt* (map file-modification-time
-                             '("testfile-mc-a.so" "testfile-mc-b.so"
+                             '("testfile-mc-a.so"
+                                "testfile-mc-b.so"
                                 "testfile-mc-e.so"
                                 "testfile-mc-f.so"
                                 "testfile-mc-foo.so"))])
@@ -40278,7 +40710,8 @@
                           '=
                           (if (time<? x y) '< '>)))
                     (map file-modification-time
-                         '("testfile-mc-a.so" "testfile-mc-b.so"
+                         '("testfile-mc-a.so"
+                            "testfile-mc-b.so"
                             "testfile-mc-e.so"
                             "testfile-mc-f.so"
                             "testfile-mc-foo.so"))
@@ -40442,7 +40875,8 @@
          "testdir/testfile-mc-1b")
        #t)
      (error? ; can't find testfile-mc-1a.ss
-             (separate-compile 'maybe-compile-library
+             (separate-compile
+               'maybe-compile-library
                "testdir/testfile-mc-1b"))
      ; make sure maybe-compile-file wipes out b.so when it fails to find a.ss
      (or (= (optimize-level) 3)
@@ -40780,7 +41214,8 @@
                        [err (get-string-all from-stderr)])
                    (close-input-port from-stdout)
                    (close-input-port from-stderr)
-                   (unless (eof-object? err) (error 'bootfile-test1 err))
+                   (unless (eof-object? err)
+                           (error 'bootfile-test1 err))
                    out)))
              "hello 1\nhello 2\nhello 3\nhello 4\nhello 5\n")
      (equal? (begin
@@ -40804,14 +41239,16 @@
                                        (patch-exec-path *scheme*))
                                (buffer-mode block)
                                (native-transcoder))])
-                 (pretty-print '(let () (import (B)) (printf "~s\n" b))
+                 (pretty-print
+                   '(let () (import (B)) (printf "~s\n" b))
                    to-stdin)
                  (close-output-port to-stdin)
                  (let ([out (get-string-all from-stdout)]
                        [err (get-string-all from-stderr)])
                    (close-input-port from-stdout)
                    (close-input-port from-stderr)
-                   (unless (eof-object? err) (error 'bootfile-test1 err))
+                   (unless (eof-object? err)
+                           (error 'bootfile-test1 err))
                    out)))
              "(aye captain)\n")
      (equal? (begin
@@ -40823,10 +41260,10 @@
                                          ".exe"
                                          ""))))
                        (errorf #f
-                         "not testing boot file based on ../boot/~a/petite.boot, since *scheme* isn't ../bin/~a/scheme~a"
-                         (machine-type)
-                         (machine-type)
-                         (if (windows?) ".exe" "")))
+                               "not testing boot file based on ../boot/~a/petite.boot, since *scheme* isn't ../bin/~a/scheme~a"
+                               (machine-type)
+                               (machine-type)
+                               (if (windows?) ".exe" "")))
                (parameterize ([optimize-level 2])
                  (make-boot-file "testfile.boot"
                    '()
@@ -40847,7 +41284,8 @@
                        [err (get-string-all from-stderr)])
                    (close-input-port from-stdout)
                    (close-input-port from-stderr)
-                   (unless (eof-object? err) (error 'bootfile-test2 err))
+                   (unless (eof-object? err)
+                           (error 'bootfile-test2 err))
                    out)))
              "hello 1\nhello 2\nhello 3\nhello 4\nhello 5\n")
      ; regression test to verify that we can evaluate a foreign-callable form inside the procedure to
@@ -40862,10 +41300,10 @@
                                          ".exe"
                                          ""))))
                        (errorf #f
-                         "not testing boot file based on ../boot/~a/petite.boot, since *scheme* isn't ../bin/~a/scheme~a"
-                         (machine-type)
-                         (machine-type)
-                         (if (windows?) ".exe" "")))
+                               "not testing boot file based on ../boot/~a/petite.boot, since *scheme* isn't ../bin/~a/scheme~a"
+                               (machine-type)
+                               (machine-type)
+                               (if (windows?) ".exe" "")))
                (mkfile "testfile.ss"
                  '(scheme-start
                     (lambda ()
@@ -40886,7 +41324,8 @@
                        [err (get-string-all from-stderr)])
                    (close-input-port from-stdout)
                    (close-input-port from-stderr)
-                   (unless (eof-object? err) (error 'bootfile-test2 err))
+                   (unless (eof-object? err)
+                           (error 'bootfile-test2 err))
                    out)))
              "#<code>\n"))
 
@@ -41033,14 +41472,16 @@
      (begin
        (#%$compile-host-library 'moi "testfile-hop1.host")
        (define bv
-         (call-with-port (open-file-input-port "testfile-hop1.host")
+         (call-with-port
+           (open-file-input-port "testfile-hop1.host")
            get-bytevector-all))
        #t)
      (begin
        ; doing it a second time should be a no-op
        (#%$compile-host-library 'moi "testfile-hop1.host")
        (bytevector=?
-         (call-with-port (open-file-input-port "testfile-hop1.host")
+         (call-with-port
+           (open-file-input-port "testfile-hop1.host")
            get-bytevector-all)
          bv))
      (begin (set! bv #f) #t)
@@ -41368,7 +41809,7 @@ visit B
 ")
             (string=? (with-output-to-string
                         (lambda () (revisit "testfile.so")))
-              "revisit A
+                      "revisit A
 compile load A
 evaluating top-level foo rhs
 evaluating top-level init
@@ -41380,7 +41821,8 @@ evaluating module init
 
 (mat compile-whole-program
      (error? ; no such file or directory nosuchfile.wpo
-             (compile-whole-program "nosuchfile.wpo"
+             (compile-whole-program
+               "nosuchfile.wpo"
                "testfile-wpo-ab-all.so"))
      (error? ; incorrect number of arguments 
              (compile-whole-program "testfile-wpo-ab.wpo"))
@@ -41390,16 +41832,18 @@ evaluating module init
            (pretty-print
              '(library (testfile-wpo-a)
                 (export make-tree
-                  tree
-                  tree?
-                  tree-left
-                  tree-right
-                  tree-value)
+                        tree
+                        tree?
+                        tree-left
+                        tree-right
+                        tree-value)
                 (import (chezscheme))
 
                 (define-record-type tree
                   (nongenerative)
-                  (fields (mutable left) (mutable value) (mutable right)))
+                  (fields (mutable left)
+                          (mutable value)
+                          (mutable right)))
                 (record-writer (record-type-descriptor tree)
                   (lambda (r p wr)
                     (display "#[tree " p)
@@ -41415,12 +41859,12 @@ evaluating module init
            (pretty-print
              '(library (testfile-wpo-b)
                 (export make-constant-tree
-                  make-tree
-                  tree?
-                  tree-left
-                  tree-right
-                  tree-value
-                  tree->list)
+                        make-tree
+                        tree?
+                        tree-left
+                        tree-right
+                        tree-value
+                        tree->list)
                 (import (rnrs) (testfile-wpo-a))
                 (define-syntax make-constant-tree
                   (lambda (x)
@@ -41468,7 +41912,7 @@ evaluating module init
      (file-exists? "testfile-wpo-ab.wpo")
 
      (equal? (separate-eval '(load-program "testfile-wpo-ab.so"))
-       "constant tree: #[tree #[tree #[tree #f 1 #f] 2 #[tree #f 4 #f]] 5 #[tree #[tree #f 8 #f] 10 #[tree #f 12 #f]]]\nconstant tree value: 5\nconstant tree walk: (1 2 4 5 8 10 12)\n")
+             "constant tree: #[tree #[tree #[tree #f 1 #f] 2 #[tree #f 4 #f]] 5 #[tree #[tree #f 8 #f] 10 #[tree #f 12 #f]]]\nconstant tree value: 5\nconstant tree walk: (1 2 4 5 8 10 12)\n")
 
      (equal? (separate-compile
                '(lambda (x)
@@ -41481,7 +41925,7 @@ evaluating module init
      (delete-file "testfile-wpo-b.so")
      (delete-file "testfile-wpo-ab.so")
      (equal? (separate-eval '(load-program "testfile-wpo-ab-all.so"))
-       "constant tree: #[tree #[tree #[tree #f 1 #f] 2 #[tree #f 4 #f]] 5 #[tree #[tree #f 8 #f] 10 #[tree #f 12 #f]]]\nconstant tree value: 5\nconstant tree walk: (1 2 4 5 8 10 12)\n")
+             "constant tree: #[tree #[tree #[tree #f 1 #f] 2 #[tree #f 4 #f]] 5 #[tree #[tree #f 8 #f] 10 #[tree #f 12 #f]]]\nconstant tree value: 5\nconstant tree walk: (1 2 4 5 8 10 12)\n")
 
      (begin (load-program "testfile-wpo-ab-all.so") #t)
 
@@ -42700,7 +43144,8 @@ evaluating module init
      (equal? (separate-compile
                '(lambda (x)
                   (parameterize ([generate-wpo-files #t])
-                    (compile-whole-library (format "~a.wpo" x)
+                    (compile-whole-library
+                      (format "~a.wpo" x)
                       "testfile-cwl-ab7.so")))
                'cwl-b7)
              "((testfile-cwl-c7))\n")
@@ -43139,8 +43584,7 @@ evaluating module init
                 (define $init
                   (list '_
                         (cons 'apple->banana apple->banana)
-                        (cons 'apple->coconut
-                              apple->coconut)))
+                        (cons 'apple->coconut apple->coconut)))
                 (define apple (list 'apple $init)))))
          'replace)
        (with-output-to-file "testfile-wpo-main.ss"
@@ -43214,7 +43658,8 @@ evaluating module init
                               dirs
                               exts)))])
                   (load-program "testfile-wpo-main.so")))
-             (string-append "(banana (apple->banana _) (_))\n"
+             (string-append
+               "(banana (apple->banana _) (_))\n"
                "(coconut (apple->coconut _) (_))\n"
                "(apple\n  (_ (apple->banana apple->banana _)\n     (apple->coconut apple->coconut _)))\n"))
 
@@ -43275,8 +43720,7 @@ evaluating module init
                 (define $init
                   (list '_
                         (cons 'apple->date apple->date)
-                        (cons 'apple->coconut
-                              apple->coconut)))
+                        (cons 'apple->coconut apple->coconut)))
                 (define apple (list 'apple $init)))))
          'replace)
        (with-output-to-file "testfile-wpo-banana.ss"
@@ -43362,7 +43806,8 @@ evaluating module init
                               dirs
                               exts)))])
                   (load-program "testfile-wpo-main.so")))
-             (string-append "(date (apple->date _) (_))\n"
+             (string-append
+               "(date (apple->date _) (_))\n"
                "(banana (_ (banana->coconut banana->coconut _)))\n"
                "(coconut (banana->coconut _) (apple->coconut _) (_))\n"
                "(apple\n"
@@ -43445,8 +43890,7 @@ evaluating module init
                 (define $init
                   (list '_
                         (cons 'apple->date apple->date)
-                        (cons 'apple->coconut
-                              apple->coconut)
+                        (cons 'apple->coconut apple->coconut)
                         (cons 'apple->eel apple->eel)))
                 (define apple (list 'apple $init)))))
          'replace)
@@ -43555,7 +43999,8 @@ evaluating module init
                               dirs
                               exts)))])
                   (load-program "testfile-wpo-main.so")))
-             (string-append "(date (apple->date _) (_))\n"
+             (string-append
+               "(date (apple->date _) (_))\n"
                "(banana\n"
                "  (_ (banana->coconut\n"
                "       banana->coconut\n"
@@ -43643,16 +44088,20 @@ evaluating module init
             (compile-library "testfile-deja-vu-two")
             (compile-library "testfile-deja-vu-dup")
             (compile-program "testfile-deja-vu-main")
-            (compile-whole-library "testfile-deja-vu-one.wpo"
+            (compile-whole-library
+              "testfile-deja-vu-one.wpo"
               "testfile-deja-vu-one.done")
-            (compile-whole-library "testfile-deja-vu-two.wpo"
+            (compile-whole-library
+              "testfile-deja-vu-two.wpo"
               "testfile-deja-vu-two.done")
-            (compile-whole-library "testfile-deja-vu-dup.wpo"
+            (compile-whole-library
+              "testfile-deja-vu-dup.wpo"
               "testfile-deja-vu-dup.done")))
        #t)
 
      (error? (separate-eval
-               '(compile-whole-program "testfile-deja-vu-main.wpo"
+               '(compile-whole-program
+                  "testfile-deja-vu-main.wpo"
                   "testfile-deja-vu-main.done")))
 
      (begin
@@ -43983,7 +44432,8 @@ evaluating module init
          '(library-extensions '((".ss" . ".so")))
          '(visit "testfile-lm-a.so")
          '(let () (import (testfile-lm-c)) c))
-       (string-append "import: found source file \"testfile-lm-c.ss\"\n"
+       (string-append
+         "import: found source file \"testfile-lm-c.ss\"\n"
          "import: found corresponding object file \"testfile-lm-c.so\"\n"
          "import: object file is not older\n"
          "import: loading object file \"testfile-lm-c.so\"\n"
@@ -43996,7 +44446,8 @@ evaluating module init
          '(library-extensions '((".ss" . ".so")))
          '(revisit "testfile-lm-a.so")
          '(let () (import (testfile-lm-b)) b))
-       (string-append "import: found source file \"testfile-lm-b.ss\"\n"
+       (string-append
+         "import: found source file \"testfile-lm-b.ss\"\n"
          "import: found corresponding object file \"testfile-lm-b.so\"\n"
          "import: object file is not older\n"
          "import: loading object file \"testfile-lm-b.so\"\n"
@@ -44017,7 +44468,8 @@ evaluating module init
             (define-syntax (foo x) ct-a)
             (printf "foo = ~s\n" foo))
          '(let () (import (testfile-lm-c)) c))
-       (string-append "ct-a rhs\n"
+       (string-append
+         "ct-a rhs\n"
          "foo = 123\n"
          "import: attempting to 'revisit' previously 'visited' \"testfile-lm-combined.so\" for library (testfile-lm-c) run-time info\n"
          "rt-a rhs\n"
@@ -44284,8 +44736,7 @@ evaluating module init
      (begin
        (define (exit-code expr)
          (if (windows?)
-             (system (format "echo ~s | ~a -q"
-                             expr
+             (system (format "echo ~s | ~a -q" expr
                              (patch-exec-path *scheme*)))
              (system (format "echo '~s' | ~a -q" expr *scheme*))))
        #t)
@@ -44353,8 +44804,7 @@ evaluating module init
 
 ;;; section 7.4:
 
-(mat transcript-on/transcript-off
-     ; check output
+(mat transcript-on/transcript-off ; check output
      (begin
        (delete-file "testscript")
        (printf "***** expect transcript output:~%")
@@ -44365,9 +44815,9 @@ evaluating module init
            (display "OK, " (console-output-port))
            (let ([x (read (console-input-port))])
              (unless (eof-object? x)
-               (let ([x (eval x)])
-                 (pretty-print x (console-output-port)))
-               (repl)))))
+                     (let ([x (eval x)])
+                       (pretty-print x (console-output-port)))
+                     (repl)))))
        (not (eof-object? (with-input-from-file "testscript" read-char)))))
 
 ;;; section 7.5:
@@ -44596,7 +45046,8 @@ evaluating module init
          (make-time 'time-collector-real 0 0)
          0))
      (error? ; invalid real time
-       (make-sstats (make-time 'time-duration 0 0)
+       (make-sstats
+         (make-time 'time-duration 0 0)
          0
          0
          0
@@ -44799,8 +45250,7 @@ evaluating module init
             (sstats-time? (sstats-gc-real sstats) 'time-duration)
             (exact-integer? (sstats-gc-bytes sstats)))))
 
-(mat display-statistics
-     ; check output
+(mat display-statistics ; check output
      (let ([s (with-output-to-string display-statistics)])
        (and (string? s) (> (string-length s) 50))))
 
@@ -44852,11 +45302,11 @@ evaluating module init
                          0
                          all-gen)])
                (unless (~= n1 n2)
-                 (errorf #f
-                   "discrepancy for space ~s: ~d vs ~d"
-                   space
-                   n1
-                   n2)))))
+                       (errorf #f
+                               "discrepancy for space ~s: ~d vs ~d"
+                               space
+                               n1
+                               n2)))))
          (#%$spaces))
        (for-each
          (lambda (gen)
@@ -44868,11 +45318,11 @@ evaluating module init
                          0
                          (#%$spaces))])
                (unless (~= n1 n2)
-                 (errorf #f
-                   "discrepancy for generation ~s: ~d vs ~d"
-                   gen
-                   n1
-                   n2)))))
+                       (errorf #f
+                               "discrepancy for generation ~s: ~d vs ~d"
+                               gen
+                               n1
+                               n2)))))
          all-gen)
        (critical-section
          (let ([n1 (bytes-allocated #f #f)]
@@ -44886,7 +45336,10 @@ evaluating module init
                      0
                      all-gen)])
            (unless (~= n1 n2)
-             (errorf #f "discrepancy in bytes-allocated: ~d vs ~d" n1 n2))))
+                   (errorf #f
+                           "discrepancy in bytes-allocated: ~d vs ~d"
+                           n1
+                           n2))))
        #t))
 
 (mat memory-bytes
@@ -44905,16 +45358,14 @@ evaluating module init
 
 ;;; section 7-7:
 
-(mat trace-lambda
-     ; check output
+(mat trace-lambda ; check output
      (letrec ([fact (trace-lambda fact
                       (x)
                       (if (= x 0) 1 (* x (fact (- x 1)))))])
        (printf "***** expect trace of (fact 3):~%")
        (eqv? (fact 3) 6)))
 
-(mat trace-let
-     ; check output
+(mat trace-let ; check output
      (begin
        (printf "***** expect trace of (fib 3):~%")
        (eqv? (trace-let fib
@@ -44961,8 +45412,7 @@ evaluating module init
                    (errorf 'f "n is ~s" n)
                    (f (- n 1))))))
 
-(mat keyboard-interrupt-handler
-     ; must be tested by hand
+(mat keyboard-interrupt-handler ; must be tested by hand
      (procedure? (keyboard-interrupt-handler)))
 
 (mat collect-request-handler
@@ -44973,8 +45423,7 @@ evaluating module init
            ([collect-request-handler (lambda () (collect) (k #t))])
            (let f ([x '()]) (f (list-copy (cons 'a x))))))))
 
-(mat timer-interrupt-handler
-     ; tested in mat set-timer below
+(mat timer-interrupt-handler ; tested in mat set-timer below
      (procedure? (timer-interrupt-handler)))
 
 
@@ -45771,27 +46220,27 @@ evaluating module init
            (let ([inst (apply (record-constructor rtd) vals)])
              (let f ((n 2000) (vals vals))
                (unless (= n 0)
-                 (if (= (modulo n 20) 0) (collect))
-                 (f (- n 1)
-                    (map (lambda (acc mut! val type)
-                           (let ([ival (acc inst)])
-                             (unless (and (eqv? ival val)
-                                          (or (not (string? ival))
-                                              (string=? ival "lovely")))
-                                     (errorf #f
-                                       "unexpected value ~s; should have been ~s"
-                                       ival
-                                       val)))
-                           (if (and mut! (= (random 10) 3))
-                               (let ([nval (another type)])
-                                 (mut! inst nval)
-                                 nval)
-                               val))
-                         accessors
-                         mutators
-                         vals
-                         (map cadr
-                              (csv7:record-type-field-decls rtd)))))))))
+                       (if (= (modulo n 20) 0) (collect))
+                       (f (- n 1)
+                          (map (lambda (acc mut! val type)
+                                 (let ([ival (acc inst)])
+                                   (unless (and (eqv? ival val)
+                                                (or (not (string? ival))
+                                                    (string=? ival "lovely")))
+                                           (errorf #f
+                                                   "unexpected value ~s; should have been ~s"
+                                                   ival
+                                                   val)))
+                                 (if (and mut! (= (random 10) 3))
+                                     (let ([nval (another type)])
+                                       (mut! inst nval)
+                                       nval)
+                                     val))
+                               accessors
+                               mutators
+                               vals
+                               (map cadr
+                                    (csv7:record-type-field-decls rtd)))))))))
        #t))
 
 (mat foreign-data
@@ -46124,7 +46573,8 @@ evaluating module init
                      (foreign-ref 'unsigned-32 $fd-a 8)
                      (foreign-ref 'unsigned-32 $fd-a 12)
                      (foreign-ref 'unsigned-32 $fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -46149,7 +46599,8 @@ evaluating module init
                      (foreign-ref 'unsigned-32 $fd-a 8)
                      (foreign-ref 'unsigned-32 $fd-a 12)
                      (foreign-ref 'unsigned-32 $fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -46186,15 +46637,11 @@ evaluating module init
                (list (foreign-ref 'integer-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
              `(,(- #xabcd1234ffee8765 #x10000000000000000)
                #xabcd1234ffee8765
                ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -46204,15 +46651,11 @@ evaluating module init
                (list (foreign-ref 'integer-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
              `(#x-765321ab4c8e9de1
                 ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                 #x-765321ab4c8e9de1
@@ -46233,7 +46676,8 @@ evaluating module init
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 24)
                      (foreign-ref 'unsigned-64 $fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -46258,7 +46702,8 @@ evaluating module init
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 24)
                      (foreign-ref 'unsigned-64 $fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -46298,7 +46743,8 @@ evaluating module init
                              (foreign-ref 'uptr $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab
+                        ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [(#xffffffffffffffff)
@@ -46307,15 +46753,11 @@ evaluating module init
                        (list (foreign-ref 'iptr $fd-a 16)
                              (foreign-ref 'uptr $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(,(- #xabcd1234ffee8765 #x10000000000000000)
                        #xabcd1234ffee8765
                        ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -46325,15 +46767,11 @@ evaluating module init
                        (list (foreign-ref 'iptr $fd-a 16)
                              (foreign-ref 'uptr $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(#x-765321ab4c8e9de1
                         ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                         #x-765321ab4c8e9de1
@@ -46343,15 +46781,11 @@ evaluating module init
                        (list (foreign-ref 'iptr $fd-a 16)
                              (foreign-ref 'void* $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(#x-765321ab4c8e9de1
                         ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                         #x-765321ab4c8e9de1
@@ -46389,7 +46823,8 @@ evaluating module init
                              (foreign-ref 'unsigned $fd-a 8)
                              (foreign-ref 'unsigned $fd-a 12)
                              (foreign-ref 'unsigned $fd-a 16)))
-                     `(#x-80000000 0
+                     `(#x-80000000
+                        0
                         #x7fffffff
                         #x-80000000
                         -1
@@ -46414,7 +46849,8 @@ evaluating module init
                              (foreign-ref 'unsigned $fd-a 8)
                              (foreign-ref 'unsigned $fd-a 12)
                              (foreign-ref 'unsigned $fd-a 16)))
-                     `(#x-80000000 0
+                     `(#x-80000000
+                        0
                         #x7fffffff
                         #x-80000000
                         -1
@@ -46439,7 +46875,8 @@ evaluating module init
                              (foreign-ref 'unsigned-int $fd-a 8)
                              (foreign-ref 'unsigned-int $fd-a 12)
                              (foreign-ref 'unsigned-int $fd-a 16)))
-                     `(#x-80000000 0
+                     `(#x-80000000
+                        0
                         #x7fffffff
                         #x-80000000
                         -1
@@ -46464,7 +46901,8 @@ evaluating module init
                              (foreign-ref 'unsigned $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab
+                        ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [else
@@ -46501,14 +46939,14 @@ evaluating module init
                              (foreign-ref 'unsigned-short $fd-a 6)
                              (foreign-ref 'unsigned-short $fd-a 8)))
                      `(#x-8000 0
-                        #x7fff
-                        #x-8000
-                        -1
-                        #x8000
-                        0
-                        #x7fff
-                        #x8000
-                        #xffff))
+                               #x7fff
+                               #x-8000
+                               -1
+                               #x8000
+                               0
+                               #x7fff
+                               #x8000
+                               #xffff))
              (equal? (begin
                        (foreign-set! 'unsigned-short $fd-a 0 #x-8000)
                        (foreign-set! 'unsigned-short $fd-a 2 0)
@@ -46526,14 +46964,14 @@ evaluating module init
                              (foreign-ref 'unsigned-short $fd-a 6)
                              (foreign-ref 'unsigned-short $fd-a 8)))
                      `(#x-8000 0
-                        #x7fff
-                        #x-8000
-                        -1
-                        #x8000
-                        0
-                        #x7fff
-                        #x8000
-                        #xffff))
+                               #x7fff
+                               #x-8000
+                               -1
+                               #x8000
+                               0
+                               #x7fff
+                               #x8000
+                               #xffff))
              (equal? (begin
                        (foreign-set! 'short $fd-a 2 #xabcd)
                        (list (foreign-ref 'short $fd-a 2)
@@ -46553,8 +46991,8 @@ evaluating module init
                      `(-5321 ,(+ -5321 #x10000) -5321 ,(+ -5321 #x10000))))]
        [else
         (error 'foreign-data-mat
-          "unexpected $fd-short-max ~s"
-          $fd-short-max)])
+               "unexpected $fd-short-max ~s"
+               $fd-short-max)])
      ; long/unsigned-long
      (error? ; invalid value for type
              (foreign-set! 'long $fd-a 0 17.0))
@@ -46586,7 +47024,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 8)
                              (foreign-ref 'unsigned-long $fd-a 12)
                              (foreign-ref 'unsigned-long $fd-a 16)))
-                     `(#x-80000000 0
+                     `(#x-80000000
+                        0
                         #x7fffffff
                         #x-80000000
                         -1
@@ -46611,7 +47050,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 8)
                              (foreign-ref 'unsigned-long $fd-a 12)
                              (foreign-ref 'unsigned-long $fd-a 16)))
-                     `(#x-80000000 0
+                     `(#x-80000000
+                        0
                         #x7fffffff
                         #x-80000000
                         -1
@@ -46636,7 +47076,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 12)
                              (foreign-ref 'integer-32 $fd-a 12)
                              (foreign-ref 'unsigned-32 $fd-a 12)))
-                     `(#x-765321ab ,(+ #x-765321ab #x100000000)
+                     `(#x-765321ab
+                        ,(+ #x-765321ab #x100000000)
                         #x-765321ab
                         ,(+ #x-765321ab #x100000000))))]
        [(#xffffffffffffffff)
@@ -46656,7 +47097,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 16)
                              (foreign-ref 'unsigned-long $fd-a 24)
                              (foreign-ref 'unsigned-long $fd-a 32)))
-                     `(#x-8000000000000000 0
+                     `(#x-8000000000000000
+                        0
                         #x7fffffffffffffff
                         #x-8000000000000000
                         -1
@@ -46666,20 +47108,24 @@ evaluating module init
                         #x8000000000000000
                         #xffffffffffffffff))
              (equal? (begin
-                       (foreign-set! 'unsigned-long
+                       (foreign-set!
+                         'unsigned-long
                          $fd-a
                          0
                          #x-8000000000000000)
                        (foreign-set! 'unsigned-long $fd-a 8 0)
-                       (foreign-set! 'unsigned-long
+                       (foreign-set!
+                         'unsigned-long
                          $fd-a
                          16
                          #x7fffffffffffffff)
-                       (foreign-set! 'unsigned-long
+                       (foreign-set!
+                         'unsigned-long
                          $fd-a
                          24
                          #x8000000000000000)
-                       (foreign-set! 'unsigned-long
+                       (foreign-set!
+                         'unsigned-long
                          $fd-a
                          32
                          #xffffffffffffffff)
@@ -46693,7 +47139,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long $fd-a 16)
                              (foreign-ref 'unsigned-long $fd-a 24)
                              (foreign-ref 'unsigned-long $fd-a 32)))
-                     `(#x-8000000000000000 0
+                     `(#x-8000000000000000
+                        0
                         #x7fffffffffffffff
                         #x-8000000000000000
                         -1
@@ -46707,36 +47154,29 @@ evaluating module init
                        (list (foreign-ref 'long $fd-a 16)
                              (foreign-ref 'unsigned-long $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(,(- #xabcd1234ffee8765 #x10000000000000000)
                        #xabcd1234ffee8765
                        ,(- #xabcd1234ffee8765 #x10000000000000000)
                        #xabcd1234ffee8765))
              (equal? (begin
-                       (foreign-set! 'unsigned-long
+                       (foreign-set!
+                         'unsigned-long
                          $fd-a
                          16
                          #x-765321ab4c8e9de1)
                        (list (foreign-ref 'long $fd-a 16)
                              (foreign-ref 'unsigned-long $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(#x-765321ab4c8e9de1
                         ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                         #x-765321ab4c8e9de1
@@ -46759,20 +47199,24 @@ evaluating module init
      (case $fd-long-long-max
        [(#xffffffffffffffff)
         (and (equal? (begin
-                       (foreign-set! 'long-long
+                       (foreign-set!
+                         'long-long
                          $fd-a
                          0
                          #x-8000000000000000)
                        (foreign-set! 'long-long $fd-a 8 0)
-                       (foreign-set! 'long-long
+                       (foreign-set!
+                         'long-long
                          $fd-a
                          16
                          #x7fffffffffffffff)
-                       (foreign-set! 'long-long
+                       (foreign-set!
+                         'long-long
                          $fd-a
                          24
                          #x8000000000000000)
-                       (foreign-set! 'long-long
+                       (foreign-set!
+                         'long-long
                          $fd-a
                          32
                          #xffffffffffffffff)
@@ -46786,7 +47230,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long-long $fd-a 16)
                              (foreign-ref 'unsigned-long-long $fd-a 24)
                              (foreign-ref 'unsigned-long-long $fd-a 32)))
-                     `(#x-8000000000000000 0
+                     `(#x-8000000000000000
+                        0
                         #x7fffffffffffffff
                         #x-8000000000000000
                         -1
@@ -46796,20 +47241,24 @@ evaluating module init
                         #x8000000000000000
                         #xffffffffffffffff))
              (equal? (begin
-                       (foreign-set! 'unsigned-long-long
+                       (foreign-set!
+                         'unsigned-long-long
                          $fd-a
                          0
                          #x-8000000000000000)
                        (foreign-set! 'unsigned-long-long $fd-a 8 0)
-                       (foreign-set! 'unsigned-long-long
+                       (foreign-set!
+                         'unsigned-long-long
                          $fd-a
                          16
                          #x7fffffffffffffff)
-                       (foreign-set! 'unsigned-long-long
+                       (foreign-set!
+                         'unsigned-long-long
                          $fd-a
                          24
                          #x8000000000000000)
-                       (foreign-set! 'unsigned-long-long
+                       (foreign-set!
+                         'unsigned-long-long
                          $fd-a
                          32
                          #xffffffffffffffff)
@@ -46823,7 +47272,8 @@ evaluating module init
                              (foreign-ref 'unsigned-long-long $fd-a 16)
                              (foreign-ref 'unsigned-long-long $fd-a 24)
                              (foreign-ref 'unsigned-long-long $fd-a 32)))
-                     `(#x-8000000000000000 0
+                     `(#x-8000000000000000
+                        0
                         #x7fffffffffffffff
                         #x-8000000000000000
                         -1
@@ -46833,51 +47283,45 @@ evaluating module init
                         #x8000000000000000
                         #xffffffffffffffff))
              (equal? (begin
-                       (foreign-set! 'long-long
+                       (foreign-set!
+                         'long-long
                          $fd-a
                          16
                          #xabcd1234ffee8765)
                        (list (foreign-ref 'long-long $fd-a 16)
                              (foreign-ref 'unsigned-long-long $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(,(- #xabcd1234ffee8765 #x10000000000000000)
                        #xabcd1234ffee8765
                        ,(- #xabcd1234ffee8765 #x10000000000000000)
                        #xabcd1234ffee8765))
              (equal? (begin
-                       (foreign-set! 'unsigned-long-long
+                       (foreign-set!
+                         'unsigned-long-long
                          $fd-a
                          16
                          #x-765321ab4c8e9de1)
                        (list (foreign-ref 'long-long $fd-a 16)
                              (foreign-ref 'unsigned-long-long $fd-a 16)
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                              (if (eq? (native-endianness) 'little)
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                                 (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                        (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                                 (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
                      `(#x-765321ab4c8e9de1
                         ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                         #x-765321ab4c8e9de1
                         ,(+ #x-765321ab4c8e9de1 #x10000000000000000))))]
        [else
         (error 'foreign-data-mat
-          "unexpected $fd-long-long-max ~s"
-          $fd-long-long-max)])
+               "unexpected $fd-long-long-max ~s"
+               $fd-long-long-max)])
      ; char
      (error? ; invalid value for type
              (foreign-set! 'char $fd-a 0 17))
@@ -46896,7 +47340,8 @@ evaluating module init
                              (foreign-ref 'unsigned-8 $fd-a 3)))
                      `(#\nul 0))
              (equal? (begin
-                       (foreign-set! 'char
+                       (foreign-set!
+                         'char
                          $fd-a
                          3
                          (integer->char $fd-char-max))
@@ -46910,7 +47355,8 @@ evaluating module init
              (foreign-set! 'wchar $fd-a 0 17))
      (or (= $fd-wchar-max #x10ffff)
          (guard (c [#t])
-           (foreign-set! 'wchar
+           (foreign-set!
+             'wchar
              $fd-a
              0
              (integer->char (+ $fd-wchar-max 1)))
@@ -46928,7 +47374,8 @@ evaluating module init
                              (foreign-ref 'unsigned-16 $fd-a 2)))
                      `(#\nul 0))
              (equal? (begin
-                       (foreign-set! 'wchar
+                       (foreign-set!
+                         'wchar
                          $fd-a
                          2
                          (integer->char $fd-wchar-max))
@@ -46947,7 +47394,8 @@ evaluating module init
                              (foreign-ref 'unsigned-32 $fd-a 4)))
                      `(#\nul 0))
              (equal? (begin
-                       (foreign-set! 'wchar
+                       (foreign-set!
+                         'wchar
                          $fd-a
                          4
                          (integer->char $fd-wchar-max))
@@ -46956,8 +47404,8 @@ evaluating module init
                      `(,(integer->char $fd-wchar-max) ,$fd-wchar-max)))]
        [else
         (error 'foreign-data-mat
-          "unexpected $fd-wchar-max ~s"
-          $fd-wchar-max)])
+               "unexpected $fd-wchar-max ~s"
+               $fd-wchar-max)])
      ; boolean
      (equal? (begin
                (foreign-set! 'boolean $fd-a 0 #t)
@@ -46984,7 +47432,8 @@ evaluating module init
                (foreign-set! 'fixnum $fd-a 0 (greatest-fixnum))
                (foreign-set! 'fixnum $fd-a 8 (least-fixnum))
                (foreign-set! 'fixnum $fd-a 16 0)
-               (foreign-set! 'fixnum
+               (foreign-set!
+                 'fixnum
                  $fd-a
                  24
                  (quotient (greatest-fixnum) 2))
@@ -47039,15 +47488,11 @@ evaluating module init
                    (list (foreign-ref 'integer-64 $fd-a 17)
                          (foreign-ref 'unsigned-64 $fd-a 17)
                          (if (eq? (native-endianness) 'little)
-                             (logor (foreign-ref 'unsigned-32 $fd-a 17)
-                                    (ash (foreign-ref 'integer-32 $fd-a 21) 32))
-                             (logor (foreign-ref 'unsigned-32 $fd-a 21)
-                                    (ash (foreign-ref 'integer-32 $fd-a 17) 32)))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 17) (ash (foreign-ref 'integer-32 $fd-a 21) 32))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 21) (ash (foreign-ref 'integer-32 $fd-a 17) 32)))
                          (if (eq? (native-endianness) 'little)
-                             (logor (foreign-ref 'unsigned-32 $fd-a 17)
-                                    (ash (foreign-ref 'unsigned-32 $fd-a 21) 32))
-                             (logor (foreign-ref 'unsigned-32 $fd-a 21)
-                                    (ash (foreign-ref 'unsigned-32 $fd-a 17) 32)))))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 17) (ash (foreign-ref 'unsigned-32 $fd-a 21) 32))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 21) (ash (foreign-ref 'unsigned-32 $fd-a 17) 32)))))
                  `(,(- #xabcd1234ffee8765 #x10000000000000000)
                    #xabcd1234ffee8765
                    ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -47076,8 +47521,8 @@ evaluating module init
                                  ,(+ -5321 #x10000))))]
            [else
             (error 'foreign-data-mat
-              "unexpected $fd-short-max ~s"
-              $fd-short-max)]))
+                   "unexpected $fd-short-max ~s"
+                   $fd-short-max)]))
      (or (not $fd-unaligned-floats)
          (equal? (begin
                    (foreign-set! 'float $fd-a 6 7.5)
@@ -47197,7 +47642,8 @@ evaluating module init
                      (#%$object-ref 'unsigned-32 $raw-fd-a 8)
                      (#%$object-ref 'unsigned-32 $raw-fd-a 12)
                      (#%$object-ref 'unsigned-32 $raw-fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -47222,7 +47668,8 @@ evaluating module init
                      (#%$object-ref 'unsigned-32 $raw-fd-a 8)
                      (#%$object-ref 'unsigned-32 $raw-fd-a 12)
                      (#%$object-ref 'unsigned-32 $raw-fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -47247,15 +47694,11 @@ evaluating module init
                (list (#%$object-ref 'integer-64 $raw-fd-a 16)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16)
-                                (ash (#%$object-ref 'integer-32 $raw-fd-a 20) 32))
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20)
-                                (ash (#%$object-ref 'integer-32 $raw-fd-a 16) 32)))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16) (ash (#%$object-ref 'integer-32 $raw-fd-a 20) 32))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20) (ash (#%$object-ref 'integer-32 $raw-fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16)
-                                (ash (#%$object-ref 'unsigned-32 $raw-fd-a 20) 32))
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20)
-                                (ash (#%$object-ref 'unsigned-32 $raw-fd-a 16) 32)))))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 20) 32))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 16) 32)))))
              `(,(- #xabcd1234ffee8765 #x10000000000000000)
                #xabcd1234ffee8765
                ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -47265,15 +47708,11 @@ evaluating module init
                (list (#%$object-ref 'integer-64 $raw-fd-a 16)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16)
-                                (ash (#%$object-ref 'integer-32 $raw-fd-a 20) 32))
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20)
-                                (ash (#%$object-ref 'integer-32 $raw-fd-a 16) 32)))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16) (ash (#%$object-ref 'integer-32 $raw-fd-a 20) 32))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20) (ash (#%$object-ref 'integer-32 $raw-fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16)
-                                (ash (#%$object-ref 'unsigned-32 $raw-fd-a 20) 32))
-                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20)
-                                (ash (#%$object-ref 'unsigned-32 $raw-fd-a 16) 32)))))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 16) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 20) 32))
+                         (logor (#%$object-ref 'unsigned-32 $raw-fd-a 20) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 16) 32)))))
              `(#x-765321ab4c8e9de1
                 ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                 #x-765321ab4c8e9de1
@@ -47294,7 +47733,8 @@ evaluating module init
                      (#%$object-ref 'unsigned-64 $raw-fd-a 16)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 24)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -47319,7 +47759,8 @@ evaluating module init
                      (#%$object-ref 'unsigned-64 $raw-fd-a 16)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 24)
                      (#%$object-ref 'unsigned-64 $raw-fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -47333,7 +47774,8 @@ evaluating module init
                (foreign-set! 'fixnum $fd-a 0 (greatest-fixnum))
                (foreign-set! 'fixnum $fd-a 8 (least-fixnum))
                (foreign-set! 'fixnum $fd-a 16 0)
-               (foreign-set! 'fixnum
+               (foreign-set!
+                 'fixnum
                  $fd-a
                  24
                  (quotient (greatest-fixnum) 2))
@@ -47368,15 +47810,11 @@ evaluating module init
                    (list (#%$object-ref 'integer-64 $raw-fd-a 17)
                          (#%$object-ref 'unsigned-64 $raw-fd-a 17)
                          (if (eq? (native-endianness) 'little)
-                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 17)
-                                    (ash (#%$object-ref 'integer-32 $raw-fd-a 21) 32))
-                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 21)
-                                    (ash (#%$object-ref 'integer-32 $raw-fd-a 17) 32)))
+                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 17) (ash (#%$object-ref 'integer-32 $raw-fd-a 21) 32))
+                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 21) (ash (#%$object-ref 'integer-32 $raw-fd-a 17) 32)))
                          (if (eq? (native-endianness) 'little)
-                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 17)
-                                    (ash (#%$object-ref 'unsigned-32 $raw-fd-a 21) 32))
-                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 21)
-                                    (ash (#%$object-ref 'unsigned-32 $raw-fd-a 17) 32)))))
+                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 17) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 21) 32))
+                             (logor (#%$object-ref 'unsigned-32 $raw-fd-a 21) (ash (#%$object-ref 'unsigned-32 $raw-fd-a 17) 32)))))
                  `(,(- #xabcd1234ffee8765 #x10000000000000000)
                    #xabcd1234ffee8765
                    ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -47405,8 +47843,8 @@ evaluating module init
                                  ,(+ -5321 #x10000))))]
            [else
             (error 'foreign-data-mat
-              "unexpected $fd-short-max ~s"
-              $fd-short-max)]))
+                   "unexpected $fd-short-max ~s"
+                   $fd-short-max)]))
      (or (not $fd-unaligned-floats)
          (equal? (begin
                    (foreign-set! 'single-float $fd-a 6 7.5)
@@ -47525,7 +47963,8 @@ evaluating module init
                      (foreign-ref 'unsigned-32 $fd-a 8)
                      (foreign-ref 'unsigned-32 $fd-a 12)
                      (foreign-ref 'unsigned-32 $fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -47550,7 +47989,8 @@ evaluating module init
                      (foreign-ref 'unsigned-32 $fd-a 8)
                      (foreign-ref 'unsigned-32 $fd-a 12)
                      (foreign-ref 'unsigned-32 $fd-a 16)))
-             `(#x-80000000 0
+             `(#x-80000000
+                0
                 #x7fffffff
                 #x-80000000
                 -1
@@ -47575,36 +48015,29 @@ evaluating module init
                (list (foreign-ref 'integer-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
              `(,(- #xabcd1234ffee8765 #x10000000000000000)
                #xabcd1234ffee8765
                ,(- #xabcd1234ffee8765 #x10000000000000000)
                #xabcd1234ffee8765))
      (equal? (begin
-               (#%$object-set! 'unsigned-64
+               (#%$object-set!
+                 'unsigned-64
                  $raw-fd-a
                  16
                  #x-765321ab4c8e9de1)
                (list (foreign-ref 'integer-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'integer-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'integer-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'integer-32 $fd-a 16) 32)))
                      (if (eq? (native-endianness) 'little)
-                         (logor (foreign-ref 'unsigned-32 $fd-a 16)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
-                         (logor (foreign-ref 'unsigned-32 $fd-a 20)
-                                (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 16) (ash (foreign-ref 'unsigned-32 $fd-a 20) 32))
+                         (logor (foreign-ref 'unsigned-32 $fd-a 20) (ash (foreign-ref 'unsigned-32 $fd-a 16) 32)))))
              `(#x-765321ab4c8e9de1
                 ,(+ #x-765321ab4c8e9de1 #x10000000000000000)
                 #x-765321ab4c8e9de1
@@ -47625,7 +48058,8 @@ evaluating module init
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 24)
                      (foreign-ref 'unsigned-64 $fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -47635,20 +48069,24 @@ evaluating module init
                 #x8000000000000000
                 #xffffffffffffffff))
      (equal? (begin
-               (#%$object-set! 'unsigned-64
+               (#%$object-set!
+                 'unsigned-64
                  $raw-fd-a
                  0
                  #x-8000000000000000)
                (#%$object-set! 'unsigned-64 $raw-fd-a 8 0)
-               (#%$object-set! 'unsigned-64
+               (#%$object-set!
+                 'unsigned-64
                  $raw-fd-a
                  16
                  #x7fffffffffffffff)
-               (#%$object-set! 'unsigned-64
+               (#%$object-set!
+                 'unsigned-64
                  $raw-fd-a
                  24
                  #x8000000000000000)
-               (#%$object-set! 'unsigned-64
+               (#%$object-set!
+                 'unsigned-64
                  $raw-fd-a
                  32
                  #xffffffffffffffff)
@@ -47662,7 +48100,8 @@ evaluating module init
                      (foreign-ref 'unsigned-64 $fd-a 16)
                      (foreign-ref 'unsigned-64 $fd-a 24)
                      (foreign-ref 'unsigned-64 $fd-a 32)))
-             `(#x-8000000000000000 0
+             `(#x-8000000000000000
+                0
                 #x7fffffffffffffff
                 #x-8000000000000000
                 -1
@@ -47676,7 +48115,8 @@ evaluating module init
                (#%$object-set! 'fixnum $raw-fd-a 0 (greatest-fixnum))
                (#%$object-set! 'fixnum $raw-fd-a 8 (least-fixnum))
                (#%$object-set! 'fixnum $raw-fd-a 16 0)
-               (#%$object-set! 'fixnum
+               (#%$object-set!
+                 'fixnum
                  $raw-fd-a
                  24
                  (quotient (greatest-fixnum) 2))
@@ -47707,22 +48147,19 @@ evaluating module init
                  `(#x-765321ab ,(+ #x-765321ab #x100000000))))
      (or (not $fd-unaligned-integers)
          (equal? (begin
-                   (#%$object-set! 'integer-64
+                   (#%$object-set!
+                     'integer-64
                      $raw-fd-a
                      17
                      #xabcd1234ffee8765)
                    (list (foreign-ref 'integer-64 $fd-a 17)
                          (foreign-ref 'unsigned-64 $fd-a 17)
                          (if (eq? (native-endianness) 'little)
-                             (logor (foreign-ref 'unsigned-32 $fd-a 17)
-                                    (ash (foreign-ref 'integer-32 $fd-a 21) 32))
-                             (logor (foreign-ref 'unsigned-32 $fd-a 21)
-                                    (ash (foreign-ref 'integer-32 $fd-a 17) 32)))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 17) (ash (foreign-ref 'integer-32 $fd-a 21) 32))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 21) (ash (foreign-ref 'integer-32 $fd-a 17) 32)))
                          (if (eq? (native-endianness) 'little)
-                             (logor (foreign-ref 'unsigned-32 $fd-a 17)
-                                    (ash (foreign-ref 'unsigned-32 $fd-a 21) 32))
-                             (logor (foreign-ref 'unsigned-32 $fd-a 21)
-                                    (ash (foreign-ref 'unsigned-32 $fd-a 17) 32)))))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 17) (ash (foreign-ref 'unsigned-32 $fd-a 21) 32))
+                             (logor (foreign-ref 'unsigned-32 $fd-a 21) (ash (foreign-ref 'unsigned-32 $fd-a 17) 32)))))
                  `(,(- #xabcd1234ffee8765 #x10000000000000000)
                    #xabcd1234ffee8765
                    ,(- #xabcd1234ffee8765 #x10000000000000000)
@@ -47751,8 +48188,8 @@ evaluating module init
                                  ,(+ -5321 #x10000))))]
            [else
             (error 'foreign-data-mat
-              "unexpected $fd-short-max ~s"
-              $fd-short-max)]))
+                   "unexpected $fd-short-max ~s"
+                   $fd-short-max)]))
      (or (not $fd-unaligned-floats)
          (equal? (begin
                    (#%$object-set! 'single-float $raw-fd-a 6 7.5)
@@ -48135,9 +48572,11 @@ evaluating module init
      (not (record-type-hash-procedure (record-type-descriptor E+H$b)))
 
      (begin
-       (record-type-equal-procedure (record-type-descriptor E+H$a)
+       (record-type-equal-procedure
+         (record-type-descriptor E+H$a)
          E+H$a-equal?)
-       (record-type-hash-procedure (record-type-descriptor E+H$a)
+       (record-type-hash-procedure
+         (record-type-descriptor E+H$a)
          E+H$a-hash)
        #t)
 
@@ -48177,9 +48616,11 @@ evaluating module init
      (not (record-type-hash-procedure (record-type-descriptor E+H$b)))
 
      (begin
-       (record-type-equal-procedure (record-type-descriptor E+H$b+)
+       (record-type-equal-procedure
+         (record-type-descriptor E+H$b+)
          E+H$b-equal?)
-       (record-type-hash-procedure (record-type-descriptor E+H$b+)
+       (record-type-hash-procedure
+         (record-type-descriptor E+H$b+)
          E+H$b-hash)
        #t)
 
@@ -48192,9 +48633,11 @@ evaluating module init
      (equiv? cyclic-E+H$b+1 cyclic-E+H$b+2)
 
      (begin
-       (record-type-equal-procedure (record-type-descriptor E+H$a+)
+       (record-type-equal-procedure
+         (record-type-descriptor E+H$a+)
          E+H$a-equal?)
-       (record-type-hash-procedure (record-type-descriptor E+H$a+)
+       (record-type-hash-procedure
+         (record-type-descriptor E+H$a+)
          E+H$a-hash)
        #t)
 
@@ -48208,9 +48651,11 @@ evaluating module init
      (not-equiv? (make-E+H$a 1 2) (make-E+H$a+ 1 3 5))
 
      (begin
-       (record-type-equal-procedure (record-type-descriptor E+H$a)
+       (record-type-equal-procedure
+         (record-type-descriptor E+H$a)
          E+H$a-equal?)
-       (record-type-hash-procedure (record-type-descriptor E+H$a)
+       (record-type-hash-procedure
+         (record-type-descriptor E+H$a)
          E+H$a-hash)
        #t)
 
@@ -48452,8 +48897,7 @@ evaluating module init
                      (hashtable-ref ht (make-frub 'x 'y 'z) #f)))
              '(one two three #f)))
 
-(mat record19
-     ; test ellipses in init expressions
+(mat record19 ; test ellipses in init expressions
      (equal? (let ()
                (define-record foo
                  ()
@@ -48470,10 +48914,7 @@ evaluating module init
      (equal? (let ()
                (define foo
                  (make-record-type "foo"
-                   '((integer-32 fixnum?)
-                     (double-float flonum?)
-                     unless
-                     unless)))
+                   '((integer-32 fixnum?) (double-float flonum?) unless unless)))
                (let ()
                  (define make-foo (record-constructor foo))
                  (define foo? (record-predicate foo))
@@ -48715,7 +49156,8 @@ evaluating module init
      ; test general make-record-type interface
      (equal? (let ()
                (define enum-base-rtd
-                 (make-record-type ; not sealed, not opaque
+                 (make-record-type
+                   ; not sealed, not opaque
                    #!base-rtd
                    ; undocumented $base-rtd
                    '#{enum b9s78zmm79qs7j22-a}
@@ -48731,7 +49173,8 @@ evaluating module init
                (define get-members
                  (csv7:record-field-accessor enum-parent-rtd 'members))
                (let ([this-enum-rtd
-                       (#%$make-record-type enum-base-rtd
+                       (#%$make-record-type
+                         enum-base-rtd
                          enum-parent-rtd
                          "enum"
                          '()
@@ -48779,7 +49222,8 @@ evaluating module init
           (long-long r)
           (unsigned-long-long s)))
        #t)
-     (error? (make-r25-bar 1.0
+     (error? (make-r25-bar
+               1.0
                2
                3
                4
@@ -48798,7 +49242,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2.0
                3
                4
@@ -48817,7 +49262,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                'three
                4
@@ -48836,7 +49282,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                1/4
@@ -48855,7 +49302,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48874,7 +49322,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48893,7 +49342,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48912,7 +49362,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48931,7 +49382,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48950,7 +49402,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48969,7 +49422,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -48988,7 +49442,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -49006,7 +49461,8 @@ evaluating module init
                'a
                12
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -49025,7 +49481,8 @@ evaluating module init
                'a
                12.0
                13))
-     (error? (make-r25-bar 1
+     (error? (make-r25-bar
+               1
                2
                3
                4
@@ -49046,7 +49503,8 @@ evaluating module init
                13.0))
      (begin
        (define r25-x
-         (make-r25-bar 1
+         (make-r25-bar
+           1
            2
            3
            4
@@ -49250,13 +49708,15 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type
+                                     #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
                                      #f
                                      #f)]
-                             [rtd2 (#%$make-record-type rtd1
+                             [rtd2 (#%$make-record-type
+                                     rtd1
                                      #!base-rtd
                                      "rtd2"
                                      '()
@@ -49284,20 +49744,23 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type
+                                     #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
                                      #f
                                      #f)]
-                             [rtd2 (#%$make-record-type rtd1
+                             [rtd2 (#%$make-record-type
+                                     rtd1
                                      #!base-rtd
                                      "rtd2"
                                      '()
                                      #f
                                      #f
                                      #f)]
-                             [rtd3 (#%$make-record-type rtd2
+                             [rtd3 (#%$make-record-type
+                                     rtd2
                                      #!base-rtd
                                      "rtd3"
                                      '()
@@ -49327,20 +49790,23 @@ evaluating module init
                 (let ()
                   (define-syntax a
                     (lambda (x)
-                      (let* ([rtd1 (#%$make-record-type #!base-rtd
+                      (let* ([rtd1 (#%$make-record-type
+                                     #!base-rtd
                                      #!base-rtd
                                      "rtd1"
                                      '((mutable q))
                                      #f
                                      #f)]
-                             [rtd2 (#%$make-record-type rtd1
+                             [rtd2 (#%$make-record-type
+                                     rtd1
                                      #!base-rtd
                                      "rtd2"
                                      '()
                                      #f
                                      #f
                                      #f)]
-                             [rtd3 (#%$make-record-type rtd2
+                             [rtd3 (#%$make-record-type
+                                     rtd2
                                      #f
                                      "rtd3"
                                      '((immutable a))
@@ -49423,7 +49889,8 @@ evaluating module init
              '(define $fsr-e-inst1
                 (let-syntax
                   ([a (lambda (x)
-                        #`'#,(make-$fsr-e 0
+                        #`'#,(make-$fsr-e
+                               0
                                -1
                                0
                                -1
@@ -49449,7 +49916,8 @@ evaluating module init
              '(define $fsr-e-inst2
                 (let-syntax
                   ([a (lambda (x)
-                        #`'#,(make-$fsr-e -1
+                        #`'#,(make-$fsr-e
+                               -1
                                0
                                -1
                                0
@@ -49475,7 +49943,8 @@ evaluating module init
              '(define $fsr-e-inst3
                 (let-syntax
                   ([a (lambda (x)
-                        #`'#,(make-$fsr-e #x7f
+                        #`'#,(make-$fsr-e
+                               #x7f
                                #x-8000
                                #x7fffff
                                #x-80000000
@@ -49501,7 +49970,8 @@ evaluating module init
              '(define $fsr-e-inst4
                 (let-syntax
                   ([a (lambda (x)
-                        #`'#,(make-$fsr-e #x-80
+                        #`'#,(make-$fsr-e
+                               #x-80
                                #x7fff
                                #x-800000
                                #x7fffffff
@@ -49535,7 +50005,8 @@ evaluating module init
      ($fsr-e? $fsr-e-inst4)
      (equal? ($record->vector $fsr-e-inst1)
        ($record->vector
-         (make-$fsr-e 0
+         (make-$fsr-e
+           0
            -1
            0
            -1
@@ -49558,7 +50029,8 @@ evaluating module init
            0)))
      (equal? ($record->vector $fsr-e-inst2)
        ($record->vector
-         (make-$fsr-e -1
+         (make-$fsr-e
+           -1
            0
            -1
            0
@@ -49581,7 +50053,8 @@ evaluating module init
            -1)))
      (equal? ($record->vector $fsr-e-inst3)
        ($record->vector
-         (make-$fsr-e #x7f
+         (make-$fsr-e
+           #x7f
            #x-8000
            #x7fffff
            #x-80000000
@@ -49604,7 +50077,8 @@ evaluating module init
            -1)))
      (equal? ($record->vector $fsr-e-inst4)
        ($record->vector
-         (make-$fsr-e #x-80
+         (make-$fsr-e
+           #x-80
            #x7fff
            #x-800000
            #x7fffffff
@@ -49790,7 +50264,8 @@ evaluating module init
         (define prtd
           (make-record-type-descriptor 'foo #f #f #f #f '#((mutable x))))
         (define rtd
-          (make-record-type-descriptor 'bar
+          (make-record-type-descriptor
+            'bar
             prtd
             'pluto
             #t
@@ -49833,14 +50308,16 @@ evaluating module init
 
      (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
-                 (make-record-type-descriptor 'a
+                 (make-record-type-descriptor
+                   'a
                    #f
                    #f
                    #f
                    #f
                    '#((mutable x))))
                (define b-rtd
-                 (make-record-type-descriptor 'b
+                 (make-record-type-descriptor
+                   'b
                    a-rtd
                    #f
                    #f
@@ -49876,8 +50353,7 @@ evaluating module init
                (define make-b1
                  (r6rs:record-constructor b-rcd1))
                (define a-rcd2
-                 (make-record-constructor-descriptor a-rtd
-                   #f
+                 (make-record-constructor-descriptor a-rtd #f
                    (lambda (p)
                      (lambda (x y)
                        (let ([r (p (- x y))])
@@ -49897,7 +50373,8 @@ evaluating module init
 
      (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
-                 (make-record-type-descriptor 'a
+                 (make-record-type-descriptor
+                   'a
                    #f
                    #f
                    #f
@@ -49915,8 +50392,7 @@ evaluating module init
                         (printf "~a out: ~s\n" s (record? x))
                         x))]))
                (define a-rcd
-                 (make-record-constructor-descriptor a-rtd
-                   #f
+                 (make-record-constructor-descriptor a-rtd #f
                    (lambda (m)
                      (lambda (q t) (echo "A" (m (* q t)))))))
                (define make-a
@@ -49928,14 +50404,16 @@ evaluating module init
 
      (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
-                 (make-record-type-descriptor 'a
+                 (make-record-type-descriptor
+                   'a
                    #f
                    #f
                    #f
                    #f
                    '#((mutable x))))
                (define b-rtd
-                 (make-record-type-descriptor 'b
+                 (make-record-type-descriptor
+                   'b
                    a-rtd
                    #f
                    #f
@@ -49961,13 +50439,11 @@ evaluating module init
                         (printf "~a out: ~s\n" s (record? x))
                         x))]))
                (define a-rcd
-                 (make-record-constructor-descriptor a-rtd
-                   #f
+                 (make-record-constructor-descriptor a-rtd #f
                    (lambda (m)
                      (lambda (q) (echo "A" (m (* q q)))))))
                (define b-rcd
-                 (make-record-constructor-descriptor b-rtd
-                   a-rcd
+                 (make-record-constructor-descriptor b-rtd a-rcd
                    (lambda (m)
                      (lambda (q)
                        (echo "B" ((m q) (- q) (/ q)))))))
@@ -49980,21 +50456,24 @@ evaluating module init
 
      (equal? (parameterize ([current-output-port (open-output-string)])
                (define a-rtd
-                 (make-record-type-descriptor 'a
+                 (make-record-type-descriptor
+                   'a
                    #f
                    #f
                    #f
                    #f
                    '#((mutable x))))
                (define b-rtd
-                 (make-record-type-descriptor 'b
+                 (make-record-type-descriptor
+                   'b
                    a-rtd
                    #f
                    #f
                    #f
                    '#((immutable x) (mutable y))))
                (define c-rtd
-                 (make-record-type-descriptor 'c
+                 (make-record-type-descriptor
+                   'c
                    b-rtd
                    #f
                    #f
@@ -50026,19 +50505,16 @@ evaluating module init
                         (printf "~a out: ~s\n" s (record? x))
                         x))]))
                (define a-rcd
-                 (make-record-constructor-descriptor a-rtd
-                   #f
+                 (make-record-constructor-descriptor a-rtd #f
                    (lambda (m)
                      (lambda (q) (echo "A" (m (* q q)))))))
                (define b-rcd
-                 (make-record-constructor-descriptor b-rtd
-                   a-rcd
+                 (make-record-constructor-descriptor b-rtd a-rcd
                    (lambda (m)
                      (lambda (q)
                        (echo "B" ((m q) (- q) (/ q)))))))
                (define c-rcd
-                 (make-record-constructor-descriptor c-rtd
-                   b-rcd
+                 (make-record-constructor-descriptor c-rtd b-rcd
                    (lambda (m)
                      (lambda (q t)
                        (echo "C" ((m (+ q t)) (* q t) (cons q t)))))))
@@ -50063,12 +50539,10 @@ evaluating module init
            (lambda (x)
              #`'#,(make-record-type rtd3 "bar2" '(c d))))
          (define rcd1
-           (make-record-constructor-descriptor rtd1
-             #f
+           (make-record-constructor-descriptor rtd1 #f
              (lambda (n) (lambda (q) (n (* q q))))))
          (define rcd3
-           (make-record-constructor-descriptor rtd3
-             rcd1
+           (make-record-constructor-descriptor rtd3 rcd1
              (lambda (p) (lambda (t u v) ((p t u) v 0)))))
          (define cons3 (r6rs:record-constructor rcd3))
          (cons3 1 2 3)))
@@ -50221,7 +50695,8 @@ evaluating module init
      ; make sure we can use modifiers and types as field names
      (equal? (let ()
                (define foo
-                 (make-record-type-descriptor 'umph
+                 (make-record-type-descriptor
+                   'umph
                    #f
                    #f
                    #f
@@ -50554,9 +51029,7 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd
-                          prcd
-                          cprot))
+                        (make-record-constructor-descriptor crtd prcd cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
@@ -50627,9 +51100,7 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd
-                          prcd
-                          cprot))
+                        (make-record-constructor-descriptor crtd prcd cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
@@ -50700,9 +51171,7 @@ evaluating module init
                       (define prcd
                         (make-record-constructor-descriptor prtd #f pprot))
                       (define crcd
-                        (make-record-constructor-descriptor crtd
-                          prcd
-                          cprot))
+                        (make-record-constructor-descriptor crtd prcd cprot))
                       (define pcons
                         (r6rs:record-constructor prcd))
                       (define ccons
@@ -50770,12 +51239,10 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor prtd
-                        #f
+                      (make-record-constructor-descriptor prtd #f
                         (lambda (n) n)))
                     (define crcd
-                      (make-record-constructor-descriptor crtd
-                        prcd
+                      (make-record-constructor-descriptor crtd prcd
                         (lambda (p)
                           (lambda (x y) ((p x 0) y)))))
                     (define pcons
@@ -50798,8 +51265,7 @@ evaluating module init
               (define prcd
                 (make-record-constructor-descriptor prtd #f (lambda (n) n)))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x 0) y)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50821,8 +51287,7 @@ evaluating module init
               (define prcd
                 (make-record-constructor-descriptor prtd #f (lambda (n) n)))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x 0) y)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50838,13 +51303,11 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor prtd
-                        #f
+                      (make-record-constructor-descriptor prtd #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) w)))))
                     (define crcd
-                      (make-record-constructor-descriptor crtd
-                        prcd
+                      (make-record-constructor-descriptor crtd prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) 0)))))
                     (define pcons
@@ -50865,12 +51328,10 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) 0)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50890,12 +51351,10 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) 0)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50911,13 +51370,11 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor prtd
-                        #f
+                      (make-record-constructor-descriptor prtd #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) 53)))))
                     (define crcd
-                      (make-record-constructor-descriptor crtd
-                        prcd
+                      (make-record-constructor-descriptor crtd prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) 0)))))
                     (define pcons
@@ -50938,12 +51395,10 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) 53)))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) 0)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50963,12 +51418,10 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) 53)))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) 0)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons (r6rs:record-constructor crcd))
@@ -50993,16 +51446,14 @@ evaluating module init
                     (define crtd
                       (make-record-type prtd "child" '(z)))
                     (define prcd
-                      (make-record-constructor-descriptor prtd
-                        #f
+                      (make-record-constructor-descriptor prtd #f
                         (lambda (n)
                           (lambda (z w) (n (+ z 7) w)))))
                     (define pcons
                       (r6rs:record-constructor prcd))
                     (define ccons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor crtd
-                          prcd
+                        (make-record-constructor-descriptor crtd prcd
                           (lambda (p)
                             (lambda (x y) ((p x y) 0))))))
                     (list (pcons 1 2) (ccons 1 2))))
@@ -51019,14 +51470,12 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor crtd
-                    prcd
+                  (make-record-constructor-descriptor crtd prcd
                     (lambda (p) (lambda (x y) ((p x y) 0))))))
               (list (pcons 1 2) (ccons 1 2)))))
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
@@ -51044,14 +51493,12 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define pcons (r6rs:record-constructor prcd))
               (define ccons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor crtd
-                    prcd
+                  (make-record-constructor-descriptor crtd prcd
                     (lambda (p) (lambda (x y) ((p x y) 0))))))
               (list (pcons 1 2) (ccons 1 2)))))
        '(let ([prtd (#3%make-record-type "parent" '(x y))])
@@ -51073,8 +51520,7 @@ evaluating module init
                       (r6rs:record-constructor prcd))
                     (define ccons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor crtd
-                          prcd
+                        (make-record-constructor-descriptor crtd prcd
                           (lambda (p)
                             (lambda (x y) ((p x y) 0))))))
                     (list (pcons 1 2) (ccons 1 2))))
@@ -51097,8 +51543,7 @@ evaluating module init
               (define pcons (r6rs:record-constructor prcd))
               (define ccons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor crtd
-                    prcd
+                  (make-record-constructor-descriptor crtd prcd
                     (lambda (p) (lambda (x y) ((p x y) 0))))))
               (list (pcons 1 2) (ccons 1 2)))))
        '(let ([prtd (#2%make-record-type "parent" '(x y))])
@@ -51122,8 +51567,7 @@ evaluating module init
               (define pcons (r6rs:record-constructor prcd))
               (define ccons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor crtd
-                    prcd
+                  (make-record-constructor-descriptor crtd prcd
                     (lambda (p) (lambda (x y) ((p x y) 0))))))
               (list (pcons 1 2) (ccons 1 2)))))
        '(let ([prtd (#3%make-record-type "parent" '(x y))])
@@ -51142,15 +51586,13 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor prtd
-                          #f
+                        (make-record-constructor-descriptor prtd #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
                       (r6rs:record-constructor
                         (make-record-constructor-descriptor crtd
-                          (make-record-constructor-descriptor prtd
-                            #f
+                          (make-record-constructor-descriptor prtd #f
                             (lambda (n)
                               (lambda (z w) (n (+ z 7) w))))
                           (lambda (p)
@@ -51166,21 +51608,19 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor prtd
-                          #f
+                        (make-record-constructor-descriptor prtd #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
-                      (let ([prcd (make-record-constructor-descriptor prtd
+                      (let ([prcd (make-record-constructor-descriptor
+                                    prtd
                                     #f
                                     (lambda (n)
                                       (lambda (z w)
                                         (n (+ z 7) w))))]
                             [cprot (lambda (p) (lambda (x y) ((p x y) 0)))])
                         (r6rs:record-constructor
-                          (make-record-constructor-descriptor crtd
-                            prcd
-                            cprot))))
+                          (make-record-constructor-descriptor crtd prcd cprot))))
                     (list (pcons 1 2) (ccons 1 2))))
              '(#(parent 8 2) #(child 8 2 0)))
      (equivalent-expansion? ; optimize-level 2 expansion of above
@@ -51196,13 +51636,11 @@ evaluating module init
                 (make-record-type prtd "child" '(z)))
               (define pcons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor prtd
-                    #f
+                  (make-record-constructor-descriptor prtd #f
                     (lambda (n)
                       (lambda (z w) (n (+ z 7) w))))))
               (define ccons
-                (let ([prcd (make-record-constructor-descriptor prtd
-                              #f
+                (let ([prcd (make-record-constructor-descriptor prtd #f
                               (lambda (n)
                                 (lambda (z w) (n (+ z 7) w))))]
                       [cprot (lambda (p) (lambda (x y) ((p x y) 0)))])
@@ -51226,13 +51664,11 @@ evaluating module init
                 (make-record-type prtd "child" '(z)))
               (define pcons
                 (r6rs:record-constructor
-                  (make-record-constructor-descriptor prtd
-                    #f
+                  (make-record-constructor-descriptor prtd #f
                     (lambda (n)
                       (lambda (z w) (n (+ z 7) w))))))
               (define ccons
-                (let ([prcd (make-record-constructor-descriptor prtd
-                              #f
+                (let ([prcd (make-record-constructor-descriptor prtd #f
                               (lambda (n)
                                 (lambda (z w) (n (+ z 7) w))))]
                       [cprot (lambda (p) (lambda (x y) ((p x y) 0)))])
@@ -51251,13 +51687,13 @@ evaluating module init
                       (make-record-type prtd "child" '(z)))
                     (define pcons
                       (r6rs:record-constructor
-                        (make-record-constructor-descriptor prtd
-                          #f
+                        (make-record-constructor-descriptor prtd #f
                           (lambda (n)
                             (lambda (z w) (n (+ z 7) w))))))
                     (define ccons
                       (let ([tmp (make-record-constructor-descriptor crtd
-                                   (make-record-constructor-descriptor prtd
+                                   (make-record-constructor-descriptor
+                                     prtd
                                      #f
                                      (lambda (n)
                                        (lambda (z w)
@@ -51280,8 +51716,7 @@ evaluating module init
                     (define prcd
                       (make-prcd (lambda (n) (lambda (z w) (n (+ z 7) w)))))
                     (define (make-crcd z)
-                      (make-record-constructor-descriptor crtd
-                        prcd
+                      (make-record-constructor-descriptor crtd prcd
                         (lambda (p)
                           (lambda (x y) ((p x y) z)))))
                     (define crcd (make-crcd -17))
@@ -51309,8 +51744,7 @@ evaluating module init
               (define prcd
                 (make-prcd (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define (make-crcd z)
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) z)))))
               (define crcd (make-crcd -17))
               (define (make-pcons)
@@ -51339,8 +51773,7 @@ evaluating module init
               (define prcd
                 (make-prcd (lambda (n) (lambda (z w) (n (+ z 7) w)))))
               (define (make-crcd z)
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (lambda (p) (lambda (x y) ((p x y) z)))))
               (define crcd (make-crcd -17))
               (define (make-pcons)
@@ -51362,8 +51795,7 @@ evaluating module init
                    (define crtd
                      (make-record-type prtd "child" '(z)))
                    (define prcd
-                     (make-record-constructor-descriptor prtd
-                       #f
+                     (make-record-constructor-descriptor prtd #f
                        (rec pprot
                             (lambda (new)
                               (lambda (x n m)
@@ -51371,8 +51803,7 @@ evaluating module init
                                   (pretty-print `(parent ,($record->vector r)))
                                   r))))))
                    (define crcd
-                     (make-record-constructor-descriptor crtd
-                       prcd
+                     (make-record-constructor-descriptor crtd prcd
                        (rec cprot
                             (lambda (p)
                               (lambda (z x n m)
@@ -51398,8 +51829,7 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (rec pprot
                        (lambda (new)
                          (lambda (x n m)
@@ -51407,8 +51837,7 @@ evaluating module init
                              (pretty-print `(parent ,($record->vector r)))
                              r))))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (rec cprot
                        (lambda (p)
                          (lambda (z x n m)
@@ -51447,8 +51876,7 @@ evaluating module init
               (define crtd
                 (make-record-type prtd "child" '(z)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (rec pprot
                        (lambda (new)
                          (lambda (x n m)
@@ -51456,8 +51884,7 @@ evaluating module init
                              (pretty-print `(parent ,($record->vector r)))
                              r))))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (rec cprot
                        (lambda (p)
                          (lambda (z x n m)
@@ -51494,8 +51921,7 @@ evaluating module init
                    (define gcrtd
                      (make-record-type crtd "grand-child" '(w)))
                    (define prcd
-                     (make-record-constructor-descriptor prtd
-                       #f
+                     (make-record-constructor-descriptor prtd #f
                        (rec pprot
                             (lambda (new)
                               (lambda (x n m)
@@ -51503,8 +51929,7 @@ evaluating module init
                                   (pretty-print `(parent ,($record->vector r)))
                                   r))))))
                    (define crcd
-                     (make-record-constructor-descriptor crtd
-                       prcd
+                     (make-record-constructor-descriptor crtd prcd
                        (rec cprot
                             (lambda (p)
                               (lambda (z x n m)
@@ -51512,8 +51937,7 @@ evaluating module init
                                   (pretty-print `(child ,($record->vector r)))
                                   r))))))
                    (define gcrcd
-                     (make-record-constructor-descriptor gcrtd
-                       crcd
+                     (make-record-constructor-descriptor gcrtd crcd
                        (rec gcprot
                             (lambda (p)
                               (lambda (w x q z)
@@ -51553,8 +51977,7 @@ evaluating module init
               (define gcrtd
                 (make-record-type crtd "grand-child" '(w)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (rec pprot
                        (lambda (new)
                          (lambda (x n m)
@@ -51562,8 +51985,7 @@ evaluating module init
                              (pretty-print `(parent ,($record->vector r)))
                              r))))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (rec cprot
                        (lambda (p)
                          (lambda (z x n m)
@@ -51571,8 +51993,7 @@ evaluating module init
                              (pretty-print `(child ,($record->vector r)))
                              r))))))
               (define gcrcd
-                (make-record-constructor-descriptor gcrtd
-                  crcd
+                (make-record-constructor-descriptor gcrtd crcd
                   (rec gcprot
                        (lambda (p)
                          (lambda (w x q z)
@@ -51631,8 +52052,7 @@ evaluating module init
               (define gcrtd
                 (make-record-type crtd "grand-child" '(w)))
               (define prcd
-                (make-record-constructor-descriptor prtd
-                  #f
+                (make-record-constructor-descriptor prtd #f
                   (rec pprot
                        (lambda (new)
                          (lambda (x n m)
@@ -51640,8 +52060,7 @@ evaluating module init
                              (pretty-print `(parent ,($record->vector r)))
                              r))))))
               (define crcd
-                (make-record-constructor-descriptor crtd
-                  prcd
+                (make-record-constructor-descriptor crtd prcd
                   (rec cprot
                        (lambda (p)
                          (lambda (z x n m)
@@ -51649,8 +52068,7 @@ evaluating module init
                              (pretty-print `(child ,($record->vector r)))
                              r))))))
               (define gcrcd
-                (make-record-constructor-descriptor gcrtd
-                  crcd
+                (make-record-constructor-descriptor gcrtd crcd
                   (rec gcprot
                        (lambda (p)
                          (lambda (w x q z)
@@ -51706,8 +52124,7 @@ evaluating module init
              (define gcrtd
                (make-record-type prtd "grand-child" '(w)))
              (define prcd
-               (make-record-constructor-descriptor prtd
-                 #f
+               (make-record-constructor-descriptor prtd #f
                  (rec pprot
                       (lambda (new)
                         (lambda (x n m)
@@ -51715,8 +52132,7 @@ evaluating module init
                             (pretty-print `(parent ,($record->vector r)))
                             r))))))
              (define crcd
-               (make-record-constructor-descriptor crtd
-                 prcd
+               (make-record-constructor-descriptor crtd prcd
                  (rec cprot
                       (lambda (p)
                         (lambda (z x n m)
@@ -51724,8 +52140,7 @@ evaluating module init
                             (pretty-print `(child ,($record->vector r)))
                             r))))))
              (define gcrcd
-               (make-record-constructor-descriptor gcrtd
-                 crcd
+               (make-record-constructor-descriptor gcrtd crcd
                  (rec gcprot
                       (lambda (p)
                         (lambda (w x q z)
@@ -51738,13 +52153,15 @@ evaluating module init
              (pretty-print ($record->vector (pcons 1 2 3)))
              (pretty-print ($record->vector (ccons 1 2 3 4)))
              (pretty-print ($record->vector (gccons 1 2 3 4)))))))
-     (eqv? (make-record-type-descriptor 'foo
+     (eqv? (make-record-type-descriptor
+             'foo
              #f
              '#{rats c7ajhty66y4x1og-a}
              #f
              #f
              '#())
-           (make-record-type-descriptor 'bar
+           (make-record-type-descriptor
+             'bar
              #f
              '#{rats c7ajhty66y4x1og-a}
              #f
@@ -51858,7 +52275,8 @@ evaluating module init
                  (define rtd
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -51885,7 +52303,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -51916,7 +52335,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -51943,7 +52363,8 @@ evaluating module init
                  (define rtd
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -51969,7 +52390,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52002,7 +52424,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52031,7 +52454,8 @@ evaluating module init
               #`(quote #,(datum->syntax #'* (gensym)))))
           (define-syntax rtd
             (lambda (x)
-              #`(quote #,(make-record-type-descriptor 'foo
+              #`(quote #,(make-record-type-descriptor
+                           'foo
                            #f
                            uid
                            #f
@@ -52060,7 +52484,8 @@ evaluating module init
                   #`(quote #,(datum->syntax #'* (gensym)))))
               (define-syntax rtd
                 (lambda (x)
-                  #`(quote #,(make-record-type-descriptor 'foo
+                  #`(quote #,(make-record-type-descriptor
+                               'foo
                                #f
                                uid
                                #f
@@ -52084,7 +52509,8 @@ evaluating module init
           (#2%write (begin
                       (#2%write 'b)
                       (#2%write 'c)
-                      (#3%$object-set! 'scheme-object
+                      (#3%$object-set!
+                        'scheme-object
                         ',record?
                         ,fixnum?
                         23)
@@ -52103,7 +52529,8 @@ evaluating module init
                   #`(quote #,(datum->syntax #'* (gensym)))))
               (define-syntax rtd
                 (lambda (x)
-                  #`(quote #,(make-record-type-descriptor 'foo
+                  #`(quote #,(make-record-type-descriptor
+                               'foo
                                #f
                                uid
                                #f
@@ -52127,7 +52554,8 @@ evaluating module init
           (#3%write (begin
                       (#3%write 'b)
                       (#3%write 'c)
-                      (#3%$object-set! 'scheme-object
+                      (#3%$object-set!
+                        'scheme-object
                         ',record?
                         ,fixnum?
                         23)
@@ -52143,7 +52571,8 @@ evaluating module init
                  (define rtd
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -52169,7 +52598,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52202,7 +52632,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52231,7 +52662,8 @@ evaluating module init
                  (define rtd
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -52267,7 +52699,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52309,7 +52742,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52347,7 +52781,8 @@ evaluating module init
                  (define rtd
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -52378,7 +52813,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52414,7 +52850,8 @@ evaluating module init
               (define rtd
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52446,7 +52883,8 @@ evaluating module init
                  (define rtd1
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        #f
                        uid
                        #f
@@ -52459,7 +52897,8 @@ evaluating module init
                  (define rtd2
                    (begin
                      (write 'a)
-                     (make-record-type-descriptor 'foo
+                     (make-record-type-descriptor
+                       'foo
                        rtd1
                        uid
                        #f
@@ -52484,7 +52923,8 @@ evaluating module init
               (define rtd1
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52497,7 +52937,8 @@ evaluating module init
               (define rtd2
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     rtd1
                     uid
                     #f
@@ -52528,7 +52969,8 @@ evaluating module init
               (define rtd1
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     #f
                     uid
                     #f
@@ -52541,7 +52983,8 @@ evaluating module init
               (define rtd2
                 (begin
                   (write 'a)
-                  (make-record-type-descriptor 'foo
+                  (make-record-type-descriptor
+                    'foo
                     rtd1
                     uid
                     #f
@@ -52567,15 +53010,15 @@ evaluating module init
            (pretty-print
              '(library (testfile-rrp1)
                 (export make-bar
-                  bar?
-                  bar-x
-                  make-foo
-                  foo?
-                  foo-x
-                  foo-y
-                  foo-x-set!
-                  bar-inst
-                  foo-inst)
+                        bar?
+                        bar-x
+                        make-foo
+                        foo?
+                        foo-x
+                        foo-y
+                        foo-x-set!
+                        bar-inst
+                        foo-inst)
                 (import (chezscheme))
                 (define-record-type bar (fields x))
                 (define-record-type foo
@@ -52751,43 +53194,59 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#2%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (let ([g4 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g4 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'bar-x g4 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g4 ,fixnum?))
-                (let ([g4 (#3%$top-level-value 'bar-inst)])
-                  (if (#3%record? g4 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'bar-x g4 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g4 ,fixnum?))
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (let ([g3 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g3 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'foo-x g3 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g3 ,fixnum?))
-                31
-                (let ([g2 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g2 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'foo-y g2 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g2 ,fixnum?)))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (let ([g4 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g4 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'bar-x
+                               g4
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g4 ,fixnum?))
+                       (let ([g4 (#3%$top-level-value 'bar-inst)])
+                         (if (#3%record? g4 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'bar-x
+                               g4
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g4 ,fixnum?))
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (let ([g3 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g3 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'foo-x
+                               g3
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g3 ,fixnum?))
+                       31
+                       (let ([g2 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g2 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'foo-y
+                               g2
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g2 ,fixnum?)))))))
      (equivalent-expansion?
        (parameterize
          ([optimize-level 3]
@@ -52822,43 +53281,59 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#3%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (let ([g4 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g4 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'bar-x g4 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g4 ,fixnum?))
-                (let ([g4 (#3%$top-level-value 'bar-inst)])
-                  (if (#3%record? g4 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'bar-x g4 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g4 ,fixnum?))
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (let ([g3 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g3 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'foo-x g3 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g3 ,fixnum?))
-                31
-                (let ([g2 (#3%$top-level-value 'foo-inst)])
-                  (if (#3%record? g2 ',record-type-descriptor?)
-                      (#2%void)
-                      (#3%$record-oops 'foo-y g2 ',record-type-descriptor?))
-                  (#3%$object-ref 'scheme-object g2 ,fixnum?)))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (let ([g4 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g4 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'bar-x
+                               g4
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g4 ,fixnum?))
+                       (let ([g4 (#3%$top-level-value 'bar-inst)])
+                         (if (#3%record? g4 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'bar-x
+                               g4
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g4 ,fixnum?))
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (let ([g3 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g3 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'foo-x
+                               g3
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g3 ,fixnum?))
+                       31
+                       (let ([g2 (#3%$top-level-value 'foo-inst)])
+                         (if (#3%record? g2 ',record-type-descriptor?)
+                             (#2%void)
+                             (#3%$record-oops
+                               'foo-y
+                               g2
+                               ',record-type-descriptor?))
+                         (#3%$object-ref 'scheme-object g2 ,fixnum?)))))))
      ; now with cp0 enabled and optimize-level 3...also need compiler or cross-library optimization won't occur
      (begin
        (load-library "testfile-rrp1.ss"
@@ -52904,35 +53379,39 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#2%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'bar-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                31
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'bar-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       31
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?))))))
      (equivalent-expansion?
        (parameterize
          ([optimize-level 3]
@@ -52967,35 +53446,39 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#3%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'bar-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                31
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'bar-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       31
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?))))))
      ; now compiling to / loading from a file with cp0 enabled and optimize-level 3
      (begin
        (parameterize
@@ -53039,35 +53522,39 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#2%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'bar-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                31
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'bar-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       31
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?))))))
      (equivalent-expansion?
        (parameterize
          ([optimize-level 3]
@@ -53102,35 +53589,39 @@ evaluating module init
             (let ([f (#3%$record ',record-type-descriptor? 41 17 31)])
               (#3%$object-set! 'scheme-object f ,fixnum? 37)
               (#3%list (#3%record? x ',record-type-descriptor?)
-                #f
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                (#3%record? x ',record-type-descriptor?)
-                #t
-                #t
-                (#3%record? (#3%$top-level-value 'bar-inst)
-                  ',record-type-descriptor?)
-                (#3%record? (#3%$top-level-value 'foo-inst)
-                  ',record-type-descriptor?)
-                23
-                41
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'bar-inst)
-                  ,fixnum?)
-                (#3%$object-ref 'scheme-object f ,fixnum?)
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?)
-                31
-                (#3%$object-ref 'scheme-object
-                  (#3%$top-level-value 'foo-inst)
-                  ,fixnum?))))))
+                       #f
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       (#3%record? x ',record-type-descriptor?)
+                       #t
+                       #t
+                       (#3%record?
+                         (#3%$top-level-value 'bar-inst)
+                         ',record-type-descriptor?)
+                       (#3%record?
+                         (#3%$top-level-value 'foo-inst)
+                         ',record-type-descriptor?)
+                       23
+                       41
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'bar-inst)
+                         ,fixnum?)
+                       (#3%$object-ref 'scheme-object f ,fixnum?)
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?)
+                       31
+                       (#3%$object-ref 'scheme-object
+                         (#3%$top-level-value 'foo-inst)
+                         ,fixnum?))))))
      ;; regression tests for cp0 handling of record-mutator when handed a
      ;; (record-rtd rtd expr) directly.
      (equivalent-expansion?
@@ -53145,7 +53636,8 @@ evaluating module init
                   (let ([gs (gensym (symbol->string name))])
                     (define-syntax mrtd
                       (identifier-syntax
-                        (make-record-type-descriptor name
+                        (make-record-type-descriptor
+                          name
                           #f
                           gs
                           #f
@@ -53162,19 +53654,22 @@ evaluating module init
                     (set-box! b (* 3 (unbox b)))
                     (list (box? b) (unbox b))))))))
        `(let ([gs (#2%gensym "record-box")])
-          (let ([g5 (#2%make-record-type-descriptor 'record-box
+          (let ([g5 (#2%make-record-type-descriptor
+                      'record-box
                       #f
                       gs
                       #f
                       #f
                       '#((mutable x)))]
-                [g6 (#2%make-record-type-descriptor 'record-box
+                [g6 (#2%make-record-type-descriptor
+                      'record-box
                       #f
                       gs
                       #f
                       #f
                       '#((mutable x)))]
-                [g4 (#2%make-record-type-descriptor 'record-box
+                [g4 (#2%make-record-type-descriptor
+                      'record-box
                       #f
                       gs
                       #f
@@ -53182,7 +53677,8 @@ evaluating module init
                       '#((mutable x)))])
             (let ([b ((#2%record-constructor
                         (#2%make-record-constructor-descriptor
-                          (#2%make-record-type-descriptor 'record-box
+                          (#2%make-record-type-descriptor
+                            'record-box
                             #f
                             gs
                             #f
@@ -53212,7 +53708,8 @@ evaluating module init
                    (let ([gs (gensym (symbol->string name))])
                      (define-syntax mrtd
                        (identifier-syntax
-                         (make-record-type-descriptor name
+                         (make-record-type-descriptor
+                           name
                            #f
                            gs
                            #f
@@ -53239,7 +53736,8 @@ evaluating module init
               (define useless
                 (lambda (name)
                   (record-mutator
-                    (make-record-type-descriptor name
+                    (make-record-type-descriptor
+                      name
                       #f
                       #f
                       #f
@@ -53248,7 +53746,8 @@ evaluating module init
                     0)))
               (procedure? (useless 'useless-box-setter)))))
        `(#2%procedure?
-          (let ([g0 (#2%make-record-type-descriptor 'useless-box-setter
+          (let ([g0 (#2%make-record-type-descriptor
+                      'useless-box-setter
                       #f
                       #f
                       #f
@@ -53320,7 +53819,8 @@ evaluating module init
      (begin (set! make-point values) #t)
      (begin
        (define-record-type (point make-point point?)
-         (fields (immutable x point-x) (immutable y point-y)))
+         (fields (immutable x point-x)
+                 (immutable y point-y)))
        #t)
      (error? ; invalid syntax
              point)
@@ -53411,7 +53911,8 @@ evaluating module init
 
      (begin
        (define-record-type (point make-point point?)
-         (fields (immutable x point-x) (mutable y point-y set-point-y!))
+         (fields (immutable x point-x)
+                 (mutable y point-y set-point-y!))
          (nongenerative point-4893d957-e00b-11d9-817f-00111175eb9e))
        (define-record-type (cpoint make-cpoint cpoint?)
          (parent point)
@@ -53879,9 +54380,9 @@ evaluating module init
      (equal? (let ()
                (define-record-type foo
                  (fields (mutable mutable)
-                   (immutable int)
-                   (immutable char)
-                   (mutable integer-32)))
+                         (immutable int)
+                         (immutable char)
+                         (mutable integer-32)))
                (let ([x (make-foo 3 4 5 6)])
                  (foo-mutable-set! x 75)
                  (list ($record->vector x)
@@ -53922,7 +54423,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 (color->rgb 'red)))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -53930,7 +54432,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -53957,7 +54460,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 (color->rgb 'red)))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -53965,7 +54469,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -54015,12 +54520,14 @@ evaluating module init
                 (let ([g12 x])
                   (if (#3%record? g12 ',record-type-descriptor?)
                       (#2%void)
-                      (#3%$record-oops 'cpoint-rgb
+                      (#3%$record-oops
+                        'cpoint-rgb
                         g12
                         ',record-type-descriptor?))
                   (#3%$object-ref 'scheme-object g12 ,fixnum?))
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#2%cons 'rgb 'red))))))
@@ -54047,7 +54554,8 @@ evaluating module init
               (#3%list x
                 (#3%$object-ref 'scheme-object x ,fixnum?)
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#3%cons 'rgb 'red))))))
@@ -54085,7 +54593,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -54093,7 +54602,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -54123,7 +54633,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -54131,7 +54642,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -54187,12 +54699,14 @@ evaluating module init
                 (let ([g35 x])
                   (if (#3%record? g35 ',record-type-descriptor?)
                       (#2%void)
-                      (#3%$record-oops 'cpoint-rgb
+                      (#3%$record-oops
+                        'cpoint-rgb
                         g35
                         ',record-type-descriptor?))
                   (#3%$object-ref 'scheme-object g35 ,fixnum?))
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#2%cons 'rgb 'red))))))
@@ -54222,7 +54736,8 @@ evaluating module init
               (#3%list x
                 (#3%$object-ref 'scheme-object x ,fixnum?)
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#3%cons 'rgb 'red))))))
@@ -54264,7 +54779,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#2%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -54272,7 +54788,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#2%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -54304,7 +54821,8 @@ evaluating module init
                   (list x (cpoint? x) (make-point -8 -15))
                   (f (make-cpoint 3 4 'red))))))
        '(lambda ()
-          (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+          (let ([rtd (#3%$make-record-type-descriptor
+                       #!base-rtd
                        'point
                        #f
                        #f
@@ -54312,7 +54830,8 @@ evaluating module init
                        #f
                        '#2((immutable x) (immutable y))
                        'define-record-type)])
-            (let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+            (let ([rtd (#3%$make-record-type-descriptor
+                         #!base-rtd
                          'cpoint
                          rtd
                          #f
@@ -54370,12 +54889,14 @@ evaluating module init
                 (let ([g57 x])
                   (if (#3%record? g57 ',record-type-descriptor?)
                       (#2%void)
-                      (#3%$record-oops 'cpoint-rgb
+                      (#3%$record-oops
+                        'cpoint-rgb
                         g57
                         ',record-type-descriptor?))
                   (#3%$object-ref 'scheme-object g57 ,fixnum?))
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#2%cons 'rgb 'red))))))
@@ -54406,7 +54927,8 @@ evaluating module init
               (#3%list x
                 (#3%$object-ref 'scheme-object x ,fixnum?)
                 ',record?)
-              (f (#3%$record ',record-type-descriptor?
+              (f (#3%$record
+                   ',record-type-descriptor?
                    3
                    4
                    (#3%cons 'rgb 'red))))))
@@ -54744,7 +55266,8 @@ evaluating module init
               (let ([x (make-fratrat)] [y (make-dormy)])
                 (list (fratrat? x) (dormy? x) (fratrat? y) (dormy? y))))))
        `(begin
-          (#2%$make-record-type-descriptor #!base-rtd
+          (#2%$make-record-type-descriptor
+            #!base-rtd
             'dormy
             ',record-type-descriptor?
             #f
@@ -54811,7 +55334,8 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+       `(let ([rtd (#2%$make-record-type-descriptor
+                     #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -54822,12 +55346,12 @@ evaluating module init
           (let ([x (#3%$record ',record-type-descriptor? 17)]
                 [y (#3%$record rtd 23 'creepy)])
             (#2%list #t
-              #f
-              #t
-              #t
-              (#3%$object-ref 'scheme-object x ,fixnum?)
-              (#3%$object-ref 'scheme-object y ,fixnum?)
-              'creepy))))
+                     #f
+                     #t
+                     #t
+                     (#3%$object-ref 'scheme-object x ,fixnum?)
+                     (#3%$object-ref 'scheme-object y ,fixnum?)
+                     'creepy))))
      (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
@@ -54851,7 +55375,8 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor
+                     #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -54862,12 +55387,12 @@ evaluating module init
           (let ([x (#3%$record ',record-type-descriptor? 17)]
                 [y (#3%$record rtd 23 'creepy)])
             (#3%list #t
-              #f
-              #t
-              #t
-              (#3%$object-ref 'scheme-object x ,fixnum?)
-              (#3%$object-ref 'scheme-object y ,fixnum?)
-              'creepy))))
+                     #f
+                     #t
+                     #t
+                     (#3%$object-ref 'scheme-object x ,fixnum?)
+                     (#3%$object-ref 'scheme-object y ,fixnum?)
+                     'creepy))))
      (equal? (let ()
                ; add a protocol
                (define-record fratrat (x))
@@ -54912,7 +55437,8 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+       `(let ([rtd (#2%$make-record-type-descriptor
+                     #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -54923,12 +55449,12 @@ evaluating module init
           (let ([x (#3%$record ',record-type-descriptor? 17)]
                 [y (#3%$record rtd 23 '(23 creepy))])
             (#2%list #t
-              #f
-              #t
-              #t
-              (#3%$object-ref 'scheme-object x ,fixnum?)
-              (#3%$object-ref 'scheme-object y ,fixnum?)
-              '(23 creepy)))))
+                     #f
+                     #t
+                     #t
+                     (#3%$object-ref 'scheme-object x ,fixnum?)
+                     (#3%$object-ref 'scheme-object y ,fixnum?)
+                     '(23 creepy)))))
      (equivalent-expansion? ; optimize-level 3 expansion of above
        (parameterize
          ([optimize-level 3]
@@ -54953,7 +55479,8 @@ evaluating module init
                       (fratrat-x x)
                       (fratrat-x y)
                       (dormy-y y))))))
-       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor
+                     #!base-rtd
                      'dormy
                      ',record-type-descriptor?
                      #f
@@ -54964,18 +55491,19 @@ evaluating module init
           (let ([x (#3%$record ',record-type-descriptor? 17)]
                 [y (#3%$record rtd 23 '(23 creepy))])
             (#3%list #t
-              #f
-              #t
-              #t
-              (#3%$object-ref 'scheme-object x ,fixnum?)
-              (#3%$object-ref 'scheme-object y ,fixnum?)
-              '(23 creepy)))))
+                     #f
+                     #t
+                     #t
+                     (#3%$object-ref 'scheme-object x ,fixnum?)
+                     (#3%$object-ref 'scheme-object y ,fixnum?)
+                     '(23 creepy)))))
      (error? ; m-r-c-d can't handle non-scheme-object fields
        (let ()
          (define-record fratrat ((immutable integer-32 x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -55059,7 +55587,8 @@ evaluating module init
      (equal? (let ()
                (define-record fratrat ((immutable x)))
                (define dormy
-                 (make-record-type (type-descriptor fratrat)
+                 (make-record-type
+                   (type-descriptor fratrat)
                    '#{dormy a3utgl1aoz8jzrg1-0}
                    '((immutable y))))
                (define make-dormy
@@ -55085,7 +55614,8 @@ evaluating module init
            '(let ()
               (define-record fratrat ((immutable x)))
               (define dormy
-                (make-record-type (type-descriptor fratrat)
+                (make-record-type
+                  (type-descriptor fratrat)
                   '#{dormy a3utgl1aoz8jzrg1-1}
                   '((immutable y))))
               (define make-dormy (record-constructor dormy))
@@ -55110,7 +55640,8 @@ evaluating module init
            '(let ()
               (define-record fratrat ((immutable x)))
               (define dormy
-                (make-record-type (type-descriptor fratrat)
+                (make-record-type
+                  (type-descriptor fratrat)
                   '#{dormy a3utgl1aoz8jzrg1-2}
                   '((immutable y))))
               (define make-dormy (record-constructor dormy))
@@ -55133,7 +55664,8 @@ evaluating module init
          (define-record-type dormy
            (parent fratrat2)
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -55152,7 +55684,8 @@ evaluating module init
            (fields (immutable x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (parent fratrat2)
@@ -55170,11 +55703,13 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (parent-rtd (type-descriptor fratrat)
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -55321,7 +55856,8 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd 'rats
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -55364,7 +55900,8 @@ evaluating module init
          (define-record fratrat ((immutable x)))
          (define-record-type dormy
            (parent-rtd #f
-             (make-record-constructor-descriptor (type-descriptor fratrat)
+             (make-record-constructor-descriptor
+               (type-descriptor fratrat)
                #f
                #f))
            (fields (immutable y)))
@@ -55452,7 +55989,8 @@ evaluating module init
               (define-record-type bar (sealed #t))
               (record-type-sealed? (record-type-descriptor bar)))))
        '(begin
-          (#2%$make-record-type-descriptor #!base-rtd
+          (#2%$make-record-type-descriptor
+            #!base-rtd
             'bar
             #f
             #f
@@ -55510,7 +56048,8 @@ evaluating module init
               (record? x (record-type-descriptor bar)))))
        '(lambda (x)
           (#3%record? x
-            (#2%$make-record-type-descriptor #!base-rtd
+            (#2%$make-record-type-descriptor
+              #!base-rtd
               'bar
               #f
               #f
@@ -55530,7 +56069,8 @@ evaluating module init
               (record? x (record-type-descriptor bar)))))
        '(lambda (x)
           (#3%$sealed-record? x
-            (#2%$make-record-type-descriptor #!base-rtd
+            (#2%$make-record-type-descriptor
+              #!base-rtd
               'bar
               #f
               #f
@@ -55930,7 +56470,8 @@ evaluating module init
                 (let ([q (make-foo x)])
                   (set! x 43)
                   (foo-x q))))))
-       `(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+       `(let ([rtd (#3%$make-record-type-descriptor
+                     #!base-rtd
                      'foo
                      #f
                      #f
@@ -55953,7 +56494,8 @@ evaluating module init
               (let ([q (make-foo a 3)])
                 (list (foo-x q) (foo-y q))))))
        '(lambda (a)
-          (#2%$make-record-type-descriptor #!base-rtd
+          (#2%$make-record-type-descriptor
+            #!base-rtd
             'foo
             #f
             #f
@@ -56010,7 +56552,8 @@ evaluating module init
               (let ([q (make-foo (cons a a) (lambda () a))])
                 (list (foo-x q) ((foo-y q)))))))
        '(lambda (a)
-          (#2%$make-record-type-descriptor #!base-rtd
+          (#2%$make-record-type-descriptor
+            #!base-rtd
             'foo
             #f
             #f
@@ -56103,7 +56646,8 @@ evaluating module init
               (lambda (x)
                 (let* ([r (make-foo 37 x)] [r (inc r)] [r (inc r)])
                   r)))))
-       '(let ([rtd (#2%$make-record-type-descriptor #!base-rtd
+       '(let ([rtd (#2%$make-record-type-descriptor
+                     #!base-rtd
                      'foo
                      #f
                      #f
@@ -56127,7 +56671,8 @@ evaluating module init
               (lambda (x)
                 (let* ([r (make-foo 37 x)] [r (inc r)] [r (inc r)])
                   r)))))
-       '(let ([rtd (#3%$make-record-type-descriptor #!base-rtd
+       '(let ([rtd (#3%$make-record-type-descriptor
+                     #!base-rtd
                      'foo
                      #f
                      #f
@@ -56163,8 +56708,7 @@ evaluating module init
               #f
               g0
               'define-record-type)
-            (#3%$record ',record-type-descriptor?
-              3
+            (#3%$record ',record-type-descriptor? 3
               (begin (set! ctr (#2%+ 1 xtr)) ctr)))))
      (equivalent-expansion?
        (parameterize
@@ -56192,15 +56736,15 @@ evaluating module init
               #f
               g0
               'define-record-type)
-            (#3%$record ',record-type-descriptor?
-              3
+            (#3%$record ',record-type-descriptor? 3
               (begin (set! ctr (#3%+ 1 xtr)) ctr)))))
      (error? ; invalid uid
        (let ()
          (define useless
            (lambda (name)
              (record-mutator
-               (make-record-type-descriptor name
+               (make-record-type-descriptor
+                 name
                  #f
                  5
                  #f
@@ -56229,14 +56773,16 @@ evaluating module init
          (expand/optimize
            '(let ()
               (define prtd
-                (make-record-type-descriptor 'foo
+                (make-record-type-descriptor
+                  'foo
                   #f
                   #f
                   #f
                   #f
                   '#((mutable x))))
               (define rtd
-                (make-record-type-descriptor 'bar
+                (make-record-type-descriptor
+                  'bar
                   prtd
                   'pluto
                   #t
@@ -56259,13 +56805,15 @@ evaluating module init
                           (record-type-opaque? rtd))
                     (list (record-type-sealed? prtd)
                           (record-type-sealed? rtd))))))
-       '(let ([prtd (#2%make-record-type-descriptor 'foo
+       '(let ([prtd (#2%make-record-type-descriptor
+                      'foo
                       #f
                       #f
                       #f
                       #f
                       '#((mutable x)))])
-          (let ([rtd (#2%make-record-type-descriptor 'bar
+          (let ([rtd (#2%make-record-type-descriptor
+                       'bar
                        prtd
                        'pluto
                        #t
@@ -56273,18 +56821,18 @@ evaluating module init
                        '#((mutable y) (immutable z)))])
             (let ([rcd (#3%make-record-constructor-descriptor rtd #f #f)])
               (#2%list #t
-                #t
-                (#2%record-type-descriptor? rcd)
-                (#2%record-constructor-descriptor? rtd)
-                #t
-                #t
-                #f
-                '#(x)
-                '#(y z)
-                (#2%list (#2%record-type-generative? prtd)
-                         (#2%record-type-generative? rtd))
-                (#2%list #f #f)
-                (#2%list #f #t))))))
+                       #t
+                       (#2%record-type-descriptor? rcd)
+                       (#2%record-constructor-descriptor? rtd)
+                       #t
+                       #t
+                       #f
+                       '#(x)
+                       '#(y z)
+                       (#2%list (#2%record-type-generative? prtd)
+                                (#2%record-type-generative? rtd))
+                       (#2%list #f #f)
+                       (#2%list #f #t))))))
      (equivalent-expansion?
        (parameterize
          ([optimize-level 2]
@@ -56365,7 +56913,8 @@ evaluating module init
          (expand/optimize
            '(lambda (sealed? opaque?)
               (define prtd
-                (make-record-type-descriptor 'foo
+                (make-record-type-descriptor
+                  'foo
                   #f
                   #f
                   sealed?
@@ -56378,13 +56927,15 @@ evaluating module init
                     (list (record-type-sealed? prtd)
                           (record-type-sealed? rtd))))))
        '(lambda (sealed? opaque?)
-          (let ([prtd (#2%make-record-type-descriptor 'foo
+          (let ([prtd (#2%make-record-type-descriptor
+                        'foo
                         #f
                         #f
                         sealed?
                         opaque?
                         '#())])
-            (let ([rtd (#2%make-record-type-descriptor 'bar
+            (let ([rtd (#2%make-record-type-descriptor
+                         'bar
                          prtd
                          #f
                          #f
@@ -56401,7 +56952,8 @@ evaluating module init
          (expand/optimize
            '(lambda (sealed? opaque?)
               (define prtd
-                (make-record-type-descriptor 'foo
+                (make-record-type-descriptor
+                  'foo
                   #f
                   #f
                   sealed?
@@ -56414,7 +56966,8 @@ evaluating module init
                     (list (record-type-sealed? prtd)
                           (record-type-sealed? rtd))))))
        '(lambda (sealed? opaque?)
-          (let ([prtd (#2%make-record-type-descriptor 'foo
+          (let ([prtd (#2%make-record-type-descriptor
+                        'foo
                         #f
                         #f
                         sealed?
@@ -56433,7 +56986,8 @@ evaluating module init
               (define prtd
                 (make-record-type-descriptor 'foo #f #f #f #f '#()))
               (define rtd
-                (make-record-type-descriptor 'bar
+                (make-record-type-descriptor
+                  'bar
                   prtd
                   #f
                   sealed?
@@ -56445,7 +56999,8 @@ evaluating module init
                           (record-type-sealed? rtd))))))
        '(lambda (sealed? opaque?)
           (let ([rtd (#2%make-record-type-descriptor 'bar
-                       (#2%make-record-type-descriptor 'foo
+                       (#2%make-record-type-descriptor
+                         'foo
                          #f
                          #f
                          #f
@@ -56467,7 +57022,8 @@ evaluating module init
               (define prtd
                 (make-record-type-descriptor 'foo #f #f #f #t '#()))
               (define rtd
-                (make-record-type-descriptor 'bar
+                (make-record-type-descriptor
+                  'bar
                   prtd
                   #f
                   sealed?
@@ -56479,7 +57035,8 @@ evaluating module init
                           (record-type-sealed? rtd))))))
        '(lambda (sealed? opaque?)
           (let ([rtd (#2%make-record-type-descriptor 'bar
-                       (#2%make-record-type-descriptor 'foo
+                       (#2%make-record-type-descriptor
+                         'foo
                          #f
                          #f
                          #f
@@ -56547,14 +57104,8 @@ evaluating module init
                 (lambda ()
                   (define-record kons (kar kdr))
                   (display (kons-kar (make-kons
-                                       (begin
-                                         (display 1)
-                                         (display 2)
-                                         3)
-                                       (begin
-                                         (display 4)
-                                         (display 5)
-                                         6))))))
+                                       (begin (display 1) (display 2) 3)
+                                       (begin (display 4) (display 5) 6))))))
               '("45123" "12453"))
      (equivalent-expansion?
        (parameterize
@@ -56566,14 +57117,8 @@ evaluating module init
            '(let ()
               (define-record kons (kar kdr))
               (display (kons-kar (make-kons
-                                   (begin
-                                     (display 1)
-                                     (display 2)
-                                     3)
-                                   (begin
-                                     (display 4)
-                                     (display 5)
-                                     6)))))))
+                                   (begin (display 1) (display 2) 3)
+                                   (begin (display 4) (display 5) 6)))))))
        '(#2%display
           (begin
             (#2%display 4)
@@ -56585,14 +57130,8 @@ evaluating module init
                 (lambda ()
                   (define-record kons (kar kdr))
                   (display (kons-kdr (make-kons
-                                       (begin
-                                         (display 1)
-                                         (display 2)
-                                         3)
-                                       (begin
-                                         (display 4)
-                                         (display 5)
-                                         6))))))
+                                       (begin (display 1) (display 2) 3)
+                                       (begin (display 4) (display 5) 6))))))
               '("45126" "12456"))
      (equivalent-expansion?
        (parameterize
@@ -56604,14 +57143,8 @@ evaluating module init
            '(let ()
               (define-record kons (kar kdr))
               (display (kons-kdr (make-kons
-                                   (begin
-                                     (display 1)
-                                     (display 2)
-                                     3)
-                                   (begin
-                                     (display 4)
-                                     (display 5)
-                                     6)))))))
+                                   (begin (display 1) (display 2) 3)
+                                   (begin (display 4) (display 5) 6)))))))
        '(#2%display
           (begin
             (#2%display 4)
@@ -59227,10 +59760,8 @@ evaluating module init
          (define-syntax whip (identifier-syntax egg))
          (define egg 'whites))
        (equal? (list (cons ($from1 $frappe wire) ($from1 $frappe whip))
-                     (cons ($from2 $frappe wire)
-                           ($from2 $frappe whip))
-                     (cons ($from3 $frappe wire)
-                           ($from3 $frappe whip)))
+                     (cons ($from2 $frappe wire) ($from2 $frappe whip))
+                     (cons ($from3 $frappe wire) ($from3 $frappe whip)))
                '((3 . whites) (3 . whites) (3 . whites))))
      (equal? (let ()
                (module q
@@ -59325,8 +59856,7 @@ evaluating module init
          (syntax-rules ()
            ((_ y)
             (begin
-              (define-syntax $blast-x
-                (identifier-syntax "blast"))
+              (define-syntax $blast-x (identifier-syntax "blast"))
               (define-syntax y (identifier-syntax $blast-x))))))
        #t)
      (begin ($c $blast-y) (equal? $blast-y "blast"))
@@ -61343,16 +61873,15 @@ evaluating module init
                           (lambda () (load "testfile.so")))])
            (let ([actual (list ss.out
                                (substring cf.out
-                                 (string-length
-                                   "compiling testfile.ss with output to testfile.so\n")
+                                 (string-length "compiling testfile.ss with output to testfile.so\n")
                                  (string-length cf.out))
                                so.out)])
              (unless (equal? actual ans)
-               (pretty-print actual)
-               (errorf #f
-                 "unexpected actual value ~s instead of ~s"
-                 actual
-                 ans))))
+                     (pretty-print actual)
+                     (errorf #f
+                             "unexpected actual value ~s instead of ~s"
+                             actual
+                             ans))))
          #t)
        #t)
      ($foofrah '(begin
@@ -61365,7 +61894,8 @@ evaluating module init
                          (with-syntax ([(getter ...) (generate-temporaries #'(arg ...))])
                            #'(define-record-type (name maker pred)
                                (parent parent-id)
-                               (fields (immutable arg getter) ...)
+                               (fields (immutable arg getter)
+                                       ...)
                                (protocol (lambda (n)
                                            (lambda (arg ...)
                                              (letrec ([rec ((n 'type
@@ -61464,7 +61994,8 @@ evaluating module init
                     (identifier-syntax 'outer-x10))
                   (import (rename m10 (y yy)) (rename (l10) (x xx)))
                   (pretty-print (list x y xx yy)))
-               '("(m10-x l10-y l10-x m10-y)\n" ""
+               '("(m10-x l10-y l10-x m10-y)\n"
+                  ""
                   "(m10-x l10-y l10-x m10-y)\n"))
      ($foofrah '(begin
                   (define-syntax a
@@ -61714,8 +62245,7 @@ evaluating module init
        (with-output-to-file "testfile-tlb-a5.ss"
          (lambda ()
            (pretty-print
-             '(meta define
-                    tlb-a5-spam
+             '(meta define tlb-a5-spam
                     (let ()
                       (import (testfile-tlb-a1))
                       #'(cons tlb-a1-rats 5)))))
@@ -61745,8 +62275,7 @@ evaluating module init
        (with-output-to-file "testfile-tlb-a7.ss"
          (lambda ()
            (pretty-print
-             '(define-property spam
-                spam
+             '(define-property spam spam
                 (let ()
                   (import (testfile-tlb-a1))
                   #'(cons tlb-a1-rats 7)))))
@@ -62021,13 +62550,15 @@ evaluating module init
      (error? (let ([e (copy-environment (scheme-environment) #t '(import))])
                (eval '(import scheme) e)
                (eval '(let ((x 3)) x) e)))
-     (eqv? (let ([e (copy-environment (scheme-environment)
+     (eqv? (let ([e (copy-environment
+                      (scheme-environment)
                       #t
                       '(import scheme))])
              (eval '(import scheme) e)
              (eval '(let ((x 3)) x) e))
            3)
-     (error? (let ([e (copy-environment (scheme-environment)
+     (error? (let ([e (copy-environment
+                        (scheme-environment)
                         #t
                         '(import scheme))])
                (eval '(import scheme) e)
@@ -62036,7 +62567,8 @@ evaluating module init
        (define $copy-env-tmp1 723)
        (define $copy-env-tmp2 -327)
        (define $copy-env-env
-         (copy-environment (interaction-environment)
+         (copy-environment
+           (interaction-environment)
            #t
            (remq 'let*
                  (remq 'cons
@@ -62178,7 +62710,8 @@ evaluating module init
                (list (eval 'foo $ce-e1)
                      (eval '(let () (import foo) eek) $ce-e2)))
              '(not-a-module ack))
-     (equal? (let ([e (copy-environment (interaction-environment)
+     (equal? (let ([e (copy-environment
+                        (interaction-environment)
                         #f
                         '(cons $ce-e1))])
                (list (eval 'cons e) (eval '$ce-e1 e)))
@@ -62235,12 +62768,10 @@ evaluating module init
                  table
                  ; pretend this is a "big computation":
                  (map cons '(#\a #\b #\c) '(1 2 3)))
-           (meta define
-                 lookup
+           (meta define lookup
                  (lambda (c)
                    (cond [(assq c table) => cdr] [else #f])))
-           (meta define
-                 macro-helper
+           (meta define macro-helper
                  (lambda (x)
                    (syntax-case x ()
                      [(k c)
@@ -62263,14 +62794,12 @@ evaluating module init
                    table
                    ; pretend this is a "big computation":
                    (map cons '(#\a #\b #\c) '(1 2 3)))
-             (meta define
-                   lookup
+             (meta define lookup
                    (lambda (c)
                      (cond
                        [(assq c table) => cdr]
                        [else #f])))
-             (meta define
-                   macro-helper
+             (meta define macro-helper
                    (lambda (x)
                      (syntax-case x ()
                        [(k c)
@@ -62294,12 +62823,10 @@ evaluating module init
                table
                ; pretend this is a "big computation":
                (map cons '(#\a #\b #\c) '(1 2 3)))
-         (meta define
-               lookup
+         (meta define lookup
                (lambda (c)
                  (cond [(assq c table) => cdr] [else #f])))
-         (meta define
-               macro-helper
+         (meta define macro-helper
                (lambda (x)
                  (syntax-case x ()
                    [(k c)
@@ -62333,12 +62860,10 @@ evaluating module init
                  table
                  ; pretend this is a "big computation":
                  (map cons '(#\a #\b #\c) '(1 2 3)))
-           (meta define
-                 lookup
+           (meta define lookup
                  (lambda (c)
                    (cond [(assq c table) => cdr] [else #f])))
-           (meta define
-                 macro-helper
+           (meta define macro-helper
                  (lambda (x)
                    (syntax-case x ()
                      [(k c)
@@ -62362,8 +62887,7 @@ evaluating module init
              (set! mat-meta-q (* mat-meta-q 2))
              (with-syntax ((n mat-meta-q))
                #'(list n (- mat-meta-q 6))))))
-       (meta define
-             mat-meta-x
+       (meta define mat-meta-x
              (begin
                (set! mat-meta-q (+ mat-meta-q 4))
                mat-meta-q))
@@ -62382,8 +62906,7 @@ evaluating module init
                      (set! mat-meta-q (* mat-meta-q 2))
                      (with-syntax ((n mat-meta-q))
                        #'(list n (- mat-meta-q 6))))))
-               (meta define
-                     mat-meta-x
+               (meta define mat-meta-x
                      (begin
                        (set! mat-meta-q (+ mat-meta-q 4))
                        mat-meta-q))
@@ -62415,8 +62938,7 @@ evaluating module init
        (equal? (mat-meta-gorp 5) '(5 4 3 2 1)))
      (error? ; f not bound (referenced in alpha before definition complete)
        (module (mat-meta-gorp)
-         (meta define
-               f
+         (meta define f
                (lambda (x)
                  (define-syntax alpha
                    (lambda (x)
@@ -62698,12 +63220,9 @@ evaluating module init
          (frodo)
          (define merry (set! hobbits (cons 'merry hobbits)))
          (module (frodo)
-           (define lobelia
-             (set! hobbits (cons 'lobelia hobbits)))
-           (define frodo
-             (set! hobbits (cons 'frodo hobbits)))
-           (define bilbo
-             (set! hobbits (cons 'bilbo hobbits))))
+           (define lobelia (set! hobbits (cons 'lobelia hobbits)))
+           (define frodo (set! hobbits (cons 'frodo hobbits)))
+           (define bilbo (set! hobbits (cons 'bilbo hobbits))))
          (define pippin
            (set! hobbits (cons 'pippin hobbits))))
        (equal? hobbits '(pippin bilbo frodo lobelia merry)))
@@ -62713,12 +63232,9 @@ evaluating module init
          (frodo)
          (define merry (set! hobbits (cons 'merry hobbits)))
          (module (frodo)
-           (define lobelia
-             (set! hobbits (cons 'lobelia hobbits)))
-           (define frodo
-             (set! hobbits (cons 'frodo hobbits)))
-           (define bilbo
-             (set! hobbits (cons 'bilbo hobbits))))
+           (define lobelia (set! hobbits (cons 'lobelia hobbits)))
+           (define frodo (set! hobbits (cons 'frodo hobbits)))
+           (define bilbo (set! hobbits (cons 'bilbo hobbits))))
          (define pippin
            (set! hobbits (cons 'pippin hobbits))))
        (equal? hobbits '(pippin bilbo frodo lobelia merry)))
@@ -62865,10 +63381,7 @@ evaluating module init
                     c)])))
        #t)
      (equal? (qs-foo 3 2 1)
-       '(a #8((3 2 1) 3 2 1 unsyntax unsyntax-splicing ,a ,@b)
-           (a 3 2 1)
-           .
-           c))
+       '(a #8((3 2 1) 3 2 1 unsyntax unsyntax-splicing ,a ,@b) (a 3 2 1) . c))
      (begin
        (define-syntax qs-foo
          (lambda (x)
@@ -63568,11 +64081,11 @@ evaluating module init
          (define-property x frob "x-frob")
          (define-property x spam "x-spam")
          (fprintf dp-out
-           "~s ~s ~s ~s\n"
-           (get-property x spam)
-           (get-property x frob)
-           (get-property x rats)
-           x))
+                  "~s ~s ~s ~s\n"
+                  (get-property x spam)
+                  (get-property x frob)
+                  (get-property x rats)
+                  x))
        (equal? (get-output-string dp-out) "\"x-spam\" \"x-frob\" #f 444\n"))
      (equal? (let ()
                (import dp-m1)
@@ -63589,10 +64102,10 @@ evaluating module init
          (define-property dp-out spam "dp-out-spam")
          (define-property dp-out frob "dp-out-frob")
          (fprintf dp-out
-           "~s ~s ~s\n"
-           (get-property dp-out spam)
-           (get-property dp-out frob)
-           (get-property dp-out rats)))
+                  "~s ~s ~s\n"
+                  (get-property dp-out spam)
+                  (get-property dp-out frob)
+                  (get-property dp-out rats)))
        (and (equal? (get-output-string dp-out)
                     "\"dp-out-spam\" \"dp-out-frob\" #f\n")
             (not (get-property dp-out spam))
@@ -63926,8 +64439,9 @@ evaluating module init
                         (lambda (r)
                           (let ([prtd (r #'pname #'drt-key)])
                             (unless prtd
-                              (syntax-error #'pname
-                                "unrecognized parent record typd"))
+                                    (syntax-error
+                                      #'pname
+                                      "unrecognized parent record typd"))
                             (do-drt #'rname #'(fname ...) prtd)))]))))
                (drt foo x y)
                (drt bar (parent foo) z)
@@ -64127,14 +64641,13 @@ evaluating module init
          (define check-docstring
            (lambda (x s)
              (unless (string? s)
-               (syntax-error x "invalid docstring definition"))
+                     (syntax-error x "invalid docstring definition"))
              s))
          (define-syntax define-docstring
            (lambda (x)
              (syntax-case x ()
                [(_ id expr)
-                #`(define-property id
-                    check-docstring
+                #`(define-property id check-docstring
                     (check-docstring #'#,x expr))])))
          (define-syntax get-docstring
            (lambda (x)
@@ -64377,8 +64890,7 @@ evaluating module init
                 (import (scheme))
                 (define $testfile-A-x (cons 'a 'b))
                 (define $testfile-A-prop-id)
-                (define-property $testfile-A-x
-                  $testfile-A-prop-id
+                (define-property $testfile-A-x $testfile-A-prop-id
                   (cons 'c 'd)))))
          'replace)
        (with-output-to-file "testfile-B.ss"
@@ -64848,10 +65360,8 @@ evaluating module init
          (define-syntax whip (identifier-syntax egg))
          (define egg 'whites))
        (equal? (list (cons ($from1 ($frappe) wire) ($from1 ($frappe) whip))
-                     (cons ($from2 ($frappe) wire)
-                           ($from2 ($frappe) whip))
-                     (cons ($from3 ($frappe) wire)
-                           ($from3 ($frappe) whip)))
+                     (cons ($from2 ($frappe) wire) ($from2 ($frappe) whip))
+                     (cons ($from3 ($frappe) wire) ($from3 ($frappe) whip)))
                '((3 . whites) (3 . whites) (3 . whites))))
      (begin
        (library ($q)
@@ -65946,8 +66456,7 @@ evaluating module init
              '(library (testfile-l6-c1)
                 (export c)
                 (import (chezscheme) (testfile-l6-b1))
-                (meta define
-                      c
+                (meta define c
                       (lambda (x)
                         #`(cons (* #,x #,(car b-y))
                                 (* #,x #,(cdr b-y))))))))
@@ -66052,7 +66561,7 @@ evaluating module init
                 (define-syntax M2
                   (if (make-it-fail)
                       (error 'M2
-                        "user requested failure with (make-it-fail) parameter")
+                             "user requested failure with (make-it-fail) parameter")
                       (lambda (x)
                         (syntax-case x () [(_ expr) #'expr])))))))
          'replace)
@@ -66085,7 +66594,7 @@ evaluating module init
                 (define-syntax h
                   (if (make-it-fail)
                       (error 'h
-                        "user requested failure with (make-it-fail) parameter")
+                             "user requested failure with (make-it-fail) parameter")
                       (lambda (x)
                         (syntax-case x () [(_ expr) #'expr])))))))
          'replace)
@@ -66274,10 +66783,12 @@ evaluating module init
          '(parameterize
             ([compile-imported-libraries #t] [generate-wpo-files #t])
             (compile-program "testfile-lr-p4.ss")
-            (compile-whole-program "testfile-lr-p4.wpo"
+            (compile-whole-program
+              "testfile-lr-p4.wpo"
               "testfile-lr-p4-visible"
               #t)
-            (compile-whole-program "testfile-lr-p4.wpo"
+            (compile-whole-program
+              "testfile-lr-p4.wpo"
               "testfile-lr-p4-not-visible"
               #f)))
        (equal? (separate-eval
@@ -66285,7 +66796,8 @@ evaluating module init
                     ([command-line-arguments '("x" "testfile-lr-l4")])
                     (load-program "testfile-lr-p4-visible")
                     (load-program "testfile-lr-p4-not-visible")))
-               (string-append "123\n"
+               (string-append
+                 "123\n"
                  "123\n"
                  "Exception in visit: library (testfile-lr-l4) is not visible\n"
                  "Exception in visit: library (testfile-lr-l4) is not visible\n"))))
@@ -66826,7 +67338,8 @@ evaluating module init
          'replace)
        (for-each
          delete-file
-         '("testfile-ewl1.so" "testfile-ewl2.so"
+         '("testfile-ewl1.so"
+            "testfile-ewl2.so"
             "testfile-ewl3.so"
             "testfile-ewl4.so"
             "testfile-ewl5.so"
@@ -66844,7 +67357,8 @@ evaluating module init
          '(ewl1 ewl2 ewl3 ewl4 ewl5 ewl6))
        (for-each
          load-library
-         '("testfile-ewl1.so" "testfile-ewl2.so"
+         '("testfile-ewl1.so"
+            "testfile-ewl2.so"
             "testfile-ewl3.so"
             "testfile-ewl4.so"
             "testfile-ewl5.so"
@@ -66982,7 +67496,8 @@ evaluating module init
      (procedure? (library-search-handler))
      (eq? (library-search-handler) default-library-search-handler)
      (error? (default-library-search-handler "not-symbol" '(lib) '() '()))
-     (error? (default-library-search-handler 'import
+     (error? (default-library-search-handler
+               'import
                'bad-library-name
                '()
                '()))
@@ -67051,7 +67566,8 @@ evaluating module init
          '(library-search-handler
             (lambda (who path dir* all-ext*)
               (let-values ([(src-path obj-path obj-exists?)
-                            (default-library-search-handler who
+                            (default-library-search-handler
+                              who
                               path
                               dir*
                               all-ext*)])
@@ -67103,7 +67619,8 @@ evaluating module init
               (assert (equal? all-ext* '((".ss" . ".wpo"))))
               ;; default search finds the wpo file, but ...
               (let-values ([(src-path obj-path obj-exists?)
-                            (default-library-search-handler who
+                            (default-library-search-handler
+                              who
                               path
                               dir*
                               all-ext*)])
@@ -67749,7 +68266,7 @@ evaluating module init
      (equal? (parameterize ([console-output-port (open-output-string)])
                (eval '(lambda () (import (testfile-imno2)) y))
                (get-output-string (console-output-port)))
-       "import: did not find source file \"testfile-imno2.chezscheme.sls\"\nimport: found source file \"testfile-imno2.ss\"\nimport: did not find corresponding object file \"testfile-imno2.so\"\nimport: loading source file \"testfile-imno2.ss\"\nimport: did not find source file \"testfile-imno1.chezscheme.sls\"\nimport: found source file \"testfile-imno1.ss\"\nimport: found corresponding object file \"testfile-imno1.so\"\nimport: object file is not older\nimport: loading object file \"testfile-imno1.so\"\n")
+             "import: did not find source file \"testfile-imno2.chezscheme.sls\"\nimport: found source file \"testfile-imno2.ss\"\nimport: did not find corresponding object file \"testfile-imno2.so\"\nimport: loading source file \"testfile-imno2.ss\"\nimport: did not find source file \"testfile-imno1.chezscheme.sls\"\nimport: found source file \"testfile-imno1.ss\"\nimport: found corresponding object file \"testfile-imno1.so\"\nimport: object file is not older\nimport: loading object file \"testfile-imno1.so\"\n")
      (eq? (import-notify #f) (void)))
 
 (mat rnrs-libraries
@@ -68572,7 +69089,8 @@ evaluating module init
        (define a
          (make-annotation '(if 3) source '(if I were a rich man)))
        (define a-at-line-two
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source-at-line-two
            '(if I were a rich man)))
        (define x (datum->syntax #'* a))
@@ -68636,35 +69154,40 @@ evaluating module init
        (annotation-options debug profile))
      (enum-set=?
        (annotation-option-set
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source
            '(if I were a rich man)
            (annotation-options)))
        (annotation-options))
      (enum-set=?
        (annotation-option-set
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source
            '(if I were a rich man)
            (annotation-options debug)))
        (annotation-options debug))
      (enum-set=?
        (annotation-option-set
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source
            '(if I were a rich man)
            (annotation-options profile)))
        (annotation-options profile))
      (enum-set=?
        (annotation-option-set
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source
            '(if I were a rich man)
            (annotation-options debug profile)))
        (annotation-options debug profile))
      (enum-set=?
        (annotation-option-set
-         (make-annotation '(if 3)
+         (make-annotation
+           '(if 3)
            source
            '(if I were a rich man)
            (annotation-options profile debug)))
@@ -68697,7 +69220,8 @@ evaluating module init
                 (define-syntax foo
                   (lambda (z)
                     (datum->syntax #'*
-                      (make-annotation '(if 3)
+                      (make-annotation
+                        '(if 3)
                         source
                         '(if I were a rich man)
                         (annotation-options debug profile)))))
@@ -68707,7 +69231,8 @@ evaluating module init
                 (define-syntax foo
                   (lambda (z)
                     (datum->syntax #'*
-                      (make-annotation '(if 3)
+                      (make-annotation
+                        '(if 3)
                         source-at-line-two
                         '(if I were a rich man)
                         (annotation-options debug profile)))))
@@ -68717,7 +69242,8 @@ evaluating module init
                 (define-syntax foo
                   (lambda (z)
                     (datum->syntax #'*
-                      (make-annotation '(if 3)
+                      (make-annotation
+                        '(if 3)
                         source
                         '(if I were a rich man)
                         (annotation-options debug)))))
@@ -68727,7 +69253,8 @@ evaluating module init
                 (define-syntax foo
                   (lambda (z)
                     (datum->syntax #'*
-                      (make-annotation '(if 3)
+                      (make-annotation
+                        '(if 3)
                         source
                         '(if I were a rich man)
                         (annotation-options profile)))))
@@ -68737,7 +69264,8 @@ evaluating module init
                 (define-syntax foo
                   (lambda (z)
                     (datum->syntax #'*
-                      (make-annotation '(if 3)
+                      (make-annotation
+                        '(if 3)
                         source
                         '(if I were a rich man)
                         (annotation-options)))))
@@ -68748,7 +69276,8 @@ evaluating module init
                   (lambda (z)
                     (datum->syntax #'*
                       `(let ([f (lambda (x) x)])
-                         ,(make-annotation '(f)
+                         ,(make-annotation
+                            '(f)
                             source
                             '(f)
                             (annotation-options debug profile))))))
@@ -68759,7 +69288,8 @@ evaluating module init
                   (lambda (z)
                     (datum->syntax #'*
                       `(let ([f (lambda (x) x)])
-                         ,(make-annotation '(f)
+                         ,(make-annotation
+                            '(f)
                             source-at-line-two
                             '(f)
                             (annotation-options debug profile))))))
@@ -68770,7 +69300,8 @@ evaluating module init
                   (lambda (z)
                     (datum->syntax #'*
                       `(let ([f (lambda (x) x)])
-                         ,(make-annotation '(f)
+                         ,(make-annotation
+                            '(f)
                             source
                             '(f)
                             (annotation-options debug))))))
@@ -68781,7 +69312,8 @@ evaluating module init
                   (lambda (z)
                     (datum->syntax #'*
                       `(let ([f (lambda (x) x)])
-                         ,(make-annotation '(f)
+                         ,(make-annotation
+                            '(f)
                             source
                             '(f)
                             (annotation-options profile))))))
@@ -68792,7 +69324,8 @@ evaluating module init
                   (lambda (z)
                     (datum->syntax #'*
                       `(let ([f (lambda (x) x)])
-                         ,(make-annotation '(f)
+                         ,(make-annotation
+                            '(f)
                             source
                             '(f)
                             (annotation-options))))))
@@ -68826,15 +69359,9 @@ evaluating module init
                (vector (find (lambda (x)
                                (equal? (list-head (cdr x) 3) '("foo" 1 11)))
                              ls)
-                       (find (lambda (x)
-                               (equal? (list-head (cdr x) 3) '("foo" 2 3)))
-                             ls)
-                       (find (lambda (x)
-                               (equal? (list-head (cdr x) 3) '("foo" 4 5)))
-                             ls)
-                       (find (lambda (x)
-                               (equal? (list-head (cdr x) 3) '("foo" 8 10)))
-                             ls)))
+                       (find (lambda (x) (equal? (list-head (cdr x) 3) '("foo" 2 3))) ls)
+                       (find (lambda (x) (equal? (list-head (cdr x) 3) '("foo" 4 5))) ls)
+                       (find (lambda (x) (equal? (list-head (cdr x) 3) '("foo" 8 10))) ls)))
              '#((1 "foo" 1 11 #f #f) (1 "foo" 2 3 #f #f) #f #f))
      (begin (profile-clear) #t)
      (begin
@@ -68872,14 +69399,17 @@ evaluating module init
              (source-file-descriptor "spam" 1.0))
      (source-file-descriptor? (source-file-descriptor "spam" #x34534a5))
      (source-file-descriptor?
-       (source-file-descriptor "spam"
+       (source-file-descriptor
+         "spam"
          #x20333333333339999999997834443333337))
      (equal? (source-file-descriptor-path
-               (source-file-descriptor "spam"
+               (source-file-descriptor
+                 "spam"
                  #x20333333333339999999997834443333337))
              "spam")
      (equal? (source-file-descriptor-checksum
-               (source-file-descriptor "spam"
+               (source-file-descriptor
+                 "spam"
                  #x20333333333339999999997834443333337))
              #x20333333333339999999997834443333337)
      (error? ; not an sfd
@@ -68984,7 +69514,8 @@ evaluating module init
               (make-make-source-object/get-lines sfd-with-lines)])
            (let-values
              ([(v pos)
-               (get-datum/annotations input-port-with-lines
+               (get-datum/annotations
+                 input-port-with-lines
                  sfd-with-lines
                  input-port-with-line-pos)])
              (set! input-port-with-line-pos pos)
@@ -69038,7 +69569,8 @@ evaluating module init
               (make-make-source-object/get-lines sfd-with-lines)])
            (let-values
              ([(v pos)
-               (get-datum/annotations input-port-with-lines
+               (get-datum/annotations
+                 input-port-with-lines
                  sfd-with-lines
                  input-port-with-line-pos)])
              (set! input-port-with-line-pos pos)
@@ -69076,7 +69608,7 @@ evaluating module init
        (let loop ([tries 3])
          (when (zero? tries)
                (error 'source-cache-test
-                 "loading lots of `let-values` forms seems to take too long"))
+                      "loading lots of `let-values` forms seems to take too long"))
          (let ([t1000 (time-expr 1000)] [t10000 (time-expr 10000)])
            (or (> (* 20 t1000) t10000)
                (begin
@@ -70963,11 +71495,11 @@ evaluating module init
        (let f ([i 10000])
          (let ([r (random n)])
            (unless (fx= i 0)
-             (unless (and (= (fxfirst-bit-set r) (slow-first-bit-set r))
-                          (= (fxfirst-bit-set (- r))
-                             (slow-first-bit-set (- r))))
-                     (errorf #f "failed for ~s" r))
-             (f (fx- i 1)))))
+                   (unless (and (= (fxfirst-bit-set r) (slow-first-bit-set r))
+                                (= (fxfirst-bit-set (- r))
+                                   (slow-first-bit-set (- r))))
+                           (errorf #f "failed for ~s" r))
+                   (f (fx- i 1)))))
        #t))
 
 (mat fxlogtest
@@ -71045,16 +71577,16 @@ evaluating module init
              (bitwise-and (bitwise-not ei1) ei3))))
        (let f ([i 10000])
          (unless (fx= i 0)
-           (let ([x (random n)] [y (random n)] [z (random n)])
-             (unless (and (= (fxif x y z) (r6rs-fxif x y z))
-                          (= (fxif (fxnot x) y z) (r6rs-fxif (fxnot x) y z))
-                          (= (fxif (fxnot x) y (fxnot z))
-                             (r6rs-fxif (fxnot x) y (fxnot z)))
-                          (= (fxif x (fxnot y) z) (r6rs-fxif x (fxnot y) z))
-                          (= (fxif (fxnot x) (fxnot y) (fxnot z))
-                             (r6rs-fxif (fxnot x) (fxnot y) (fxnot z))))
-                     (errorf #f "failed for ~s, ~s, ~s" x y z)))
-           (f (fx- i 1))))
+                 (let ([x (random n)] [y (random n)] [z (random n)])
+                   (unless (and (= (fxif x y z) (r6rs-fxif x y z))
+                                (= (fxif (fxnot x) y z) (r6rs-fxif (fxnot x) y z))
+                                (= (fxif (fxnot x) y (fxnot z))
+                                   (r6rs-fxif (fxnot x) y (fxnot z)))
+                                (= (fxif x (fxnot y) z) (r6rs-fxif x (fxnot y) z))
+                                (= (fxif (fxnot x) (fxnot y) (fxnot z))
+                                   (r6rs-fxif (fxnot x) (fxnot y) (fxnot z))))
+                           (errorf #f "failed for ~s, ~s, ~s" x y z)))
+                 (f (fx- i 1))))
        #t))
 
 (mat fxlogbit?
@@ -71822,10 +72354,10 @@ evaluating module init
            (- (+ (greatest-fixnum) 1) (random m)))
          (let f ([n 1000])
            (unless (fx= n 0)
-             (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
-               (unless (eqv2? (fx+/carry x y z) (r6rs-fx+/carry x y z))
-                       (errorf #f "failed for ~s, ~s, ~s" x y z)))
-             (f (fx- n 1)))))
+                   (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
+                     (unless (eqv2? (fx+/carry x y z) (r6rs-fx+/carry x y z))
+                             (errorf #f "failed for ~s, ~s, ~s" x y z)))
+                   (f (fx- n 1)))))
        #t)
      (let-values ([(r c) (fx+/carry 100 20 3)])
        (and (= r 123) (= c 0)))
@@ -71871,10 +72403,10 @@ evaluating module init
            (- (+ (greatest-fixnum) 1) (random m)))
          (let f ([n 1000])
            (unless (fx= n 0)
-             (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
-               (unless (eqv2? (fx-/carry x y z) (r6rs-fx-/carry x y z))
-                       (errorf #f "failed for ~s, ~s, ~s" x y z)))
-             (f (fx- n 1)))))
+                   (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
+                     (unless (eqv2? (fx-/carry x y z) (r6rs-fx-/carry x y z))
+                             (errorf #f "failed for ~s, ~s, ~s" x y z)))
+                   (f (fx- n 1)))))
        #t)
      (let-values ([(r c) (fx-/carry 100 20 3)])
        (and (= r 77) (= c 0)))
@@ -71920,10 +72452,10 @@ evaluating module init
            (- (+ (greatest-fixnum) 1) (random m)))
          (let f ([n 1000])
            (unless (fx= n 0)
-             (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
-               (unless (eqv2? (fx*/carry x y z) (r6rs-fx*/carry x y z))
-                       (errorf #f "failed for ~s, ~s, ~s" x y z)))
-             (f (fx- n 1)))))
+                   (let ([x (mrandom)] [y (mrandom)] [z (mrandom)])
+                     (unless (eqv2? (fx*/carry x y z) (r6rs-fx*/carry x y z))
+                             (errorf #f "failed for ~s, ~s, ~s" x y z)))
+                   (f (fx- n 1)))))
        #t)
      (let-values ([(r c) (fx*/carry 100 20 3)])
        (and (= r 2003) (= c 0)))
@@ -71972,25 +72504,29 @@ evaluating module init
      (eqv? (fxrotate-bit-field 0 0 1 0) 0)
      (eqv? (fxrotate-bit-field -1 0 1 0) -1)
      (eqv? (fxrotate-bit-field #b101101011101111 2 7 3) #b101101011111011)
-     (eqv? (fxrotate-bit-field (greatest-fixnum)
+     (eqv? (fxrotate-bit-field
+             (greatest-fixnum)
              0
              (fx- (fixnum-width) 1)
              15)
            (greatest-fixnum))
-     (eqv? (fxrotate-bit-field (greatest-fixnum)
+     (eqv? (fxrotate-bit-field
+             (greatest-fixnum)
              0
              (fx- (fixnum-width) 1)
              (fx- (fixnum-width) 2))
            (greatest-fixnum))
      (eqv? (fxrotate-bit-field (least-fixnum) 0 (fx- (fixnum-width) 1) 15)
            (least-fixnum))
-     (eqv? (fxrotate-bit-field (least-fixnum)
+     (eqv? (fxrotate-bit-field
+             (least-fixnum)
              0
              (fx- (fixnum-width) 1)
              (fx- (fixnum-width) 2))
            (least-fixnum))
      (eqv? (fxrotate-bit-field -1 0 (fx- (fixnum-width) 1) 15) -1)
-     (eqv? (fxrotate-bit-field -1
+     (eqv? (fxrotate-bit-field
+             -1
              0
              (fx- (fixnum-width) 1)
              (fx- (fixnum-width) 2))
@@ -72017,12 +72553,12 @@ evaluating module init
              (let ([i (random (fixnum-width))] [j (random (fixnum-width))])
                (let-values ([(i j) (if (< i j) (values i j) (values j i))])
                  (unless (fx= i j)
-                   (let ([k (random (fx- j i))])
-                     (unless (and (= (fxrotate-bit-field x i j k)
-                                     (r6rs-bitwise-rotate-bit-field x i j k))
-                                  (= (fxrotate-bit-field (- x) i j k)
-                                     (r6rs-bitwise-rotate-bit-field (- x) i j k)))
-                             (errorf #f "failed for ~s ~s ~s ~s" x i j k)))))))))
+                         (let ([k (random (fx- j i))])
+                           (unless (and (= (fxrotate-bit-field x i j k)
+                                           (r6rs-bitwise-rotate-bit-field x i j k))
+                                        (= (fxrotate-bit-field (- x) i j k)
+                                           (r6rs-bitwise-rotate-bit-field (- x) i j k)))
+                                   (errorf #f "failed for ~s ~s ~s ~s" x i j k)))))))))
      (test-cp0-expansion eqv?
        '(fxrotate-bit-field #b10101010 5 5 0)
        #b10101010)
@@ -72035,7 +72571,8 @@ evaluating module init
        '(fxrotate-bit-field (greatest-fixnum) 0 (fx- (fixnum-width) 1) 15)
        (greatest-fixnum))
      (test-cp0-expansion eqv?
-       '(fxrotate-bit-field (greatest-fixnum)
+       '(fxrotate-bit-field
+          (greatest-fixnum)
           0
           (fx- (fixnum-width) 1)
           (fx- (fixnum-width) 2))
@@ -72044,7 +72581,8 @@ evaluating module init
        '(fxrotate-bit-field (least-fixnum) 0 (fx- (fixnum-width) 1) 15)
        (least-fixnum))
      (test-cp0-expansion eqv?
-       '(fxrotate-bit-field (least-fixnum)
+       '(fxrotate-bit-field
+          (least-fixnum)
           0
           (fx- (fixnum-width) 1)
           (fx- (fixnum-width) 2))
@@ -72053,7 +72591,8 @@ evaluating module init
        '(fxrotate-bit-field -1 0 (fx- (fixnum-width) 1) 15)
        -1)
      (test-cp0-expansion eqv?
-       '(fxrotate-bit-field -1
+       '(fxrotate-bit-field
+          -1
           0
           (fx- (fixnum-width) 1)
           (fx- (fixnum-width) 2))
@@ -72096,7 +72635,8 @@ evaluating module init
      (let ()
        (define (refimpl n start end)
          (define (swap n i j)
-           (fxcopy-bit (fxcopy-bit n i (fxbit-field n j (fx+ j 1)))
+           (fxcopy-bit
+             (fxcopy-bit n i (fxbit-field n j (fx+ j 1)))
              j
              (fxbit-field n i (fx+ i 1))))
          (let ([end (fx- end 1)])
@@ -73638,7 +74178,8 @@ evaluating module init
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-s_f2_sp
             (eval `(foreign-procedure ,(format "s~a_f2_s~ap" n n)
-                     (integer-32 (foreign-object ,fs-size ,fs-align)
+                     (integer-32
+                       (foreign-object ,fs-size ,fs-align)
                        foreign-pointer)
                      (foreign-object ,fs-size ,fs-align))))
           (set! fs-sp_f2_sp
@@ -73817,8 +74358,8 @@ evaluating module init
         (error? (errorf 'id "invalid foreign-procedure argument ~s" 'foo))
         (error? (foreign-procedure 'abcde (integer-32) integer-32))
         (error? (errorf 'float_id
-                  "invalid foreign-procedure argument ~s"
-                  0)))])
+                        "invalid foreign-procedure argument ~s"
+                        0)))])
 
 (mat foreign-entry?
      (foreign-entry? "id")
@@ -73959,8 +74500,7 @@ evaluating module init
              (let ([bv (make-bytevector (+ n 1))])
                (do ([i 0 (fx+ i 1)])
                    ((fx= i n))
-                   (bytevector-u8-set! bv
-                     i
+                   (bytevector-u8-set! bv i
                      (char->integer (string-ref s i))))
                (bytevector-u8-set! bv n 0)
                bv))))
@@ -74018,7 +74558,8 @@ evaluating module init
            (* 19 59)
            (* 23 61))
         ((foreign-procedure "testten"
-           (integer-32 integer-32
+           (integer-32
+             integer-32
              integer-32
              integer-32
              integer-32
@@ -74041,7 +74582,8 @@ evaluating module init
 
      (= (+ 1.1 2.2 3.3 4.4 5.5 6.6 7.7 8.8)
         ((foreign-procedure "flsum8"
-           (double-float double-float
+           (double-float
+             double-float
              double-float
              double-float
              double-float
@@ -74060,7 +74602,8 @@ evaluating module init
 
      (= (+ 1 2 3 4 5 6.75 7 8.5)
         ((foreign-procedure "sparcfltest"
-           (integer-32 integer-32
+           (integer-32
+             integer-32
              integer-32
              integer-32
              integer-32
@@ -74107,7 +74650,8 @@ evaluating module init
            18.75
            19.25)
         ((foreign-procedure "ppcfltest"
-           (integer-32 double-float
+           (integer-32
+             double-float
              integer-32
              double-float
              integer-32
@@ -74172,7 +74716,8 @@ evaluating module init
            22
            19.25)
         ((foreign-procedure "ppcfltest2"
-           (integer-32 double-float
+           (integer-32
+             double-float
              integer-32
              double-float
              integer-32
@@ -74454,7 +74999,8 @@ evaluating module init
      (equal? (call-u16*
                (foreign-callable
                  (lambda (x)
-                   ($bytevector-map (lambda (x) (if (= x 255) 0 (+ x 100)))
+                   ($bytevector-map
+                     (lambda (x) (if (= x 255) 0 (+ x 100)))
                      x))
                  (u16*)
                  u16*)
@@ -74463,7 +75009,8 @@ evaluating module init
      (equal? (call-u32*
                (foreign-callable
                  (lambda (x)
-                   ($bytevector-map (lambda (x) (if (= x 255) 0 (+ x 100)))
+                   ($bytevector-map
+                     (lambda (x) (if (= x 255) 0 (+ x 100)))
                      x))
                  (u32*)
                  u32*)
@@ -74717,12 +75264,8 @@ evaluating module init
            (define n7e (- n7f 1))
            (define (expect x k)
              (if signed?
-                 (if (<= (- n8000) x nffff)
-                     (mod0 (+ x k) n10000)
-                     'err)
-                 (if (<= (- n8000) x nffff)
-                     (mod (+ x k) n10000)
-                     'err)))
+                 (if (<= (- n8000) x nffff) (mod0 (+ x k) n10000) 'err)
+                 (if (<= (- n8000) x nffff) (mod (+ x k) n10000) 'err)))
            (define (check x)
              (define (do-one x k)
                (let ([a (expect x k)])
@@ -74882,12 +75425,8 @@ evaluating module init
          (define n7e (- n7f 1))
          (define (expect x m k)
            (if signed?
-               (if (<= (- n8000) x nffff)
-                   (mod0 (+ x m k) n10000)
-                   'err)
-               (if (<= (- n8000) x nffff)
-                   (mod (+ x m k) n10000)
-                   'err)))
+               (if (<= (- n8000) x nffff) (mod0 (+ x m k) n10000) 'err)
+               (if (<= (- n8000) x nffff) (mod (+ x m k) n10000) 'err)))
          (define fc (make-fc values))
          (define fp (lambda (x m k) (call-int fc x m k)))
          (define (check x)
@@ -75127,7 +75666,8 @@ evaluating module init
      (eqv? (call-i32xu32->i64 fc-i32xu32->i64 #x7 #x5 7) #x70000000C)
      (eqv? (call-i32xu32->i64 fc-i32xu32->i64 #xFFFFFFFF #xFFFFFFFF -3)
            #x-4)
-     (eqv? (fixnum? (call-i32xu32->i64 fc-i32xu32->i64
+     (eqv? (fixnum? (call-i32xu32->i64
+                      fc-i32xu32->i64
                       #xFFFFFFFF
                       #xFFFFFFFF
                       0))
@@ -75150,7 +75690,8 @@ evaluating module init
      (begin
        (define ufoo64a
          (foreign-procedure "ufoo64a"
-           (unsigned-64 unsigned-64
+           (unsigned-64
+             unsigned-64
              unsigned-64
              unsigned-64
              unsigned-64
@@ -75159,7 +75700,8 @@ evaluating module init
            unsigned-64))
        (define ufoo64b
          (foreign-procedure "ufoo64b"
-           (integer-32 unsigned-64
+           (integer-32
+             unsigned-64
              unsigned-64
              unsigned-64
              unsigned-64
@@ -75172,7 +75714,9 @@ evaluating module init
            (eqv? (foo x a b c d e f g)
                  (mod (+ x (- a b) (- c d) (- e f) g) (expt 2 64)))))
        #t)
-     (test-ufoo (lambda (x a b c d e f g) (+ x (ufoo64a a b c d e f g)))
+     (test-ufoo
+       (lambda (x a b c d e f g)
+         (+ x (ufoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75181,7 +75725,8 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ufoo ufoo64b
+     (test-ufoo
+       ufoo64b
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75190,7 +75735,9 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ufoo (lambda (x a b c d e f g) (+ x (ufoo64a a b c d e f g)))
+     (test-ufoo
+       (lambda (x a b c d e f g)
+         (+ x (ufoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75199,7 +75746,8 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #xC700000000000080)
-     (test-ufoo ufoo64b
+     (test-ufoo
+       ufoo64b
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75225,7 +75773,8 @@ evaluating module init
      (begin
        (define ifoo64a
          (foreign-procedure "ifoo64a"
-           (integer-64 integer-64
+           (integer-64
+             integer-64
              integer-64
              integer-64
              integer-64
@@ -75234,7 +75783,8 @@ evaluating module init
            integer-64))
        (define ifoo64b
          (foreign-procedure "ifoo64b"
-           (integer-32 integer-64
+           (integer-32
+             integer-64
              integer-64
              integer-64
              integer-64
@@ -75247,7 +75797,9 @@ evaluating module init
            (eqv? (foo x a b c d e f g)
                  (mod0 (+ x (- a b) (- c d) (- e f) g) (expt 2 64)))))
        #t)
-     (test-ifoo (lambda (x a b c d e f g) (+ x (ifoo64a a b c d e f g)))
+     (test-ifoo
+       (lambda (x a b c d e f g)
+         (+ x (ifoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75256,7 +75808,8 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ifoo ifoo64b
+     (test-ifoo
+       ifoo64b
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75265,7 +75818,9 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #x0700000000000080)
-     (test-ifoo (lambda (x a b c d e f g) (+ x (ifoo64a a b c d e f g)))
+     (test-ifoo
+       (lambda (x a b c d e f g)
+         (+ x (ifoo64a a b c d e f g)))
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75274,7 +75829,8 @@ evaluating module init
        #x0005000000006000
        #x0060000000000700
        #xC700000000000080)
-     (test-ifoo ifoo64b
+     (test-ifoo
+       ifoo64b
        #x0000000010000000
        #x0000000120000000
        #x0000002003000000
@@ -75572,9 +76128,7 @@ evaluating module init
                0
                0))
      (error? (call-short
-               (foreign-callable (lambda (x) (list x (+ x 1)))
-                 (short)
-                 short)
+               (foreign-callable (lambda (x) (list x (+ x 1))) (short) short)
                73
                0
                0))
@@ -75612,16 +76166,12 @@ evaluating module init
                0
                0))
      (error? (call-float
-               (foreign-callable (lambda (x) (list x (+ x 1)))
-                 (float)
-                 float)
+               (foreign-callable (lambda (x) (list x (+ x 1))) (float) float)
                73.25
                0
                0))
      (error? (call-double
-               (foreign-callable (lambda (x) (list x (+ x 1)))
-                 (double)
-                 double)
+               (foreign-callable (lambda (x) (list x (+ x 1))) (double) double)
                73.25
                0
                0))
@@ -75636,9 +76186,7 @@ evaluating module init
                0
                0))
      (error? (call-void*
-               (foreign-callable (lambda (x) (list x (+ x 1)))
-                 (void*)
-                 void*)
+               (foreign-callable (lambda (x) (list x (+ x 1))) (void*) void*)
                73
                0
                0)))
@@ -75674,9 +76222,7 @@ evaluating module init
        (define uptr->uptr
          (foreign-callable values (uptr) uptr))
        (define uptr->A
-         (foreign-callable (lambda (a) (make-ftype-pointer A a))
-           (uptr)
-           (* A)))
+         (foreign-callable (lambda (a) (make-ftype-pointer A a)) (uptr) (* A)))
        (define B->uptr
          (foreign-callable ftype-pointer-address ((* B)) uptr))
        (define B->A
@@ -75685,19 +76231,22 @@ evaluating module init
          (foreign-procedure "call_uptr" (ptr (* B) int int) (* A)))
        #t)
      (eqv? (ftype-pointer-address
-             (call-B->A uptr->uptr
+             (call-B->A
+               uptr->uptr
                b
                (* 5 (ftype-sizeof A))
                (* 5 (ftype-sizeof A))))
            (ftype-pointer-address (ftype-&ref B (y) b)))
      (eqv? (ftype-pointer-address
-             (call-B->A uptr->A
+             (call-B->A
+               uptr->A
                b
                (* 5 (ftype-sizeof A))
                (* 5 (ftype-sizeof A))))
            (ftype-pointer-address (ftype-&ref B (y) b)))
      (eqv? (ftype-pointer-address
-             (call-B->A B->uptr
+             (call-B->A
+               B->uptr
                b
                (* 5 (ftype-sizeof A))
                (* 5 (ftype-sizeof A))))
@@ -75705,9 +76254,7 @@ evaluating module init
      (eqv? (ftype-pointer-address (call-B->A B->A b 0 0))
            (ftype-pointer-address (ftype-&ref B (y) b)))
      (begin
-       ((foreign-procedure (if (windows?) "windows_free" "free")
-          ((* B))
-          void) b)
+       ((foreign-procedure (if (windows?) "windows_free" "free") ((* B)) void) b)
        (set! b #f)
        #t)
      (error? ; unrecognized foreign-procedure argument ftype name
@@ -76006,27 +76553,28 @@ evaluating module init
                (* (char->integer (string-ref n32ptr 3)) #x1000000)))
           (define (win32:GetVolumeSerialNumber root)
             (define f-proc
-              (foreign-procedure __stdcall
+              (foreign-procedure
+                __stdcall
                 "GetVolumeInformationA"
                 (string string
-                  unsigned-32
-                  string
-                  string
-                  string
-                  string
-                  unsigned-32)
+                        unsigned-32
+                        string
+                        string
+                        string
+                        string
+                        unsigned-32)
                 boolean))
             (let ([vol-sid (make-string 4)]
                   [max-filename-len (make-string 4)]
                   [sys-flags (make-string 4)])
               (and (f-proc root
-                     #f
-                     0
-                     vol-sid
-                     max-filename-len
-                     sys-flags
-                     #f
-                     0)
+                           #f
+                           0
+                           vol-sid
+                           max-filename-len
+                           sys-flags
+                           #f
+                           0)
                    (win32:number-32-ptr->number vol-sid))))
           (number? (win32:GetVolumeSerialNumber "C:\\"))))])
 
@@ -76049,7 +76597,8 @@ evaluating module init
                         12.25)))
        (= (apply + args)
           (apply (foreign-procedure "singlesum12"
-                   (single-float single-float
+                   (single-float
+                     single-float
                      single-float
                      single-float
                      single-float
@@ -76354,9 +76903,7 @@ evaluating module init
      ; we lock code we don't also lock the code object created by foreign-procedure
      (begin
        (lock-object code)
-       ((foreign-procedure (foreign-callable-entry-point code)
-          ()
-          scheme-object))
+       ((foreign-procedure (foreign-callable-entry-point code) () scheme-object))
        (unlock-object code)
        #t)
 
@@ -76621,8 +77168,8 @@ evaluating module init
                    ;; to be used up.
                    (let loop ([n (bitwise-and n #xFFFF)])
                      (unless (zero? n)
-                       (set! v (add1 v))
-                       (loop (bitwise-arithmetic-shift-right n 1))))))
+                             (set! v (add1 v))
+                             (loop (bitwise-arithmetic-shift-right n 1))))))
                (define handler
                  (foreign-callable work (long) void))
                (lock-object handler)
@@ -76781,9 +77328,8 @@ evaluating module init
            [(i3nt ti3nt a6nt ta6nt) '(load-shared-object "msvcrt.dll")]
            [(i3osx ti3osx a6osx ta6osx) '(load-shared-object "libc.dylib")]
            [else
-            (error 'load-libc
-              "unrecognized machine type ~s"
-              (machine-type))]))
+            (error 'load-libc "unrecognized machine type ~s"
+                   (machine-type))]))
        #t)
      (equal? (with-input-from-string
                (separate-eval
@@ -76814,13 +77360,13 @@ evaluating module init
                     (define f
                       (foreign-procedure "printf"
                         (string double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double)
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double)
                         int))
                     (f "(%g %g %g %g %g %g %g %g)"
                        3.5
@@ -76841,15 +77387,15 @@ evaluating module init
                     (define f
                       (foreign-procedure "printf"
                         (string double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double
-                          double)
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double
+                                double)
                         int))
                     (f "(%g %g %g %g %g %g %g %g %g %g)"
                        3.5
@@ -76887,111 +77433,128 @@ evaluating module init
               (define get
                 (foreign-procedure conv ... (format "f4_get~a" s) () (& T)))
               (define sum
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum~a" s)
                   ((& T))
                   double))
               (define sum_two
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_two~a" s)
                   ((& T) (& T))
                   double))
               (define sum_pre_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_int~a" s)
                   (int (& T))
                   double))
               (define sum_pre_int_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_int_int~a" s)
                   (int int (& T))
                   double))
               (define sum_pre_int_int_int_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_int_int_int_int~a" s)
                   (int int int int (& T))
                   double))
               (define sum_pre_int_int_int_int_int_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_int_int_int_int_int_int~a" s)
                   (int int int int int int (& T))
                   double))
               (define sum_post_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum~a_post_int" s)
                   ((& T) int)
                   double))
               (define sum_pre_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_double~a" s)
                   (double (& T))
                   double))
               (define sum_pre_double_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_double_double~a" s)
                   (double double (& T))
                   double))
               (define sum_pre_double_double_double_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_double_double_double_double~a" s)
                   (double double double double (& T))
                   double))
               (define sum_pre_double_double_double_double_double_double_double_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_pre_double_double_double_double_double_double_double_double~a"
                           s)
                   (double double
-                    double
-                    double
-                    double
-                    double
-                    double
-                    double
-                    (& T))
+                          double
+                          double
+                          double
+                          double
+                          double
+                          double
+                          (& T))
                   double))
               (define sum_post_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum~a_post_double" s)
                   ((& T) double)
                   double))
               (define cb_send
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_cb_send~a" s)
                   ((* callback))
                   double))
               (define cb_send_two
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_cb_send_two~a" s)
                   ((* callback-two))
                   double))
               (define cb_send_pre_int
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_cb_send_pre_int~a" s)
                   ((* pre-int-callback))
                   double))
               (define cb_send_pre_double
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_cb_send_pre_double~a" s)
                   ((* pre-double-callback))
                   double))
               (define sum_cb
-                (foreign-procedure conv
+                (foreign-procedure
+                  conv
                   ...
                   (format "f4_sum_cb~a" s)
                   ((* callback-r))
@@ -77024,19 +77587,14 @@ evaluating module init
                           (= (+ 8 9 10 11 vi ...)
                              (sum_pre_int_int_int_int 8 9 10 11 a))
                           (= (+ 8 9 10 11 12 13 vi ...)
-                             (sum_pre_int_int_int_int_int_int 8
-                               9
-                               10
-                               11
-                               12
-                               13
-                               a))
+                             (sum_pre_int_int_int_int_int_int 8 9 10 11 12 13 a))
                           (= (+ 8 vi ...) (sum_post_int a 8))
                           (= (+ 8.25 vi ...) (sum_pre_double 8.25 a))
                           (= (+ 8.25 9.25 vi ...)
                              (sum_pre_double_double 8.25 9.25 a))
                           (= (+ 8.25 9.25 10.25 11.25 vi ...)
-                             (sum_pre_double_double_double_double 8.25
+                             (sum_pre_double_double_double_double
+                               8.25
                                9.25
                                10.25
                                11.25
@@ -77107,19 +77665,18 @@ evaluating module init
             (let ()
               (define-ftype T (struct [ni ti] ...))
               (define s
-                (apply string-append
-                  "_struct"
-                  (let loop ([l '(ti ...)])
-                    (cond
-                      [(null? l) '()]
-                      [else
-                       (cons (format "_~a" (car l))
-                             (loop (cdr l)))]))))
+                (apply string-append "_struct"
+                       (let loop ([l '(ti ...)])
+                         (cond
+                           [(null? l) '()]
+                           [else
+                            (cons (format "_~a" (car l))
+                                  (loop (cdr l)))]))))
               (check*t T
-                s
-                [vi ...]
-                [(lambda (a) (ftype-ref T (ni) a)) ...]
-                [(lambda (a) (ftype-set! T (ni) a vi)) ...]))]))
+                       s
+                       [vi ...]
+                       [(lambda (a) (ftype-ref T (ni) a)) ...]
+                       [(lambda (a) (ftype-set! T (ni) a vi)) ...]))]))
        (define-syntax check
          (syntax-rules ()
            [(_ t1 v1)
@@ -77134,19 +77691,18 @@ evaluating module init
             (let ()
               (define-ftype T (union [n0 t0] [ni ti] ...))
               (define s
-                (apply string-append
-                  "_union"
-                  (let loop ([l '(t0 ti ...)])
-                    (cond
-                      [(null? l) '()]
-                      [else
-                       (cons (format "_~a" (car l))
-                             (loop (cdr l)))]))))
+                (apply string-append "_union"
+                       (let loop ([l '(t0 ti ...)])
+                         (cond
+                           [(null? l) '()]
+                           [else
+                            (cons (format "_~a" (car l))
+                                  (loop (cdr l)))]))))
               (check*t T
-                s
-                [v0]
-                [(lambda (a) (ftype-ref T (n0) a))]
-                [(lambda (a) (ftype-set! T (n0) a v0))]))]))
+                       s
+                       [v0]
+                       [(lambda (a) (ftype-ref T (n0) a))]
+                       [(lambda (a) (ftype-set! T (n0) a v0))]))]))
        (define-syntax check-1
          (syntax-rules () [(_ t1 v1) (check-n [x t1 v1])]))
        (define-syntax check-2
@@ -77297,7 +77853,8 @@ evaluating module init
          ;; deactivate the current thread instead of using `Sdeactivate_thread`
          ;; within the foreign function:
          (if (and (threaded?) (foreign-entry? "call_in_unknown_thread"))
-             (let ([call (foreign-procedure __collect_safe
+             (let ([call (foreign-procedure
+                           __collect_safe
                            "call_in_unknown_thread"
                            ((* thread-callback-T) double int boolean boolean)
                            double)])
@@ -77309,21 +77866,13 @@ evaluating module init
        #t)
      ;; These tests will pass only if `collect` can run, where `collect`
      ;; can run only if a single thread is active
-     (equal? (call-in-unknown-thread-1 (lambda (n) (collect 0) (+ n 1.0))
-               3.5
-               1)
+     (equal? (call-in-unknown-thread-1 (lambda (n) (collect 0) (+ n 1.0)) 3.5 1)
              4.5)
-     (equal? (call-in-unknown-thread-2 (lambda (n) (collect 0) (+ n 1.0))
-               3.5
-               2)
+     (equal? (call-in-unknown-thread-2 (lambda (n) (collect 0) (+ n 1.0)) 3.5 2)
              5.5)
-     (equal? (call-in-unknown-thread-3 (lambda (n) (collect 0) (+ n 1.0))
-               3.5
-               3)
+     (equal? (call-in-unknown-thread-3 (lambda (n) (collect 0) (+ n 1.0)) 3.5 3)
              6.5)
-     (equal? (call-in-unknown-thread-4 (lambda (n) (collect 0) (+ n 1.0))
-               3.5
-               4)
+     (equal? (call-in-unknown-thread-4 (lambda (n) (collect 0) (+ n 1.0)) 3.5 4)
              7.5)
      (equal? (let loop ([n 10.0])
                (call-in-unknown-thread-4
@@ -77344,12 +77893,13 @@ evaluating module init
              (lambda ()
                (let loop ([i 10])
                  (unless (zero? i)
-                   (let ([spin (eval '(foreign-procedure __collect_safe
-                                        "spin_a_while"
-                                        (int unsigned unsigned)
-                                        unsigned))])
-                     (spin 1000000 0 1))
-                   (loop (sub1 i))))
+                         (let ([spin (eval '(foreign-procedure
+                                              __collect_safe
+                                              "spin_a_while"
+                                              (int unsigned unsigned)
+                                              unsigned))])
+                           (spin 1000000 0 1))
+                         (loop (sub1 i))))
                (mutex-acquire m)
                (set! done? #t)
                (mutex-release m)))
@@ -77358,11 +77908,11 @@ evaluating module init
              (let ([done? done?])
                (mutex-release m)
                (unless done?
-                 (let loop ([i 10])
-                   (unless (zero? i)
-                     (eval '(foreign-procedure "spin_a_while" () void))
-                     (loop (sub1 i))))
-                 (loop))))
+                       (let loop ([i 10])
+                         (unless (zero? i)
+                                 (eval '(foreign-procedure "spin_a_while" () void))
+                                 (loop (sub1 i))))
+                       (loop))))
            ok?)))
 
 (machine-case
@@ -77370,7 +77920,8 @@ evaluating module init
    (mat i3nt-stdcall-collect-safe
         (equal? (let ()
                   (define sum
-                    (foreign-procedure __collect_safe
+                    (foreign-procedure
+                      __collect_safe
                       __stdcall
                       "_sum_stdcall@8"
                       (int int)
@@ -77379,12 +77930,14 @@ evaluating module init
                 10)
         (equal? (let ()
                   (define Sinvoke2
-                    (foreign-procedure __collect_safe
+                    (foreign-procedure
+                      __collect_safe
                       "Sinvoke2_stdcall"
                       (scheme-object scheme-object iptr)
                       scheme-object))
                   (define Fcons
-                    (foreign-callable __collect_safe
+                    (foreign-callable
+                      __collect_safe
                       __stdcall
                       (lambda (x y) (cons x y))
                       (scheme-object iptr)
@@ -77415,32 +77968,19 @@ evaluating module init
 
 (if (or (windows?) (equal? (getenv "USER") "root") (embedded?))
     (mat unix-file-io
-         (error? (errorf 'open-output-file
-                         "failed for testfile.ss: file exists"))
-         (error? (errorf 'open-output-file
-                         "failed for testfile.ss: file exists"))
-         (error? (errorf 'open-output-file
-                   "failed for testfile.ss: permission denied"))
-         (error? (errorf 'open-output-file
-                   "failed for testfile.ss: permission denied"))
-         (error? (errorf 'open-output-file
-                         "failed for testfile.ss: file exists"))
-         (error? (errorf 'open-output-file
-                         "failed for testfile.ss: file exists"))
-         (error? (errorf 'open-output-file
-                   "failed for testfile.ss: permission denied"))
-         (error? (errorf 'open-output-file
-                   "failed for testfile.ss: permission denied"))
-         (error? (errorf 'open-input-file
-                   "failed for testfile.ss: permission denied"))
-         (error? (errorf 'open-input-output-file
-                         "failed for testfile.ss: permission denied"))
-         (error? (errorf 'with-output-to-file
-                         "failed for testfile.ss: permission denied"))
-         (error? (errorf 'with-input-from-file
-                         "failed for testfile.ss: permission denied"))
-         (error? (errorf 'call-with-input-file
-                         "failed for testfile.ss: permission denied")))
+         (error? (errorf 'open-output-file "failed for testfile.ss: file exists"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: file exists"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: file exists"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: file exists"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'open-output-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'open-input-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'open-input-output-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'with-output-to-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'with-input-from-file "failed for testfile.ss: permission denied"))
+         (error? (errorf 'call-with-input-file "failed for testfile.ss: permission denied")))
     (mat unix-file-io
          (let ([p (open-output-file "/dev/null" 'truncate)])
            (close-output-port p)
@@ -77476,101 +78016,103 @@ evaluating module init
                     (system 5)))
 
 (unless (windows?)
-  (mat system
-       (eqv? (with-output-to-file "testfile.ss" void '(replace)) (void))
-       (begin
-         (system (format "~:[~;/pkg~]/bin/rm testfile.ss" (embedded?)))
-         (system (format "~:[~;/pkg~]/bin/echo hello > testfile.ss"
-                         (embedded?)))
-         (let ([p (open-input-file "testfile.ss")])
-           (and (eq? (read p) 'hello)
-                (begin (close-input-port p) #t))))))
+        (mat system
+             (eqv? (with-output-to-file "testfile.ss" void '(replace))
+                   (void))
+             (begin
+               (system (format "~:[~;/pkg~]/bin/rm testfile.ss"
+                               (embedded?)))
+               (system (format "~:[~;/pkg~]/bin/echo hello > testfile.ss"
+                               (embedded?)))
+               (let ([p (open-input-file "testfile.ss")])
+                 (and (eq? (read p) 'hello)
+                      (begin (close-input-port p) #t))))))
 
 (unless (windows?)
-  (mat process-port
-       (let ()
-         (define make-process-port
-           (let ()
-             (define kill
-               (lambda (pid sig)
-                 (if (= sig 0)
-                     -1
-                     (system (format "kill -~s ~s" sig pid)))))
-             (define make-handler
-               (lambda (name ip op pid)
-                 (lambda (msg . args)
-                   (record-case (cons msg args)
-                     [block-read (p s n) (block-read ip s n)]
-                     [block-write (p s n) (block-write op s n)]
-                     [char-ready? (p) (char-ready? ip)]
-                     [clear-input-port (p) (clear-input-port ip)]
-                     [clear-output-port (p) (clear-output-port op)]
-                     [close-port (p)
-                       (close-port ip)
-                       (close-port op)
-                       (mark-port-closed! p)]
-                     [file-position (p . pos)
-                       (if (null? pos)
-                           (most-negative-fixnum)
-                           (errorf 'process-port "cannot reposition"))]
-                     [flush-output-port (p) (flush-output-port op)]
-                     [kill (p signal) (kill pid signal)]
-                     [peek-char (p) (peek-char ip)]
-                     [port-name (p) name]
-                     [read-char (p) (read-char ip)]
-                     [unread-char (c p) (unread-char c ip)]
-                     [write-char (c p) (write-char c op)]
-                     [else
-                      (errorf 'process-port "operation ~s not handled" msg)]))))
-             (lambda (command)
-               (let ([handler (apply make-handler
-                                (format "process ~s" command)
-                                (process command))])
-                 (make-input/output-port handler "" "")))))
-         (define port-kill
-           (lambda (p s) ((port-handler p) 'kill p s)))
-         (and (let ()
-                (define p
-                  (make-process-port (format "exec ~a" $cat_flush)))
-                (and (not (char-ready? p))
-                     (begin
-                       (fprintf p "hello!~%")
-                       (eq? (read p) 'hello!))
-                     (char-ready? p)
-                     (char=? (read-char p) #\newline)
-                     (not (char-ready? p))
-                     (begin (close-port p) #t)
-                     ; sleep 1 may not be enough on a loaded system...
-                     (begin
-                       (system "sleep 5")
-                       (= (port-kill p 0) -1))))
-              (let ()
-                (define p
-                  (make-process-port (format "exec ~a" $cat_flush)))
-                (and (not (char-ready? p))
-                     (begin
-                       (fprintf p "hello!~%")
-                       (eq? (read p) 'hello!))
-                     (char-ready? p)
-                     (char=? (read-char p) #\newline)
-                     (not (char-ready? p))
-                     (= (port-kill p 15) 0)
-                     (let f ()
-                       (if (char-ready? p)
-                           (eof-object? (read-char p))
-                           (f)))
-                     ; sleep 1 may not be enough on a loaded system...
-                     (begin
-                       (system "sleep 1")
-                       (eqv? (port-kill p 0) -1))))))))
+        (mat process-port
+             (let ()
+               (define make-process-port
+                 (let ()
+                   (define kill
+                     (lambda (pid sig)
+                       (if (= sig 0)
+                           -1
+                           (system (format "kill -~s ~s" sig pid)))))
+                   (define make-handler
+                     (lambda (name ip op pid)
+                       (lambda (msg . args)
+                         (record-case (cons msg args)
+                           [block-read (p s n) (block-read ip s n)]
+                           [block-write (p s n) (block-write op s n)]
+                           [char-ready? (p) (char-ready? ip)]
+                           [clear-input-port (p) (clear-input-port ip)]
+                           [clear-output-port (p) (clear-output-port op)]
+                           [close-port (p)
+                             (close-port ip)
+                             (close-port op)
+                             (mark-port-closed! p)]
+                           [file-position (p . pos)
+                             (if (null? pos)
+                                 (most-negative-fixnum)
+                                 (errorf 'process-port "cannot reposition"))]
+                           [flush-output-port (p) (flush-output-port op)]
+                           [kill (p signal) (kill pid signal)]
+                           [peek-char (p) (peek-char ip)]
+                           [port-name (p) name]
+                           [read-char (p) (read-char ip)]
+                           [unread-char (c p) (unread-char c ip)]
+                           [write-char (c p) (write-char c op)]
+                           [else
+                            (errorf 'process-port
+                                    "operation ~s not handled"
+                                    msg)]))))
+                   (lambda (command)
+                     (let ([handler (apply make-handler
+                                      (format "process ~s" command)
+                                      (process command))])
+                       (make-input/output-port handler "" "")))))
+               (define port-kill
+                 (lambda (p s) ((port-handler p) 'kill p s)))
+               (and (let ()
+                      (define p
+                        (make-process-port (format "exec ~a" $cat_flush)))
+                      (and (not (char-ready? p))
+                           (begin
+                             (fprintf p "hello!~%")
+                             (eq? (read p) 'hello!))
+                           (char-ready? p)
+                           (char=? (read-char p) #\newline)
+                           (not (char-ready? p))
+                           (begin (close-port p) #t)
+                           ; sleep 1 may not be enough on a loaded system...
+                           (begin
+                             (system "sleep 5")
+                             (= (port-kill p 0) -1))))
+                    (let ()
+                      (define p
+                        (make-process-port (format "exec ~a" $cat_flush)))
+                      (and (not (char-ready? p))
+                           (begin
+                             (fprintf p "hello!~%")
+                             (eq? (read p) 'hello!))
+                           (char-ready? p)
+                           (char=? (read-char p) #\newline)
+                           (not (char-ready? p))
+                           (= (port-kill p 15) 0)
+                           (let f ()
+                             (if (char-ready? p)
+                                 (eof-object? (read-char p))
+                                 (f)))
+                           ; sleep 1 may not be enough on a loaded system...
+                           (begin
+                             (system "sleep 1")
+                             (eqv? (port-kill p 0) -1))))))))
 
 (if (windows?)
     (mat register-signal-handler
-         (error? (errorf 'register-signal-handler
-                         "#<procedure list> is not a fixnum"))
+         (error? (errorf 'register-signal-handler "#<procedure list> is not a fixnum"))
          (error? (errorf 'register-signal-handler "14 is not a procedure"))
-         (error? (errorf 'register-signal-handler
-                         "#<procedure list> is not a fixnum")))
+         (error? (errorf 'register-signal-handler "#<procedure list> is not a fixnum")))
     (mat register-signal-handler
          (error? (register-signal-handler list 14))
          (error? (register-signal-handler 14 14))
@@ -77590,53 +78132,53 @@ evaluating module init
 (if (or (windows?) (equal? (getenv "USER") "root") (embedded?))
     (mat file-operations
          (error? (errorf 'delete-directory
-                   "failed for ~a: ~a"
-                   "testlink1"
-                   "not a directory"))
+                         "failed for ~a: ~a"
+                         "testlink1"
+                         "not a directory"))
          (error? (errorf 'delete-directory
-                   "failed for ~a: ~a"
-                   "testlink2"
-                   "not a directory"))
+                         "failed for ~a: ~a"
+                         "testlink2"
+                         "not a directory"))
          (error? (errorf 'delete-directory
-                   "failed for ~a: ~a"
-                   "testdir/testfile.ss"
-                   "not a directory"))
+                         "failed for ~a: ~a"
+                         "testdir/testfile.ss"
+                         "not a directory"))
          (error? (errorf 'delete-file
-                   "failed for ~a: ~a"
-                   "testdir/w"
-                   "permission denied"))
+                         "failed for ~a: ~a"
+                         "testdir/w"
+                         "permission denied"))
          (error? (errorf 'get-mode
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-access-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-change-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-modification-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'get-mode
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-access-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-change-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory"))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory"))
          (error? (errorf 'file-modification-time
-                   "failed for ~s: ~(~a~)"
-                   "testlink"
-                   "no such file or directory")))
+                         "failed for ~s: ~(~a~)"
+                         "testlink"
+                         "no such file or directory")))
     (mat file-operations
          (boolean? (delete-file "testlink1" #f))
          (boolean? (delete-file "testlink2" #f))
@@ -77879,9 +78421,8 @@ evaluating module init
                (flush-output-port to-stdin)
                (let f ()
                  (when (input-port-ready? from-stderr)
-                       (errorf #f
-                         "input ready on from-stderr ~s"
-                         (get-string-some from-stderr)))
+                       (errorf #f "input ready on from-stderr ~s"
+                               (get-string-some from-stderr)))
                  (if (input-port-ready? from-stdout)
                      (let ([s (get-string-n from-stdout 10)])
                        (unless (equal? s "life in th")
@@ -77928,9 +78469,8 @@ evaluating module init
                (flush-output-port to-stdin)
                (let f ()
                  (when (input-port-ready? from-stderr)
-                       (errorf #f
-                         "input ready on from-stderr ~s"
-                         (get-string-some from-stderr)))
+                       (errorf #f "input ready on from-stderr ~s"
+                               (get-string-some from-stderr)))
                  (if (input-port-ready? from-stdout)
                      (let ([s (get-string-n from-stdout 10)])
                        (unless (equal? s "life in th")
@@ -77972,7 +78512,8 @@ evaluating module init
            (define get-bytevector-some
              (lambda (bp)
                (let ([buf (make-bytevector 5)])
-                 (let ([n (get-bytevector-some! bp
+                 (let ([n (get-bytevector-some!
+                            bp
                             buf
                             0
                             (bytevector-length buf))])
@@ -78000,20 +78541,20 @@ evaluating module init
                (flush-output-port to-stdin)
                (let f ([all ""])
                  (unless (equal? all "that don't impress me much\n")
-                   (let ([s (get-string-some from-stderr)])
-                     (when (eof-object? s)
-                           (errorf #f "unexpected from-stderr eof"))
-                     (unless (equal? s "")
-                       (errorf #f "unexpected from-stderr input ~s" s)))
-                   (let ([s (get-string-some from-stdout)])
-                     (when (eof-object? s)
-                           (errorf #f "unexpected from-stdout eof"))
-                     (if (equal? s "")
-                         (begin
-                           (display ".")
-                           (flush-output-port)
-                           (f all))
-                         (f (string-append all s))))))
+                         (let ([s (get-string-some from-stderr)])
+                           (when (eof-object? s)
+                                 (errorf #f "unexpected from-stderr eof"))
+                           (unless (equal? s "")
+                                   (errorf #f "unexpected from-stderr input ~s" s)))
+                         (let ([s (get-string-some from-stdout)])
+                           (when (eof-object? s)
+                                 (errorf #f "unexpected from-stdout eof"))
+                           (if (equal? s "")
+                               (begin
+                                 (display ".")
+                                 (flush-output-port)
+                                 (f all))
+                               (f (string-append all s))))))
                (and (equal? (get-string-some from-stdout) "")
                     (not (input-port-ready? from-stdout))
                     (equal? (get-string-some from-stdout) "")
@@ -78052,20 +78593,20 @@ evaluating module init
                (flush-output-port to-stdin)
                (let f ([all ""])
                  (unless (equal? all "that don't impress me much\n")
-                   (let ([s (get-string-some from-stderr)])
-                     (when (eof-object? s)
-                           (errorf #f "unexpected from-stderr eof"))
-                     (unless (equal? s "")
-                       (errorf #f "unexpected from-stderr input ~s" s)))
-                   (let ([s (get-string-some from-stdout)])
-                     (when (eof-object? s)
-                           (errorf #f "unexpected from-stdout eof"))
-                     (if (equal? s "")
-                         (begin
-                           (display ".")
-                           (flush-output-port)
-                           (f all))
-                         (f (string-append all s))))))
+                         (let ([s (get-string-some from-stderr)])
+                           (when (eof-object? s)
+                                 (errorf #f "unexpected from-stderr eof"))
+                           (unless (equal? s "")
+                                   (errorf #f "unexpected from-stderr input ~s" s)))
+                         (let ([s (get-string-some from-stdout)])
+                           (when (eof-object? s)
+                                 (errorf #f "unexpected from-stdout eof"))
+                           (if (equal? s "")
+                               (begin
+                                 (display ".")
+                                 (flush-output-port)
+                                 (f all))
+                               (f (string-append all s))))))
                (and (equal? (get-string-some from-stdout) "")
                     (not (input-port-ready? from-stdout))
                     (equal? (get-string-some from-stdout) "")
@@ -78184,7 +78725,8 @@ evaluating module init
            (error? (get-registry "bogus, is it not?"))
 
            (not (get-registry "hkey_current_user\\CSmat\\FratRat"))
-           (eq? (put-registry! "hkey_current_user\\CSmat\\FratRat"
+           (eq? (put-registry!
+                  "hkey_current_user\\CSmat\\FratRat"
                   "7233259")
                 (void))
            (equal? (get-registry "hkey_current_user\\CSmat\\FratRat")
@@ -78196,7 +78738,8 @@ evaluating module init
            (error? (remove-registry! "hkey_current_user\\CSmat\\FratRat"))
            (not (get-registry "hkey_current_user\\CSmat\\FratRat"))
 
-           (eq? (put-registry! "hkey_current_user\\CSmat\\North\\South"
+           (eq? (put-registry!
+                  "hkey_current_user\\CSmat\\North\\South"
                   "east")
                 (void))
            (equal? (get-registry "hkey_current_user\\CSmat\\North\\South")
@@ -78235,11 +78778,10 @@ evaluating module init
         (lambda (who . args)
           (if (#%$suppress-primitive-inlining)
               (errorf #f
-                "incorrect number of arguments to #<procedure ~a>"
-                who)
-              (errorf #f
-                "incorrect argument count in call ~s"
-                (cons who args)))))
+                      "incorrect number of arguments to #<procedure ~a>"
+                      who)
+              (errorf #f "incorrect argument count in call ~s"
+                      (cons who args)))))
       (mat registry
            (error? (bad-arg-count 'get-registry))
            (error? (bad-arg-count 'get-registry 1 2))
@@ -78253,13 +78795,13 @@ evaluating module init
            (error? (errorf 'put-registry! "3 is not a string"))
            (error? (errorf 'remove-registry! "(a b c) is not a string"))
            (error? (errorf 'get-registry
-                     "invalid registry key \"bogus, is it not?\""))
+                           "invalid registry key \"bogus, is it not?\""))
            (error? (errorf 'remove-registry!
-                     "cannot remove hkey_current_user\\CSmat\\FratRat (not found)"))
+                           "cannot remove hkey_current_user\\CSmat\\FratRat (not found)"))
            (error? (errorf 'remove-registry!
-                     "cannot remove hkey_current_user\\CSmat\\Apple (insufficient permission or subkeys exist)"))
+                           "cannot remove hkey_current_user\\CSmat\\Apple (insufficient permission or subkeys exist)"))
            (error? (errorf 'remove-registry!
-                     "cannot remove hkey_current_user\\CSmat\\Apple (insufficient permission or subkeys exist)")))))
+                           "cannot remove hkey_current_user\\CSmat\\Apple (insufficient permission or subkeys exist)")))))
 
 (when (windows?)
       (mat multibyte
@@ -78402,7 +78944,7 @@ evaluating module init
                  (ed-def fact))
                'fact)
          (equal? (get-output-string out)
-           "(def fact (lambda (...) (...)))
+                 "(def fact (lambda (...) (...)))
 edit> (lambda (x) (if (...) 1 (...)))
 edit> (if (zero? x) 1 (* x (...)))
 edit> (* x (fact (...)))
@@ -78651,12 +79193,10 @@ edit>
                (memq (car c1) (list p1 p2 p3))
                (memq (cdr c1) (list p1 p2 p3))))))
 
-  (= *most-positive-short-integer*
-     *most-positive-fixnum*
+  (= *most-positive-short-integer* *most-positive-fixnum*
      (most-positive-fixnum))
 
-  (= *most-negative-short-integer*
-     *most-negative-fixnum*
+  (= *most-negative-short-integer* *most-negative-fixnum*
      (most-negative-fixnum))
 
   (eof-object? *eof*)
@@ -79570,13 +80110,10 @@ edit>
 
 (mat fp-output
      (equal? (number->string 1e23) "1e23")
-     (equal? (number->string 4.450147717014403e-308)
-             "4.450147717014403e-308")
-     (equal? (number->string 1.1665795231290236e-302)
-             "1.1665795231290236e-302")
+     (equal? (number->string 4.450147717014403e-308) "4.450147717014403e-308")
+     (equal? (number->string 1.1665795231290236e-302) "1.1665795231290236e-302")
      ; fp printing algorithm always rounds up on ties
-     (equal? (number->string 3.6954879760742188e-6)
-             "3.6954879760742188e-6")
+     (equal? (number->string 3.6954879760742188e-6) "3.6954879760742188e-6")
      (equal? (number->string 5.629499534213123e14) "5.629499534213123e14"))
 
 (mat string->number
@@ -79822,10 +80359,10 @@ edit>
                        (lambda (t)
                          (let ([n (time-nanosecond (current-time t))])
                            (unless (<= 0 n #e1e9)
-                             (errorf #f
-                               "(time-nanosecond (current-time '~s)) = ~s"
-                               t
-                               n))))
+                                   (errorf #f
+                                           "(time-nanosecond (current-time '~s)) = ~s"
+                                           t
+                                           n))))
                        '(time-utc time-monotonic
                                   time-duration
                                   time-process
@@ -79954,102 +80491,10 @@ edit>
                    #f
                    #f
                    #f)
-               (#f #f
-                   #f
-                   #t
-                   #t
-                   #f
-                   #t
-                   #t
-                   #t
-                   #t
-                   #f
-                   #t
-                   #t
-                   #f
-                   #f
-                   #t
-                   #t
-                   #t
-                   #f
-                   #f
-                   #t
-                   #f
-                   #f
-                   #f
-                   #f)
-               (#f #f
-                   #f
-                   #t
-                   #t
-                   #f
-                   #t
-                   #t
-                   #t
-                   #t
-                   #f
-                   #t
-                   #t
-                   #f
-                   #f
-                   #t
-                   #t
-                   #t
-                   #f
-                   #f
-                   #t
-                   #f
-                   #f
-                   #f
-                   #f)
-               (#f #f
-                   #f
-                   #f
-                   #t
-                   #f
-                   #f
-                   #f
-                   #t
-                   #t
-                   #f
-                   #f
-                   #f
-                   #t
-                   #f
-                   #t
-                   #t
-                   #t
-                   #t
-                   #f
-                   #t
-                   #t
-                   #t
-                   #f
-                   #f)
-               (#f #f
-                   #f
-                   #f
-                   #f
-                   #f
-                   #f
-                   #f
-                   #f
-                   #t
-                   #f
-                   #f
-                   #f
-                   #f
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #t
-                   #f)))
+               (#f #f #f #t #t #f #t #t #t #t #f #t #t #f #f #t #t #t #f #f #t #f #f #f #f)
+               (#f #f #f #t #t #f #t #t #t #t #f #t #t #f #f #t #t #t #f #f #t #f #f #f #f)
+               (#f #f #f #f #t #f #f #f #t #t #f #f #f #t #f #t #t #t #t #f #t #t #t #f #f)
+               (#f #f #f #f #f #f #f #f #f #t #f #f #f #f #t #t #t #t #t #t #t #t #t #t #f)))
      (error? (time-difference $time-t2 $time-t3))
      (error? (add-duration $time-t3 $time-t2))
      (error? (subtract-duration $time-t3 $time-t2))
@@ -80303,21 +80748,21 @@ edit>
          (cond
            [(member (date-zone-name d)
               '("EST" "CST"
-                 "MST"
-                 "PST"
-                 "Eastern Standard Time"
-                 "Central Standard Time"
-                 "Mountain Standard Time"
-                 "Pacific Standard Time"))
+                      "MST"
+                      "PST"
+                      "Eastern Standard Time"
+                      "Central Standard Time"
+                      "Mountain Standard Time"
+                      "Pacific Standard Time"))
             (eqv? (date-dst? d) #f)]
            [(member (date-zone-name d)
               '("EDT" "CDT"
-                 "MDT"
-                 "PDT"
-                 "Eastern Daylight Time"
-                 "Central Daylight Time"
-                 "Mountain Daylight Time"
-                 "Pacific Daylight Time"))
+                      "MDT"
+                      "PDT"
+                      "Eastern Daylight Time"
+                      "Central Daylight Time"
+                      "Mountain Daylight Time"
+                      "Pacific Daylight Time"))
             (eqv? (date-dst? d) #t)]
            [else #t]))
        (plausible-dst? $date-d5))
@@ -80391,10 +80836,8 @@ edit>
        (let ([s (date-and-time d)])
          (and (= (read (open-input-string (substring s 8 10)))
                  (date-day d))
-              (= (read (open-input-string (substring s 11 13)))
-                 (date-hour d))
-              (= (read (open-input-string (substring s 20 24)))
-                 (date-year d))))))
+              (= (read (open-input-string (substring s 11 13))) (date-hour d))
+              (= (read (open-input-string (substring s 20 24))) (date-year d))))))
 
 (mat conversions/sleep
      (error? (date->time-utc (current-time)))
@@ -80551,12 +80994,9 @@ edit>
                                                     (printf "checking pair\n")
                                                     (pair? foo)) foo])
                                             (dynamic-wind
-                                              (lambda ()
-                                                (printf "in\n"))
-                                              (lambda ()
-                                                (raise 'oops))
-                                              (lambda ()
-                                                (printf "out\n"))))))))))
+                                              (lambda () (printf "in\n"))
+                                              (lambda () (raise 'oops))
+                                              (lambda () (printf "out\n"))))))))))
              "in\nout\nchecking null\nchecking pair\nin\nouter handler: oops\nout\n(fini)\n")
      (equal? ($capture (list (guard (foo [(null? foo) 'empty] [(pair? foo) foo])
                                (with-exception-handler
@@ -80660,7 +81100,8 @@ edit>
        (define $co-cond1?
          (condition-predicate (record-type-descriptor $co-&cond1)))
        (define $co-cond1-x
-         (condition-accessor (record-type-descriptor $co-&cond1)
+         (condition-accessor
+           (record-type-descriptor $co-&cond1)
            $co-real-cond1-x))
        (define $co-foo ($co-make-cond1 'foo))
        #t)
@@ -80674,7 +81115,8 @@ edit>
        (define $co-cond2?
          (condition-predicate (record-type-descriptor $co-&cond2)))
        (define $co-cond2-y
-         (condition-accessor (record-type-descriptor $co-&cond2)
+         (condition-accessor
+           (record-type-descriptor $co-&cond2)
            $co-real-cond2-y))
        (define $co-bar ($co-make-cond2 'bar))
        #t)
@@ -80691,17 +81133,20 @@ edit>
      (equal? (simple-conditions (condition $co-foo (condition $co-bar)))
              (list $co-foo $co-bar))
      (begin
-       (define-condition-type $co-&c
+       (define-condition-type
+         $co-&c
          &condition
          $co-make-c
          $co-c?
          (x $co-c-x))
-       (define-condition-type $co-&c1
+       (define-condition-type
+         $co-&c1
          $co-&c
          $co-make-c1
          $co-c1?
          (a $co-c1-a))
-       (define-condition-type $co-&c2
+       (define-condition-type
+         $co-&c2
          $co-&c
          $co-make-c2
          $co-c2?
