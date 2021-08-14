@@ -49,7 +49,7 @@ class RegexpTrie(dict):
         print(self.regexp())
 
     def pprint(self):
-        print(self.pretty_regexp())
+        print(self.pretty_regexp(8))
 
     def pretty_regexp(self, indent_level=0, indent_char=' '):
         def pretty(trie, indent_level):
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     out = subprocess.check_output(cmd, shell=True, text=True)
     funs, defs, syns = [line.split(' ') for line in out.split('\n')]
 
-    print_regexp('functions', funs)
+    # print_regexp('functions', funs)
     print_regexp('definitions', defs)
     print_regexp('syntaxes', syns)
 

@@ -244,10 +244,16 @@ contexts:
     - match: |-
         (?x)
         (?<=[\(\[])\s*
-        (define(?:-(?:condition-type|enumeration|ftype|property|record(?:-type)?|s(?:tructure|yntax)|values))?)
+        (?:define(?:-(?:condition-type
+                       |enumeration
+                       |ftype
+                       |property
+                       |record(?:-type)?
+                       |s(?:tructure|yntax)
+                       |values))?
+          |trace-define(?:-syntax)?)
         (?=[\(\[\s])
-      captures:
-        1: keyword.control.scheme
+      scope: keyword.control.scheme
       push: define-name
 
     - match: (set!)\s+({{identifier}})
@@ -402,33 +408,84 @@ contexts:
     - match: |-
         (?x)
         (?<=[\(\[])\s*
-        (\$(?:primitive|system)
-        |\&(?:assertion|con(?:dition|tinuation)|error|format|i(?:/o(?:-(?:decoding|encoding|file(?:-(?:already-exists|does-not-exist|is-read-only|protection)|name)|invalid-position|port|read|write))?|mplementation-restriction|rritants)|lexical|message|no(?:-(?:infinities|nans)|n-continuable)|s(?:erious|ource|yntax)|undefined|violation|w(?:arning|ho))
-        |\.\.\.
-        |=>
-        |_
-        |a(?:dd-prefix|lias|n(?:d|notation-options)|ssert)
-        |b(?:egin|uffer-mode)
-        |c(?:ase(?:-lambda)?|on(?:d|structor)|ritical-section)
-        |d(?:atum|elay|o|rop-prefix)
-        |e(?:lse|ndianness|ol-style|rror-handling-mode|val-when|x(?:c(?:ept|lusive-cond)|p(?:ort|ression-editor)|tend-syntax))
-        |f(?:asl-strip-options|i(?:elds|le-options)|luid-let(?:-syntax)?|oreign-(?:callable|procedure)|type-(?:\&ref|guardian|init-lock!|lock(?:!|ed-(?:decr!|incr!))|pointer\?|ref|s(?:et!|izeof|pin-lock!)|unlock!))
-        |guard
-        |i(?:dentifier-syntax|eee|f|m(?:mutable|p(?:licit-exports|ort(?:-only)?))|n(?:clude|direct-export))
-        |l(?:ambda|et(?:\*(?:-values)?|-(?:syntax|values)|rec(?:\*|-syntax)?)?|ibrary(?:-requirements-options)?)
-        |m(?:ake-ftype-pointer|eta(?:-cond)?|odule|utable)
-        |nongenerative
-        |o(?:nly|paque|r)
-        |p(?:ar(?:ameterize|ent(?:-rtd)?|iah)|r(?:e(?:dicate|fix)|o(?:file|tocol)))
-        |qu(?:asi(?:quote|syntax)|ote)
-        |r(?:5rs(?:-syntax)?|6rs:(?:case|syntax-rules)|e(?:c(?:ord-(?:c(?:ase|onstructor-descriptor)|type-descriptor))?|name))
-        |s(?:cheme|e(?:aled|t!)|yntax(?:-(?:case|rules))?)
-        |t(?:ime|op-level-program|race(?:-(?:case-lambda|d(?:efine(?:-syntax)?|o)|l(?:ambda|et)))?|ype-descriptor)
-        |un(?:less|quote(?:-splicing)?|syntax(?:-splicing)?|trace)
-        |w(?:hen|ith-(?:i(?:mplicit|nterrupts-disabled)|mutex|syntax)))
+        (?:\$(?:primitive|system)
+          |\&(?:assertion
+               |con(?:dition|tinuation)
+               |error
+               |format
+               |i(?:/o(?:-(?:decoding
+                            |encoding
+                            |file(?:-(?:already-exists
+                                       |does-not-exist
+                                       |is-read-only
+                                       |protection)
+                                   |name)
+                            |invalid-position
+                            |port
+                            |read
+                            |write))?
+                   |mplementation-restriction
+                   |rritants)
+               |lexical
+               |message
+               |no(?:-(?:infinities|nans)|n-continuable)
+               |s(?:erious|ource|yntax)
+               |undefined
+               |violation
+               |w(?:arning|ho))
+          |\.\.\.
+          |=>
+          |_
+          |a(?:dd-prefix|lias|n(?:d|notation-options)|ssert)
+          |b(?:egin|uffer-mode)
+          |c(?:ase(?:-lambda)?|on(?:d|structor)|ritical-section)
+          |d(?:atum|elay|o|rop-prefix)
+          |e(?:lse
+              |ndianness
+              |ol-style
+              |rror-handling-mode
+              |val-when
+              |x(?:c(?:ept|lusive-cond)|p(?:ort|ression-editor)|tend-syntax))
+          |f(?:asl-strip-options
+              |i(?:elds|le-options)
+              |luid-let(?:-syntax)?
+              |oreign-(?:callable|procedure)
+              |type-(?:\&ref
+                      |guardian
+                      |init-lock!
+                      |lock(?:!|ed-(?:decr!|incr!))
+                      |pointer\?
+                      |ref
+                      |s(?:et!|izeof|pin-lock!)
+                      |unlock!))
+          |guard
+          |i(?:dentifier-syntax
+              |eee
+              |f
+              |m(?:mutable|p(?:licit-exports|ort(?:-only)?))
+              |n(?:clude|direct-export))
+          |l(?:ambda
+              |et(?:\*(?:-values)?|-(?:syntax|values)|rec(?:\*|-syntax)?)?
+              |ibrary(?:-requirements-options)?)
+          |m(?:ake-ftype-pointer|eta(?:-cond)?|odule|utable)
+          |nongenerative
+          |o(?:nly|paque|r)
+          |p(?:ar(?:ameterize|ent(?:-rtd)?|iah)
+              |r(?:e(?:dicate|fix)|o(?:file|tocol)))
+          |qu(?:asi(?:quote|syntax)|ote)
+          |r(?:5rs(?:-syntax)?
+              |6rs:(?:case|syntax-rules)
+              |e(?:c(?:ord-(?:c(?:ase|onstructor-descriptor)|type-descriptor))?
+                  |name))
+          |s(?:cheme|e(?:aled|t!)|yntax(?:-(?:case|rules))?)
+          |t(?:ime
+              |op-level-program
+              |race(?:-(?:case-lambda|do|l(?:ambda|et)))?
+              |ype-descriptor)
+          |un(?:less|quote(?:-splicing)?|syntax(?:-splicing)?|trace)
+          |w(?:hen|ith-(?:i(?:mplicit|nterrupts-disabled)|mutex|syntax)))
         (?=[\(\[\s\]\)])
-      captures:
-        1: keyword.control.scheme
+      scope: keyword.control.scheme
     - include: aux-keywords
 
   procedure:
