@@ -132,7 +132,7 @@ if __name__ == '__main__':
     out = subprocess.check_output(cmd, shell=True, text=True)
     funs, defs, syns = [line.split(' ') for line in out.split('\n')]
 
-    # print_regexp('functions', funs)
+    print_regexp('functions', funs)
     print_regexp('definitions', defs)
     print_regexp('syntaxes', syns)
 
