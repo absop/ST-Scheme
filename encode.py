@@ -66,7 +66,7 @@ formats = {
     "lambda": {"keep": 2, "indent": 2},
     "let": {"keep": "first_list", "indent": 2},
     "let*": {"keep": 2, "indent": 2},
-    "letrec": {"keep": 2, "indent": 2},
+    "letrec": {"keep": 1, "indent": 2},
     "let-syntax": {"keep": 2, "indent": 2},
     "let-values": {"keep": 2, "indent": 2},
     "local": {"keep": 2, "indent": 2},
