@@ -36,15 +36,10 @@ class RegexpTrie(dict):
             return self._regexp
         groups = self.groups()
         regexp = '|'.join(groups)
-        # 如果有超过1组后缀，或当前处于单词末尾且后缀的长度大于1，则将后缀套上括号
-        # If there are more than 1 group of suffix strings, or at
-        # the end of a word and the length of the suffix string is
-        # greater than 1, enclose the suffix string in parentheses
+        # multiple groups or word end and len(suffix) > 1
         if len(groups) > 1 or self.get_eow() and len(regexp) > 1:
             regexp = '(?:%s)' % regexp
-        # 如果当前处于单词末尾，并且有后缀，则后缀是可选的
-        # If the current is at the end of a word and
-        # there is a suffix, the suffix is optional
+        # word end and there are suffixes
         if self.get_eow() and len(groups) > 0:
             regexp += '?'
         self._regexp = regexp
