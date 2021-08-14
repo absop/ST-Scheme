@@ -120,7 +120,7 @@ if __name__ == '__main__':
         for title, regex in regexs.items():
             regexs[title] = re.compile(regex)
 
-        print(f'\n{"Test":=^60}')
+        print(f'\n{f"Test with {len(words)} words":=^61}')
         for title, regex in regexs.items():
             # Correctness
             match = all(regex.fullmatch(word).group() == word
