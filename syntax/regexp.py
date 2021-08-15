@@ -48,10 +48,10 @@ class RegexpTrie(dict):
     def print(self):
         print(self.regexp())
 
-    def pprint(self, initial_indent=0, length_limit=79, indent_char=' '):
-        print(self.pretty_regexp(initial_indent, indent_char, length_limit))
+    def pprint(self, *args, **kwargs):
+        print(self.pretty_regexp(*args, **kwargs))
 
-    def pretty_regexp(self, indent_level=0, indent_char=' ', length_limit=79):
+    def pretty_regexp(self, initial_indent=0, length_limit=79, indent_char=' '):
         def pretty(trie, indent_level):
             regexp = trie.regexp()
             if indent_level + len(regexp) < length_limit:
@@ -79,8 +79,8 @@ class RegexpTrie(dict):
             yield from pretty(trie[c], indent_level + len(ec))
 
         self.compress()
-        indent = indent_level * indent_char
-        regexp = ''.join(pretty(self, indent_level))
+        indent = initial_indent * indent_char
+        regexp = ''.join(pretty(self, initial_indent))
         return f'{indent}(?x)\n{indent}{regexp}'
 
     def compress(self):
