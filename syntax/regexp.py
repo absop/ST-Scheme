@@ -48,13 +48,13 @@ class RegexpTrie(dict):
     def print(self):
         print(self.regexp())
 
-    def pprint(self):
-        print(self.pretty_regexp(8))
+    def pprint(self, initial_indent=0, length_limit=79, indent_char=' '):
+        print(self.pretty_regexp(initial_indent, indent_char, length_limit))
 
-    def pretty_regexp(self, indent_level=0, indent_char=' '):
+    def pretty_regexp(self, indent_level=0, indent_char=' ', length_limit=79):
         def pretty(trie, indent_level):
             regexp = trie.regexp()
-            if indent_level + len(regexp) < 79:
+            if indent_level + len(regexp) < length_limit:
                 yield regexp
                 return
             groups = sorted(trie.branches())
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     def print_regexp(caption, words):
         print('{0:=^79}'.format(caption))
         trie = RegexpTrie(words)
-        trie.pprint()
+        trie.pprint(8)
 
     def test(words):
         import time
