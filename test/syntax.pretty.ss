@@ -9916,7 +9916,8 @@
                                          (append #'*tmps tmps)
                                          body)]
                                  [*tfmls (reconstitute-formals #'*fmls #'*tmps)])
-                     #`(call-with-values (lambda () expr)
+                     #`(call-with-values
+                         (lambda () expr)
                          #,(if (or (= (optimize-level) 3)
                                    (identifier? #'*tfmls))
                                #'(lambda *tfmls body)
@@ -9960,7 +9961,8 @@
       (lambda (binding body)
         (syntax-case binding ()
           [(*fmls expr)
-           #`(call-with-values (lambda () expr)
+           #`(call-with-values
+               (lambda () expr)
                #,(if (or (= (optimize-level) 3) (identifier? #'*fmls))
                      #`(lambda *fmls #,body)
                      #`(case-lambda
@@ -10005,7 +10007,8 @@
        (if (= (optimize-level) 3)
            #'(define unused (begin expr (void)))
            #`(define unused
-               (call-with-values (lambda () expr)
+               (call-with-values
+                 (lambda () expr)
                  (case-lambda
                    [() (void)]
                    [args #,($make-source-oops
@@ -10017,7 +10020,8 @@
        (if (= (optimize-level) 3)
            #'(define x expr)
            #`(define x
-               (call-with-values (lambda () expr)
+               (call-with-values
+                 (lambda () expr)
                  (case-lambda
                    [(x) x]
                    [args #,($make-source-oops
@@ -10029,7 +10033,8 @@
          (with-syntax ([(i ...) (enumerate #'(ffml ...))])
            #`(begin
                (define t
-                 (call-with-values (lambda () expr)
+                 (call-with-values
+                   (lambda () expr)
                    (rec define-values-consumer
                         #,(if (or (= (optimize-level) 3)
                                   (identifier? #'formals))

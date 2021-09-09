@@ -1587,7 +1587,8 @@
                 (if (eq? body x1)
                     (build-seq* profile1*
                       (build-seq* profile2*
-                        `(letrec ([,x1 ,le*])
+                        `(letrec
+                           ([,x1 ,le*])
                            (call ,info1 ,x1 ,e* ...))))
                     `(call ,info1 ,(build-seq* profile1* (Expr e)) ,e* ...))]
                [else
@@ -1941,7 +1942,8 @@
                    (lambda ()
                      (let ([tmp (make-tmp 'tp)])
                        (uvar-info-lambda-set! tmp info)
-                       `(letrec ([,tmp ,(Expr ir)])
+                       `(letrec
+                          ([,tmp ,(Expr ir)])
                           ,(k tmp src sexpr)))))]
                 [(seq ,[Expr : e1] ,[Producer : e2]) `(seq ,e1 ,e2)]
                 [(let ([,x* ,[Expr : e*]] ...) ,[Producer : e])
@@ -2094,9 +2096,10 @@
             Expr
             ()
             [,x (uvar-referenced! x #t) (uvar-loop! x #f) x]
-            [(letrec ([,x1 (case-lambda
-                             ,info1
-                             (clause (,x* ...) ,interface ,body))])
+            [(letrec
+               ([,x1 (case-lambda
+                       ,info1
+                       (clause (,x* ...) ,interface ,body))])
                (call ,info2 ,mdcl ,x2 ,e* ...))
              (guard (eq? x2 x1) (eq? (length e*) interface))
              (uvar-referenced! x1 #f)
@@ -2125,9 +2128,10 @@
                                        (uvar-loop! x #f)))
                                tail*
                                body-tref?*)
-                             `(letrec ([,x1 (case-lambda
-                                              ,info1
-                                              (clause (,x* ...) ,interface ,body))])
+                             `(letrec
+                                ([,x1 (case-lambda
+                                        ,info1
+                                        (clause (,x* ...) ,interface ,body))])
                                 (call ,info2 ,mdcl ,x2 ,e* ...))))
                        `(let ([,x* ,e*] ...) ,body)))))]
             [(letrec ([,x* ,[le*]] ...) ,[body])
@@ -2183,7 +2187,8 @@
                                               (string->symbol name)))
                                        'anon))])
                (uvar-info-lambda-set! anon info)
-               `(letrec ([,anon (case-lambda ,info ,cl ...)])
+               `(letrec
+                  ([,anon (case-lambda ,info ,cl ...)])
                   ,anon))])
       (nanopass-case
         (L4.875 CaseLambdaExpr)

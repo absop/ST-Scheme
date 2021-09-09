@@ -161,26 +161,31 @@
 
 (mat letrec
      (letrec ((f (lambda () x)) (x (cons 1 2))) (eq? (f) x))
-     (letrec ((f (lambda () g)) (g (lambda () f)))
+     (letrec
+       ((f (lambda () g)) (g (lambda () f)))
        (and (eq? (f) g) (eq? (g) f)))
-     (letrec ((f (lambda (x) (if (zero? x) 'odd (g (1- x)))))
-              (g (lambda (x) (if (zero? x) 'even (f (1- x))))))
+     (letrec
+       ((f (lambda (x) (if (zero? x) 'odd (g (1- x)))))
+        (g (lambda (x) (if (zero? x) 'even (f (1- x))))))
        (and (eq? (g 10) 'even)
             (eq? (g 13) 'odd)
             (eq? (f 13) 'even)))
-     (letrec ((x 'a))
+     (letrec
+       ((x 'a))
        ;test for implicit "begin"
        (letrec ((y 'b)) #f (set! x y))
        (eq? x 'b))
      #;
-     (eqv? (letrec ((v 0) (k (call/cc (lambda (x) x))))
+     (eqv? (letrec
+             ((v 0) (k (call/cc (lambda (x) x))))
              ; invalid in r6rs
              ; david carlton's bug
              (set! v (+ v 1))
              (k (lambda (x) v)))
            1)
      #;
-     (eqv? (letrec ((k (call/cc (lambda (x) x))) (v 0))
+     (eqv? (letrec
+             ((k (call/cc (lambda (x) x))) (v 0))
              ; invalid in r6rs
              ; david carlton's bug
              (set! v (+ v 1))
@@ -201,73 +206,78 @@
              (k (lambda (x) v)))
            1)
      ; testing for named-let equivalents
-     (eqv? (letrec ((f (lambda (x) (if (zero? x) 1 (* x (f (1- x)))))))
+     (eqv? (letrec
+             ((f (lambda (x) (if (zero? x) 1 (* x (f (1- x)))))))
              (f 5))
            120)
-     (letrec ((f (lambda (x) (if (zero? x) #t (f (1- x))))))
+     (letrec
+       ((f (lambda (x) (if (zero? x) #t (f (1- x))))))
        (f 10000))
-     (letrec ((f (lambda (x y)
-                   (or (and (= x 0) (= y 10))
-                       (f (- x 1) (+ y 1))))))
+     (letrec
+       ((f (lambda (x y) (or (and (= x 0) (= y 10)) (f (- x 1) (+ y 1))))))
        (f 10 0))
-     (eqv? (letrec ((f (lambda (x) (if (= x 0) 1 (+ (f (- x 1)) 1)))))
+     (eqv? (letrec
+             ((f (lambda (x) (if (= x 0) 1 (+ (f (- x 1)) 1)))))
              (f 10))
            11)
      (eqv? (let ([base 20])
-             (letrec ((f (lambda (x) (if (= x 0) base (+ (f (- x 1)) 1)))))
+             (letrec
+               ((f (lambda (x) (if (= x 0) base (+ (f (- x 1)) 1)))))
                (f 10)))
            30)
      (error? (letrec ((x (lambda (x) x))) (f 3 4)))
      (eq? (letrec ((f (lambda (x) (if x (list (f x)) 0)))) (f #f)) 0)
      (equal? (letrec ((f (lambda (x) (if x (list (f (not x))) 0)))) (f #t))
              '(0))
-     (equal? (letrec ((f (lambda (x) (if x (list (g x)) 0)))
-                      (g (lambda (x) (f #f))))
+     (equal? (letrec
+               ((f (lambda (x) (if x (list (g x)) 0)))
+                (g (lambda (x) (f #f))))
                (f #t))
              '(0))
-     (equal? (letrec ((f (lambda (x) (if x (list (g (not x))) 0)))
-                      (g (lambda (x) (f x))))
+     (equal? (letrec
+               ((f (lambda (x) (if x (list (g (not x))) 0)))
+                (g (lambda (x) (f x))))
                (g #t))
              '(0))
      (error? (letrec ([a 3] [b a]) (+ a b)))
      ; shouldn't get warnings for these if valid-check algorithm is working
      ; properly
      (procedure? (letrec ([bar (letrec ([f (lambda (x) f)]) f)]) bar))
-     (eqv? (letrec ([fllog 3] [flacosh (or values (lambda (x) fllog))])
+     (eqv? (letrec
+             ([fllog 3] [flacosh (or values (lambda (x) fllog))])
              (flacosh 4))
            4)
      (eqv? (let ()
              (define $b #t)
-             (letrec ([fllog 3]
-                      [flacosh (if $b (lambda (x) fllog) values)])
+             (letrec
+               ([fllog 3] [flacosh (if $b (lambda (x) fllog) values)])
                (flacosh 4)))
            3)
-     (equal? (letrec ([a 3]
-                      [b (#2%cons (lambda () a) (lambda (x) (set! a x)))])
+     (equal? (letrec
+               ([a 3] [b (#2%cons (lambda () a) (lambda (x) (set! a x)))])
                ((cdr b) 17)
                (list a ((car b))))
              '(17 17))
      #;
-     (pair? (member (letrec ([k (call/cc (lambda (k) k))]
-                             ; invalid in r6rs
-                             [f (let ([n 0])
-                                  (lambda (a)
-                                    (set! n (+ n 1))
-                                    n))])
+     (pair? (member (letrec
+                      ([k (call/cc (lambda (k) k))]
+                       ; invalid in r6rs
+                       [f (let ([n 0]) (lambda (a) (set! n (+ n 1)) n))])
                       (f (void))
                       (let ([m (k f)])
                         (list (eq? k f) m (f (void)))))
                     '((#f 2 2) (#t 3 4))))
      (error? (letrec ([a (set! b 0)] [b 3]) 17))
      ; test strongly connected components algorithm used by cpletrec
-     (equal? (letrec ([f0 (lambda (x) (f4 (cons 0 x)))]
-                      [f1 (lambda (x)
-                            (if (fx> (length x) 10)
-                                x
-                                (f3 (f4 (cons 1 x)))))]
-                      [f2 (lambda (x) (f3 (cons 2 x)))]
-                      [f3 (lambda (x) (f1 (cons 3 x)))]
-                      [f4 (lambda (x) (f1 (f2 (cons 4 x))))])
+     (equal? (letrec
+               ([f0 (lambda (x) (f4 (cons 0 x)))]
+                [f1 (lambda (x)
+                      (if (fx> (length x) 10)
+                          x
+                          (f3 (f4 (cons 1 x)))))]
+                [f2 (lambda (x) (f3 (cons 2 x)))]
+                [f3 (lambda (x) (f1 (cons 3 x)))]
+                [f4 (lambda (x) (f1 (f2 (cons 4 x))))])
                (apply (lambda (t0 t1 t2 t3 t4)
                         (set! f0 (values t0))
                         (set! f1 (values t1))
@@ -277,15 +287,15 @@
                       (list f0 f1 f2 f3 f4))
                (f0 '()))
              '(3 3 3 2 4 1 3 2 4 1 3 2 4 0))
-     (equal? (letrec ([f0 (list (lambda (x) ((car f4) (cons 0 x))))]
-                      [f1 (list (lambda (x)
-                                  (if (fx> (length x) 10)
-                                      x
-                                      ((car f3) ((car f4) (cons 1 x))))))]
-                      [f2 (list (lambda (x) ((car f3) (cons 2 x))))]
-                      [f3 (list (lambda (x) ((car f1) (cons 3 x))))]
-                      [f4 (list (lambda (x)
-                                  ((car f1) ((car f2) (cons 4 x)))))])
+     (equal? (letrec
+               ([f0 (list (lambda (x) ((car f4) (cons 0 x))))]
+                [f1 (list (lambda (x)
+                            (if (fx> (length x) 10)
+                                x
+                                ((car f3) ((car f4) (cons 1 x))))))]
+                [f2 (list (lambda (x) ((car f3) (cons 2 x))))]
+                [f3 (list (lambda (x) ((car f1) (cons 3 x))))]
+                [f4 (list (lambda (x) ((car f1) ((car f2) (cons 4 x)))))])
                ((car f0) '()))
              '(3 3 3 2 4 1 3 2 4 1 3 2 4 0)))
 
@@ -503,43 +513,56 @@
      (error? ; undefined variable c
        (letrec* ([a (lambda () c)] [b (if #t (a) a)] [c (cons 1 2)]) b))
      (error? ; undefined variable a
-       (letrec ([a (letrec* ([b (lambda () a)]) (b))] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () a)]) (b))] [c (cons 1 2)])
          (cons a c)))
      (error? ; undefined variable a
-       (letrec ([a (lambda () c)] [b (lambda () a)] [c ((b))] [d (cons 1 2)])
+       (letrec
+         ([a (lambda () c)] [b (lambda () a)] [c ((b))] [d (cons 1 2)])
          d))
      (error? ; undefined variable a
-       (letrec ([a (lambda () b)] [b (lambda () c)] [c (a)])
+       (letrec
+         ([a (lambda () b)] [b (lambda () c)] [c (a)])
          c))
      (error? ; undefined variable a
-       (letrec ([a (letrec* ([b (lambda () c)] [c (cons 1 2)]) (b))] [d a])
+       (letrec
+         ([a (letrec* ([b (lambda () c)] [c (cons 1 2)]) (b))] [d a])
          d))
      (error? ; undefined variable a
-       (letrec ([a (let ([x 0]) (lambda () x))] [b (let ([y 2]) (* y (a)))])
+       (letrec
+         ([a (let ([x 0]) (lambda () x))] [b (let ([y 2]) (* y (a)))])
          b))
      (error? ; undefined variable c
-       (letrec ([a (letrec* ([b (lambda () c)] [d c]) (b))] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () c)] [d c]) (b))] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons (m) n))))
      (error? ; undefined variable c
-       (letrec ([a (letrec* ([b (lambda () c)] [d c]) b)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () c)] [d c]) b)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons (m) n))))
      (equal? '((3 . 4) 3 . 4)
-       (letrec ([a (letrec* ([b (lambda () c)] [d 0]) b)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () c)] [d 0]) b)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons (m) n))))
      (equal? '((1 . 2) (3 . 4) 3 . 4)
-       (letrec ([a (letrec* ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons c (cons (m) n)))))
      (error? ; undefined variable b
-       (letrec ([a (letrec ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons c (cons (m) n)))))
      (error? ; undefined variable b
-       (letrec ([a (letrec ([b (lambda () (lambda () c))] [d ((b))]) d)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec ([b (lambda () (lambda () c))] [d ((b))]) d)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons c (cons (m) n)))))
      (error? ; undefined variable c
-       (letrec ([a (letrec* ([b (lambda () (lambda () c))] [d ((b))]) d)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () (lambda () c))] [d ((b))]) d)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons 3 4)]) (cons c (cons (m) n)))))
      (equal? '((1 . 2) ((1 . 2) . 4) (1 . 2) . 4)
-       (letrec ([a (letrec* ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () (lambda () c))] [d (b)]) d)] [c (cons 1 2)])
          (letrec* ([m (lambda () n)] [n (cons c 4)])
                   (cons (a) (cons (m) n)))))
      (equal? '(1 . 2)
@@ -557,62 +580,66 @@
                  [c #t])
                 b))
      (error? ; undefined variable a
-       (letrec ([a (letrec ([b (letrec ([c (lambda () a)]) (c))])
-                     (lambda () b))])
+       (letrec
+         ([a (letrec ([b (letrec ([c (lambda () a)]) (c))]) (lambda () b))])
          ((lambda () c))))
      (error? ; undefined variable c
        (letrec* ([a (lambda (f g) (f g))] [b (lambda (x) c)] [c (b b)])
                 (list a b c)))
      (error? ; undefined variable m
-       (letrec ([m (lambda (x) (cons n x))] [n ((lambda () m))])
+       (letrec
+         ([m (lambda (x) (cons n x))] [n ((lambda () m))])
          (m '())))
      (error? ; undefined variable a
-       (letrec ([a (lambda () 0)] [b (zero? (a))] [c (if b (a) a)])
+       (letrec
+         ([a (lambda () 0)] [b (zero? (a))] [c (if b (a) a)])
          c))
      (error? ; undefined variable y
-       (letrec ([x (lambda () y)]
-                [y (lambda (f) (f))]
-                [z (y (lambda () (x)))])
+       (letrec
+         ([x (lambda () y)] [y (lambda (f) (f))] [z (y (lambda () (x)))])
          (z (lambda () 3))))
      (eq? 3
           (letrec* ([x (lambda (f) (f))] [y (lambda () x)] [z (x y)])
                    (z (lambda () 3))))
      (eq? 3
-          (letrec ([x (lambda (f) (f))]
-                   [y (lambda () x)]
-                   [z (lambda () (x y))])
+          (letrec
+            ([x (lambda (f) (f))] [y (lambda () x)] [z (lambda () (x y))])
             ((z) (lambda () 3))))
      #;
      (error? ; undefined variable y
-       (letrec ([x (lambda () y)]
-                [y (lambda (f) (f))]
-                [z (call/cc (lambda (k) (y (lambda () (x)))))])
+       (letrec
+         ([x (lambda () y)]
+          [y (lambda (f) (f))]
+          [z (call/cc (lambda (k) (y (lambda () (x)))))])
          ; invalid in r6rs
          ((z) (lambda () 3))))
      #;
      (eq? 3
-          (letrec ([x (lambda (f) (f))]
-                   [y (lambda () x)]
-                   [z (call/cc (lambda (k) (lambda () (x y))))])
+          (letrec
+            ([x (lambda (f) (f))]
+             [y (lambda () x)]
+             [z (call/cc (lambda (k) (lambda () (x y))))])
             ; invalid in r6rs
             ((z) (lambda () 3))))
      (error? ; undefined variable a
-       (letrec ([a 3] [b (letrec* ([c (lambda () a)] [d (c)]) (* d d))])
+       (letrec
+         ([a 3] [b (letrec* ([c (lambda () a)] [d (c)]) (* d d))])
          (* a b)))
      (error? ; undefined variable a
-       (letrec ([a 3]
-                [b (letrec* ([c (lambda () (lambda () a))] [d (c)])
-                            (* (d) (d)))])
+       (letrec
+         ([a 3]
+          [b (letrec* ([c (lambda () (lambda () a))] [d (c)]) (* (d) (d)))])
          (* a b)))
      (eq? 9
-          (letrec ([a 3]
-                   [b (letrec* ([c (lambda () (lambda () a))] [d (c)]) d)])
+          (letrec
+            ([a 3] [b (letrec* ([c (lambda () (lambda () a))] [d (c)]) d)])
             (* a (b))))
      (eq? 27
-          (letrec ([a 3]
-                   [b (lambda ()
-                        (letrec* ([c (lambda () (lambda () a))] [d (c)])
-                                 (* (d) (d))))])
+          (letrec
+            ([a 3]
+             [b (lambda ()
+                  (letrec* ([c (lambda () (lambda () a))] [d (c)])
+                           (* (d) (d))))])
             (* a (b))))
      #;
      (error? ; undefined variable b
@@ -630,27 +657,26 @@
      (error? (letrec ([b 3] [a (set! b 723)]) b))
      (error? (letrec* ([a (set! b 0)] [b 3]) b))
      (eqv? (letrec* ([b 3] [a (set! b 723)]) b) 723)
-     (error? (letrec ([a (lambda () c)]
-                      [b (let ((f (lambda () (a)))) (f))]
-                      [c 44])
+     (error? (letrec
+               ([a (lambda () c)] [b (let ((f (lambda () (a)))) (f))] [c 44])
                (list (a) b c)))
      (error? (letrec* ([a (lambda () c)]
                        [b (let ((f (lambda () (a)))) (f))]
                        [c 44])
                       (list (a) b c)))
-     (error? (letrec ([a (lambda () c)]
-                      [b (let ((f (lambda () a))) (f))]
-                      [c 44])
+     (error? (letrec
+               ([a (lambda () c)] [b (let ((f (lambda () a))) (f))] [c 44])
                (list (a) (b) c)))
      (equal? (letrec* ([a (lambda () c)]
                        [b (let ((f (lambda () a))) (f))]
                        [c 44])
                       (list (a) (b) c))
              '(44 44 44))
-     (equal? (letrec ([a (cons (lambda () b) (lambda () c))]
-                      [b (cons (lambda () a) (lambda () c))]
-                      [c (cons (lambda () a) (lambda () b))]
-                      [d (list (lambda () d))])
+     (equal? (letrec
+               ([a (cons (lambda () b) (lambda () c))]
+                [b (cons (lambda () a) (lambda () c))]
+                [c (cons (lambda () a) (lambda () b))]
+                [d (list (lambda () d))])
                (map pair?
                     (list ((car a)) ((cdr b)) c ((car d)))))
              '(#t #t #t #t))
@@ -661,21 +687,27 @@
                       (map pair?
                            (list ((car a)) ((cdr b)) c ((car d)))))
              '(#t #t #t #t))
-     (error? (letrec ([a (letrec ([b (lambda () (c))]
-                                  [c (lambda () a)]
-                                  [d (lambda () (b))])
-                           (d))])
+     (error? (letrec
+               ([a (letrec
+                     ([b (lambda () (c))]
+                      [c (lambda () a)]
+                      [d (lambda () (b))])
+                     (d))])
                (a 55)))
-     (error? (letrec ([a (letrec* ([b (lambda () (c))]
-                                   [c (lambda () a)]
-                                   [d (lambda () (b))])
-                                  (d))])
+     (error? (letrec
+               ([a (letrec* ([b (lambda () (c))]
+                             [c (lambda () a)]
+                             [d (lambda () (b))])
+                            (d))])
                (a 55)))
-     (error? (letrec ([a (letrec ([b (lambda () (c))] [c (lambda () a)] [d (b)])
-                           (d))])
+     (error? (letrec
+               ([a (letrec
+                     ([b (lambda () (c))] [c (lambda () a)] [d (b)])
+                     (d))])
                (a 55)))
-     (error? (letrec ([a (letrec* ([b (lambda () (c))] [c (lambda () a)] [d (b)])
-                                  (d))])
+     (error? (letrec
+               ([a (letrec* ([b (lambda () (c))] [c (lambda () a)] [d (b)])
+                            (d))])
                (a 55)))
      (eqv? (letrec* ([b (lambda () (c))] [c (lambda () 73)] [d (b)]) d) 73)
      (procedure?
@@ -684,9 +716,11 @@
          (define g (rec g* (lambda () (f))))
          g))
      (equal? (let ([q #f])
-               (letrec ((a (letrec ((f (lambda () a)) (g (lambda () (set! q "hi\n"))))
-                             (g)
-                             (lambda () (f)))))
+               (letrec
+                 ((a (letrec
+                       ((f (lambda () a)) (g (lambda () (set! q "hi\n"))))
+                       (g)
+                       (lambda () (f)))))
                  (list (eq? a (a)) q)))
              '(#t "hi\n"))
      (error? ; should complain about g
@@ -720,10 +754,11 @@
                       (list (e 7) (o 7) (e 6) (o 6)))
              '(#f #t #t #f))
      ; verify that cpletrec output is straight rec-binding:
-     (letrec ([a (letrec* ([b (lambda () (c))]
-                           [c (lambda () a)]
-                           [d (lambda () (b))])
-                          (lambda () (d)))])
+     (letrec
+       ([a (letrec* ([b (lambda () (c))]
+                     [c (lambda () a)]
+                     [d (lambda () (b))])
+                    (lambda () (d)))])
        (eq? a (a)))
      ; check for warnings when requested
      (eq? (parameterize ([undefined-variable-warnings "yes please!"])
@@ -783,7 +818,8 @@
      (error? ; undefined variable c
        (letrec* ([a (lambda () c)] [b (if #t (a) a)] [c (cons 1 2)]) b))
      (error? ; undefined variable a
-       (letrec ([a (letrec* ([b (lambda () a)]) (b))] [c (cons 1 2)])
+       (letrec
+         ([a (letrec* ([b (lambda () a)]) (b))] [c (cons 1 2)])
          (cons a c))))
 
 (mat rec
@@ -820,7 +856,8 @@
        (and (not (top-level-bound? 'yyyy))
             (not (top-level-bound? 'gggg))
             (eqv? (gggg 22) 25)))
-     (letrec ((x 3))
+     (letrec
+       ((x 3))
        (define yyyy x)
        (define (gggg y) (+ yyyy y))
        (and (not (top-level-bound? 'yyyy))
@@ -1010,11 +1047,9 @@
                      [#%$suppress-primitive-inlining #f]
                      [optimize-level 2])
                     (expand/optimize
-                      '(letrec ([x (let ([y 0])
-                                     (lambda ()
-                                       (set! y (- y 1))
-                                       y))]
-                                [z (lambda () (x))])
+                      '(letrec
+                         ([x (let ([y 0]) (lambda () (set! y (- y 1)) y))]
+                          [z (lambda () (x))])
                          (z)
                          (x)))) (lambda set! - $primitive)
        [(let ([y1 0]) (set! y2 (#2%- y3 1)) (set! y4 (#2%- y5 1)) y6) #t]
@@ -1034,14 +1069,16 @@
                                 (x)))) (lambda set! - $primitive)
        [(let ([y1 15]) (set! y2 (#2%- y3 1)) (set! y4 (#2%- y5 1)) y6) #t]
        [_ #f])
-     (equal? (let ([f (letrec ([e? (lambda (x) (or (zero? x) (o? (- x 1))))]
-                               [o? (lambda (x) (not (e? x)))])
+     (equal? (let ([f (letrec
+                        ([e? (lambda (x) (or (zero? x) (o? (- x 1))))]
+                         [o? (lambda (x) (not (e? x)))])
                         (lambda (a b)
                           (vector (e? a) (e? b) (o? a) (o? b))))])
                (f 3 0))
              '#(#f #t #t #f))
-     (equal? (let ([f (letrec ([q? (lambda (x) (not (p? x)))]
-                               [p? (lambda (x) (> x 0))])
+     (equal? (let ([f (letrec
+                        ([q? (lambda (x) (not (p? x)))]
+                         [p? (lambda (x) (> x 0))])
                         (lambda (a b)
                           (vector (p? a) (p? b) (q? a) (q? b))))])
                (f 3 -3))
@@ -1053,50 +1090,53 @@
                           (cons x y)))])
                (let ([t (f)]) (list t (f))))
              '((15 . 25) (40 . 65)))
-     (equal? (letrec ([f (letrec* ([g (lambda (x)
-                                        (lambda (y)
-                                          (if (= x y)
-                                              0
-                                              (+ 2 (h (- y 1))))))]
-                                   [x0 17]
-                                   [h (g x0)])
-                                  (lambda (y1 y2)
-                                    (cons (h y1) (h y2))))])
+     (equal? (letrec
+               ([f (letrec* ([g (lambda (x)
+                                  (lambda (y)
+                                    (if (= x y)
+                                        0
+                                        (+ 2 (h (- y 1))))))]
+                             [x0 17]
+                             [h (g x0)])
+                            (lambda (y1 y2)
+                              (cons (h y1) (h y2))))])
                (list (f 20 25) (f 28 31)))
              '((6 . 16) (22 . 28)))
-     (equal? (letrec ([f (letrec* ([g (lambda (n f)
-                                        (if (= n 0)
-                                            f
-                                            (g (- n 1) (lambda (m) (f (+ m 1))))))]
-                                   [q 7]
-                                   [h (g q (lambda (x) (* x 2)))])
-                                  (lambda (y1 y2 y3)
-                                    (list (h y1) (h y2) ((g 5 values) 7))))])
+     (equal? (letrec
+               ([f (letrec* ([g (lambda (n f)
+                                  (if (= n 0)
+                                      f
+                                      (g (- n 1) (lambda (m) (f (+ m 1))))))]
+                             [q 7]
+                             [h (g q (lambda (x) (* x 2)))])
+                            (lambda (y1 y2 y3)
+                              (list (h y1) (h y2) ((g 5 values) 7))))])
                (vector (f 1 2 3) (f 4 5 6)))
              '#((16 18 12) (22 24 12)))
-     (equal? (letrec ([f (letrec* ([g (values (lambda (n f)
-                                                (if (= n 0)
-                                                    f
-                                                    (g (- n 1) (lambda (m)
-                                                          (f (+ m 1)))))))]
-                                   [q 7]
-                                   [h (g q (lambda (x) (* x 2)))])
-                                  (lambda (y1 y2 y3)
-                                    (list (h y1) (h y2) ((g 5 values) 7))))])
+     (equal? (letrec
+               ([f (letrec* ([g (values (lambda (n f)
+                                          (if (= n 0)
+                                              f
+                                              (g (- n 1) (lambda (m) (f (+ m 1)))))))]
+                             [q 7]
+                             [h (g q (lambda (x) (* x 2)))])
+                            (lambda (y1 y2 y3)
+                              (list (h y1) (h y2) ((g 5 values) 7))))])
                (vector (f 1 2 3) (f 4 5 6)))
              '#((16 18 12) (22 24 12)))
-     (equal? (letrec ([f (letrec* ([g (lambda (n f)
-                                        (if (= n 0)
-                                            f
-                                            (g (- n 1) (lambda (m) (f (+ m 1))))))] [g^ g] [g^^ g^])
-                                  (lambda (y1 y2 y3)
-                                    (when #f
-                                          (set! g 0)
-                                          (set! g^ 1)
-                                          (set! g^^ 2))
-                                    (list ((g y1 values) y2)
-                                          ((g^ y2 (lambda (x) (* x x))) y3)
-                                          ((g^^ y3 (lambda (x) (- x))) y1))))])
+     (equal? (letrec
+               ([f (letrec* ([g (lambda (n f)
+                                  (if (= n 0)
+                                      f
+                                      (g (- n 1) (lambda (m) (f (+ m 1))))))] [g^ g] [g^^ g^])
+                            (lambda (y1 y2 y3)
+                              (when #f
+                                    (set! g 0)
+                                    (set! g^ 1)
+                                    (set! g^^ 2))
+                              (list ((g y1 values) y2)
+                                    ((g^ y2 (lambda (x) (* x x))) y3)
+                                    ((g^^ y3 (lambda (x) (- x))) y1))))])
                (vector (f 1 2 3) (f 4 5 6)))
              '#((3 25 -4) (9 121 -10))))
 
@@ -1161,12 +1201,15 @@
             (+ 2 (call-with-values f (lambda () 5))))
           7)
      (error? (let ((f (lambda () (values)))) (+ 2 (f))))
-     (eq? (call-with-values (lambda () (begin 5 (values 2 3)))
+     (eq? (call-with-values
+            (lambda () (begin 5 (values 2 3)))
             (lambda (x y) (+ x y)))
           5)
-     (error? (call-with-values (lambda () (begin 5 (values 2)))
+     (error? (call-with-values
+               (lambda () (begin 5 (values 2)))
                (lambda (x y) (+ x y))))
-     (eq? (call-with-values (lambda () (begin 5 (values 1 2)))
+     (eq? (call-with-values
+            (lambda () (begin 5 (values 1 2)))
             (lambda (x y) (+ x y)))
           3)
      (eq? (call-with-values (lambda () (values 2 3)) (lambda (x y) (+ x y)))
@@ -1179,7 +1222,9 @@
             (call-with-values (call-with-values f g) +))
           5)
      (eq? (let ((f (lambda () (lambda () (values 2 3)))))
-            (call-with-values (car (call-with-values f list)) +))
+            (call-with-values
+              (car (call-with-values f list))
+              +))
           5)
      (equal? (cons 1
                    (let ((f (lambda () (values 2 3))))
@@ -1206,12 +1251,15 @@
                 (g (lambda (x y) x)))
             (call-with-values f g))
           1)
-     (bignum? (letrec ((f (lambda (x)
-                            (if (= x 0)
-                                (values 1 0 0)
-                                (let ((g (lambda (u v w)
-                                           (values (* x u) (+ v 1) (+ w 2)))))
-                                  (call-with-values (lambda () (f (- x 1))) g))))))
+     (bignum? (letrec
+                ((f (lambda (x)
+                      (if (= x 0)
+                          (values 1 0 0)
+                          (let ((g (lambda (u v w)
+                                     (values (* x u) (+ v 1) (+ w 2)))))
+                            (call-with-values
+                              (lambda () (f (- x 1)))
+                              g))))))
                 (let ((h (lambda (x y z) x)))
                   (call-with-values (lambda () (f 2000)) h))))
      (equal? (let ((h (lambda (x) (lambda (y z) (list x y z))))
@@ -1235,7 +1283,8 @@
      (equal? (let ()
                (define f
                  (lambda (a b c)
-                   (call-with-values (let ((x values)) (lambda () (x 1 2)))
+                   (call-with-values
+                     (let ((x values)) (lambda () (x 1 2)))
                      (lambda (d e) (list a b c d e)))))
                (f 3 4 5))
              '(3 4 5 1 2))
@@ -1244,7 +1293,9 @@
              (define f2
                (lambda (a)
                  (vector-ref a 0)
-                 (call-with-values (lambda () (f1 a)) (lambda (d e) d))))
+                 (call-with-values
+                   (lambda () (f1 a))
+                   (lambda (d e) d))))
              (f2 '#(a)))
            1)
      (equal? (let ()
@@ -1253,13 +1304,16 @@
                (define f2
                  (lambda (a)
                    (random 10)
-                   (call-with-values (f1 a)
+                   (call-with-values
+                     (f1 a)
                      (lambda (x y) (random 20) (list a x y)))))
                (f2 0))
              '(0 1 2))
-     (null? (call-with-values (lambda () (call/cc (lambda (k) (values))))
+     (null? (call-with-values
+              (lambda () (call/cc (lambda (k) (values))))
               (lambda args args)))
-     (null? (call-with-values (lambda () (call/cc (lambda (k) (k))))
+     (null? (call-with-values
+              (lambda () (call/cc (lambda (k) (k))))
               (lambda args args)))
      (equal? (call-with-values
                (lambda ()
@@ -1281,9 +1335,10 @@
                      (values 1 2 3 4 5 6 7 8 9 10))))
                list)
              '(1 2 3 4 5 6 7 8 9 10))
-     (eqv? (letrec ((z 2)
-                    (f (lambda () (values 1 z)))
-                    (g (lambda (x y) (values x y z))))
+     (eqv? (letrec
+             ((z 2)
+              (f (lambda () (values 1 z)))
+              (g (lambda (x y) (values x y z))))
              (call-with-values
                (lambda ()
                  (call-with-values f (lambda (z b) (g z b))))
@@ -1291,7 +1346,8 @@
            7)
      (or (= (optimize-level) 3)
          (guard (c [(not (warning? c)) (collect) #t])
-           (if (call-with-values current-output-port
+           (if (call-with-values
+                 current-output-port
                  (lambda (v out) (current-output-port)))
                1
                2)))
@@ -1300,11 +1356,14 @@
                  (lambda (ls)
                    (if (or (null? ls) (null? (cdr ls)))
                        (values ls '())
-                       (call-with-values (lambda () (split (cddr ls)))
+                       (call-with-values
+                         (lambda () (split (cddr ls)))
                          (lambda (odds evens)
                            (values (cons (car ls) odds)
                                    (cons (cadr ls) evens)))))))
-               (call-with-values (lambda () (split '(a b c d e f))) vector))
+               (call-with-values
+                 (lambda () (split '(a b c d e f)))
+                 vector))
              '#((a c e) (b d f)))
 
      ; test chains of consumers
@@ -1314,7 +1373,9 @@
            [(_) ($mrvs-f0)]
            [(_ f1 f2 ...)
             (let ([f1 (lambda (a b c d) (values d a b c))])
-              (call-with-values (lambda () ($mrvs-a f2 ...)) f1))]))
+              (call-with-values
+                (lambda () ($mrvs-a f2 ...))
+                f1))]))
        (define $mrvs-f0 (lambda () (values 1 2 3 4)))
        (define $mrvs-list (lambda args args))
        #t)
@@ -1332,28 +1393,36 @@
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-a)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-a))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-a f1)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-a f1))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(4 1 2 3))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-a f1 f2 f3 f4)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-a f1 f2 f3 f4))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda (foo)
-           (call-with-values (lambda () ($mrvs-a f1 f2 f3)) foo)))
+           (call-with-values
+             (lambda () ($mrvs-a f1 f2 f3))
+             foo)))
        #t)
      (equal? ($mrvs-q $mrvs-list) '(2 3 4 1))
 
@@ -1361,7 +1430,9 @@
        (define $mrvs-q
          (lambda (foo)
            (lambda ()
-             (call-with-values (lambda () ($mrvs-a f1 f2 f3)) foo))))
+             (call-with-values
+               (lambda () ($mrvs-a f1 f2 f3))
+               foo))))
        #t)
      (equal? (($mrvs-q $mrvs-list)) '(2 3 4 1))
 
@@ -1375,15 +1446,18 @@
              '((2 3 4) . 1))
 
      ; test chains of consumers ending in a let-values-like call-with-values
-     (equal? (call-with-values (lambda () ($mrvs-a))
+     (equal? (call-with-values
+               (lambda () ($mrvs-a))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
-     (equal? (call-with-values (lambda () ($mrvs-a f1))
+     (equal? (call-with-values
+               (lambda () ($mrvs-a f1))
                (lambda (a b . r) (cons* r b a)))
              '((2 3) 1 . 4))
 
-     (equal? (call-with-values (lambda () ($mrvs-a f1 f2 f3 f4))
+     (equal? (call-with-values
+               (lambda () ($mrvs-a f1 f2 f3 f4))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
@@ -1400,7 +1474,9 @@
          (syntax-rules ()
            [(_) ($mrvs-f0)]
            [(_ f1 f2 ...)
-            (call-with-values (lambda () ($mrvs-b f2 ...)) f1)]))
+            (call-with-values
+              (lambda () ($mrvs-b f2 ...))
+              f1)]))
        (define $mrvs-f0 (lambda () (values 0 1 2 3 4)))
        (define $mrvs-list (lambda args args))
        #t)
@@ -1421,28 +1497,36 @@
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-a))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-a)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(0 1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-a f1))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-a f1)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(68 4 1 2 3))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-a f1 f2 f3 f4))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-a f1 f2 f3 f4)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(68 1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda (foo)
-           (call-with-values (lambda () (($mrvs-a f1 f2 f3))) foo)))
+           (call-with-values
+             (lambda () (($mrvs-a f1 f2 f3)))
+             foo)))
        #t)
      (equal? ($mrvs-q $mrvs-list) '(68 2 3 4 1))
 
@@ -1450,7 +1534,9 @@
        (define $mrvs-q
          (lambda (foo)
            (lambda ()
-             (call-with-values (lambda () (($mrvs-a f1 f2 f3))) foo))))
+             (call-with-values
+               (lambda () (($mrvs-a f1 f2 f3)))
+               foo))))
        #t)
      (equal? (($mrvs-q $mrvs-list)) '(68 2 3 4 1))
 
@@ -1466,15 +1552,18 @@
              '(68 (2 3 4) . 1))
 
      ; test chains of consumers ending in a let-values-like call-with-values
-     (equal? (call-with-values (lambda () (($mrvs-a)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-a)))
                (lambda (x a b . r) (cons* x r b a)))
              '(0 (3 4) 2 . 1))
 
-     (equal? (call-with-values (lambda () (($mrvs-a f1)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-a f1)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (2 3) 1 . 4))
 
-     (equal? (call-with-values (lambda () (($mrvs-a f1 f2 f3 f4)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-a f1 f2 f3 f4)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (3 4) 2 . 1))
 
@@ -1520,12 +1609,15 @@
      (equal? (let ([f (lambda ()
                         (call-with-values
                           (lambda ()
-                            (call-with-values $mrvs-f $mrvs-qvalues))
+                            (call-with-values
+                              $mrvs-f
+                              $mrvs-qvalues))
                           $mrvs-qcons))])
                (f))
              '(1 . 2))
 
-     (equal? (letrec ((f (lambda (x) (values 7 8 9))))
+     (equal? (letrec
+               ((f (lambda (x) (values 7 8 9))))
                (let ((h list))
                  (call-with-values (lambda () (f 0)) h)))
              '(7 8 9))
@@ -1539,7 +1631,8 @@
 
      ; let-values inserts an "else" (effectively) clause---the following doesn't
      (equal? (let ([f (lambda (x) (values x (+ x 1)))])
-               (call-with-values (lambda () (f 3))
+               (call-with-values
+                 (lambda () (f 3))
                  (lambda (a b) (cons b a))))
              '(4 . 3))
 
@@ -1557,14 +1650,18 @@
      (equal? (let ([q (lambda ()
                         (let ([f (lambda (x) (values x (+ x 1) (+ x 2)))] [g (lambda () 7)])
                           (call-with-values g f)))])
-               (call-with-values q (lambda (a b c) (list c b a))))
+               (call-with-values
+                 q
+                 (lambda (a b c) (list c b a))))
              '(9 8 7))
 
      (equal? (let ([q (lambda ()
                         (let ([f (lambda (x y) (values x (+ x 1) (+ y 2)))]
                               [g (lambda () (values 7 8))])
                           (call-with-values g f)))])
-               (call-with-values q (lambda (a b c) (list c b a))))
+               (call-with-values
+                 q
+                 (lambda (a b c) (list c b a))))
              '(10 8 7))
      (error? ; unbound variable $mrvs-foo
        (call-with-values
@@ -1585,7 +1682,8 @@
      (or (= (optimize-level) 3)
          (eqv? (let ([x 0] [f (lambda (x) (values 1 2))])
                  (guard (c [#t x])
-                   (call-with-values (begin (set! x (+ x 3)) f)
+                   (call-with-values
+                     (begin (set! x (+ x 3)) f)
                      (begin (set! x (+ x 7)) 'oops))))
                10))
      (or (= (optimize-level) 3)
@@ -1609,8 +1707,10 @@
                          (let ([f1 (if (eqv? (random 5) 10) #f f1)])
                            #,(help (cdr f*)
                                    (lambda (body)
-                                     (k #`(call-with-values (lambda ()
-                                                              #,body) f1))))))))))
+                                     (k #`(call-with-values
+                                            (lambda ()
+                                              #,body)
+                                            f1))))))))))
            (syntax-case x ()
              [(_) #'($mrvs-f0)]
              [(_ f1 f2 ...) (help #'(f1 f2 ...) values)])))
@@ -1631,28 +1731,36 @@
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-c)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-c))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-c f1)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-c f1))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(4 1 2 3))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () ($mrvs-c f1 f2 f3 f4)) $mrvs-list)))
+           (call-with-values
+             (lambda () ($mrvs-c f1 f2 f3 f4))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda (foo)
-           (call-with-values (lambda () ($mrvs-c f1 f2 f3)) foo)))
+           (call-with-values
+             (lambda () ($mrvs-c f1 f2 f3))
+             foo)))
        #t)
      (equal? ($mrvs-q $mrvs-list) '(2 3 4 1))
 
@@ -1660,7 +1768,9 @@
        (define $mrvs-q
          (lambda (foo)
            (lambda ()
-             (call-with-values (lambda () ($mrvs-c f1 f2 f3)) foo))))
+             (call-with-values
+               (lambda () ($mrvs-c f1 f2 f3))
+               foo))))
        #t)
      (equal? (($mrvs-q $mrvs-list)) '(2 3 4 1))
 
@@ -1674,15 +1784,18 @@
              '((2 3 4) . 1))
 
      ; test chains of consumers ending in a let-values-like call-with-values
-     (equal? (call-with-values (lambda () ($mrvs-c))
+     (equal? (call-with-values
+               (lambda () ($mrvs-c))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
-     (equal? (call-with-values (lambda () ($mrvs-c f1))
+     (equal? (call-with-values
+               (lambda () ($mrvs-c f1))
                (lambda (a b . r) (cons* r b a)))
              '((2 3) 1 . 4))
 
-     (equal? (call-with-values (lambda () ($mrvs-c f1 f2 f3 f4))
+     (equal? (call-with-values
+               (lambda () ($mrvs-c f1 f2 f3 f4))
                (lambda (a b . r) (cons* r b a)))
              '((3 4) 2 . 1))
 
@@ -1700,7 +1813,9 @@
          (syntax-rules ()
            [(_) ($mrvs-f0)]
            [(_ f1 f2 ...)
-            (call-with-values (lambda () ($mrvs-d f2 ...)) f1)]))
+            (call-with-values
+              (lambda () ($mrvs-d f2 ...))
+              f1)]))
        (define $mrvs-f0 (lambda () (values 0 1 2 3 4)))
        (define $mrvs-list (lambda args args))
        #t)
@@ -1721,28 +1836,36 @@
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-c))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-c)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(0 1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-c f1))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-c f1)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(68 4 1 2 3))
 
      (begin
        (define $mrvs-q
          (lambda ()
-           (call-with-values (lambda () (($mrvs-c f1 f2 f3 f4))) $mrvs-list)))
+           (call-with-values
+             (lambda () (($mrvs-c f1 f2 f3 f4)))
+             $mrvs-list)))
        #t)
      (equal? ($mrvs-q) '(68 1 2 3 4))
 
      (begin
        (define $mrvs-q
          (lambda (foo)
-           (call-with-values (lambda () (($mrvs-c f1 f2 f3))) foo)))
+           (call-with-values
+             (lambda () (($mrvs-c f1 f2 f3)))
+             foo)))
        #t)
      (equal? ($mrvs-q $mrvs-list) '(68 2 3 4 1))
 
@@ -1750,7 +1873,9 @@
        (define $mrvs-q
          (lambda (foo)
            (lambda ()
-             (call-with-values (lambda () (($mrvs-c f1 f2 f3))) foo))))
+             (call-with-values
+               (lambda () (($mrvs-c f1 f2 f3)))
+               foo))))
        #t)
      (equal? (($mrvs-q $mrvs-list)) '(68 2 3 4 1))
 
@@ -1766,15 +1891,18 @@
              '(68 (2 3 4) . 1))
 
      ; test chains of consumers ending in a let-values-like call-with-values
-     (equal? (call-with-values (lambda () (($mrvs-c)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-c)))
                (lambda (x a b . r) (cons* x r b a)))
              '(0 (3 4) 2 . 1))
 
-     (equal? (call-with-values (lambda () (($mrvs-c f1)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-c f1)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (2 3) 1 . 4))
 
-     (equal? (call-with-values (lambda () (($mrvs-c f1 f2 f3 f4)))
+     (equal? (call-with-values
+               (lambda () (($mrvs-c f1 f2 f3 f4)))
                (lambda (x a b . r) (cons* x r b a)))
              '(68 (3 4) 2 . 1))
 
@@ -1816,7 +1944,9 @@
      ; regression testing for handling mvset in predicate context
      (if (call-with-values
            (lambda ()
-             (call-with-values (lambda () (+ (random 1) 7)) list))
+             (call-with-values
+               (lambda () (+ (random 1) 7))
+               list))
            (lambda l (equal? l '((7)))))
          #t
          #f))
@@ -1856,7 +1986,9 @@
                        (let-values (((odds evens) (split (cddr ls))))
                          (values (cons (car ls) odds)
                                  (cons (cadr ls) evens))))))
-               (call-with-values (lambda () (split '(a b c d e f))) vector))
+               (call-with-values
+                 (lambda () (split '(a b c d e f)))
+                 vector))
              '#((a c e) (b d f)))
      (equal? (let ()
                (define f
@@ -1879,9 +2011,10 @@
                      (list d e f g h i j))))
                (f2 '#(a) '#(b c d)))
              '(a b (c d) b c d (b c d)))
-     (eqv? (letrec ((z 2)
-                    (f (lambda () (values 1 z)))
-                    (g (lambda (x y) (values x y z))))
+     (eqv? (letrec
+             ((z 2)
+              (f (lambda () (values 1 z)))
+              (g (lambda (x y) (values x y z))))
              (let-values ([(c d e) (let-values ([(z b) (f)]) (g z b))])
                (+ c d e z)))
            7)
@@ -1935,7 +2068,9 @@
                        (let*-values (((odds evens) (split (cddr ls))))
                          (values (cons (car ls) odds)
                                  (cons (cadr ls) evens))))))
-               (call-with-values (lambda () (split '(a b c d e f))) vector))
+               (call-with-values
+                 (lambda () (split '(a b c d e f)))
+                 vector))
              '#((a c e) (b d f)))
      (equal? (let ()
                (define f
@@ -1958,9 +2093,10 @@
                      (list d e f g h i j))))
                (f2 '#(a) '#(b c d)))
              '(a b (c d) b c d (b c d)))
-     (eqv? (letrec ((z 2)
-                    (f (lambda () (values 1 z)))
-                    (g (lambda (x y) (values x y z))))
+     (eqv? (letrec
+             ((z 2)
+              (f (lambda () (values 1 z)))
+              (g (lambda (x y) (values x y z))))
              (let*-values ([(c d e) (let*-values ([(z b) (f)]) (g z b))])
                (+ c d e z)))
            7)
@@ -5251,7 +5387,9 @@
      (error? (exact-integer-sqrt 10.0+0.0i))
      (begin
        (define ($eispair x)
-         (call-with-values (lambda () (exact-integer-sqrt x)) cons))
+         (call-with-values
+           (lambda () (exact-integer-sqrt x))
+           cons))
        #t)
      (equal? ($eispair 1) '(1 . 0))
      (equal? ($eispair 9) '(3 . 0))
@@ -23971,20 +24109,21 @@
                          (test (string=? s1 s2) => #t))]))
 
                   (define random
-                    (letrec ((random14 (lambda (n)
-                                         (set! x
-                                           (remainder (+ (* a x) c) (+ m 1)))
-                                         (remainder (quotient x 8) n)))
-                             (a 701)
-                             (x 1)
-                             (c 743483)
-                             (m 524287)
-                             (loop (lambda (q r n)
-                                     (if (zero? q)
-                                         (remainder r n)
-                                         (loop (quotient q 16384)
-                                               (+ (* 16384 r) (random14 16384))
-                                               n)))))
+                    (letrec
+                      ((random14 (lambda (n)
+                                   (set! x
+                                     (remainder (+ (* a x) c) (+ m 1)))
+                                   (remainder (quotient x 8) n)))
+                       (a 701)
+                       (x 1)
+                       (c 743483)
+                       (m 524287)
+                       (loop (lambda (q r n)
+                               (if (zero? q)
+                                   (remainder r n)
+                                   (loop (quotient q 16384)
+                                         (+ (* 16384 r) (random14 16384))
+                                         n)))))
                       (lambda (n)
                         (if (< n 16384)
                             (random14 n)
@@ -36888,20 +37027,21 @@
            ; It just has to be fast.
 
            (define random
-             (letrec ((random14 (lambda (n)
-                                  (set! x
-                                    (mod (+ (* a x) c) (+ m 1)))
-                                  (mod (div x 8) n)))
-                      (a 701)
-                      (x 1)
-                      (c 743483)
-                      (m 524287)
-                      (loop (lambda (q r n)
-                              (if (zero? q)
-                                  (mod r n)
-                                  (loop (div q 16384)
-                                        (+ (* 16384 r) (random14 16384))
-                                        n)))))
+             (letrec
+               ((random14 (lambda (n)
+                            (set! x
+                              (mod (+ (* a x) c) (+ m 1)))
+                            (mod (div x 8) n)))
+                (a 701)
+                (x 1)
+                (c 743483)
+                (m 524287)
+                (loop (lambda (q r n)
+                        (if (zero? q)
+                            (mod r n)
+                            (loop (div q 16384)
+                                  (+ (* 16384 r) (random14 16384))
+                                  n)))))
                (lambda (n)
                  (if (< n 16384)
                      (random14 n)
@@ -45013,12 +45153,13 @@ evaluating module init
                (or (= n 0) (loop (- n 1) (cons x x))))))
      (begin
        (printf "***** expect time output (nonzero cpu & real time):~%")
-       (time (letrec ([tak (lambda (x y z)
-                             (if (>= y x)
-                                 z
-                                 (tak (tak (1- x) y z)
-                                      (tak (1- y) z x)
-                                      (tak (1- z) x y))))])
+       (time (letrec
+               ([tak (lambda (x y z)
+                       (if (>= y x)
+                           z
+                           (tak (tak (1- x) y z)
+                                (tak (1- y) z x)
+                                (tak (1- z) x y))))])
                (tak 18 12 6)))
        #t)
      (begin
@@ -45359,9 +45500,8 @@ evaluating module init
 ;;; section 7-7:
 
 (mat trace-lambda ; check output
-     (letrec ([fact (trace-lambda fact
-                      (x)
-                      (if (= x 0) 1 (* x (fact (- x 1)))))])
+     (letrec
+       ([fact (trace-lambda fact (x) (if (= x 0) 1 (* x (fact (- x 1)))))])
        (printf "***** expect trace of (fact 3):~%")
        (eqv? (fact 3) 6)))
 
@@ -55107,7 +55247,8 @@ evaluating module init
                         #($point -8 -15))))))
        `(begin
           (set! $color->rgb (lambda (c) (#2%cons 'rgb c)))
-          (letrec ([g7 (lambda (n) n)])
+          (letrec
+            ([g7 (lambda (n) n)])
             (#3%$set-top-level-value! 'rcd1
               (#3%$make-record-constructor-descriptor
                 ',record-type-descriptor?
@@ -55189,7 +55330,8 @@ evaluating module init
                         #($point -8 -15))))))
        `(begin
           (set! $color->rgb (lambda (c) (#3%cons 'rgb c)))
-          (letrec ([g7 (lambda (n) n)])
+          (letrec
+            ([g7 (lambda (n) n)])
             (#3%$set-top-level-value! 'rcd1
               (#3%$make-record-constructor-descriptor
                 ',record-type-descriptor?
@@ -56700,9 +56842,10 @@ evaluating module init
                                   (new q x)))))))
               (make-foo 3))))
        `(let ([ctr 0])
-          (letrec ([g0 (lambda (new)
-                         (lambda (q)
-                           (new q (begin (set! ctr (#2%+ 1 xtr)) ctr))))])
+          (letrec
+            ([g0 (lambda (new)
+                   (lambda (q)
+                     (new q (begin (set! ctr (#2%+ 1 xtr)) ctr))))])
             (#3%$make-record-constructor-descriptor
               ',record-type-descriptor?
               #f
@@ -56728,9 +56871,10 @@ evaluating module init
                                   (new q x)))))))
               (make-foo 3))))
        `(let ([ctr 0])
-          (letrec ([g0 (lambda (new)
-                         (lambda (q)
-                           (new q (begin (set! ctr (#3%+ 1 xtr)) ctr))))])
+          (letrec
+            ([g0 (lambda (new)
+                   (lambda (q)
+                     (new q (begin (set! ctr (#3%+ 1 xtr)) ctr))))])
             (#3%$make-record-constructor-descriptor
               ',record-type-descriptor?
               #f
@@ -57740,18 +57884,14 @@ evaluating module init
                               (set! i t)
                               ...
                               (let () e1 e2 ...))))])))
-               (list (letrec ([f (lambda (x)
-                                   (if (zero? x)
-                                       'odd
-                                       (g (- x 1))))]
-                              [g (lambda (x)
-                                   (if (zero? x)
-                                       'even
-                                       (f (- x 1))))])
+               (list (letrec
+                       ([f (lambda (x) (if (zero? x) 'odd (g (- x 1))))]
+                        [g (lambda (x) (if (zero? x) 'even (f (- x 1))))])
                        (and (eq? (g 10) 'even)
                             (eq? (g 13) 'odd)
                             (eq? (f 13) 'even)))
-                     (letrec ([v 0] [k (call/cc (lambda (x) x))])
+                     (letrec
+                       ([v 0] [k (call/cc (lambda (x) x))])
                        (set! v (+ v 1))
                        (k (lambda (x) v)))))
              '(#t 1))
@@ -61898,9 +62038,10 @@ evaluating module init
                                        ...)
                                (protocol (lambda (n)
                                            (lambda (arg ...)
-                                             (letrec ([rec ((n 'type
-                                                               (lambda (receiver)
-                                                                 (receiver (getter rec) ...))) arg ...)])
+                                             (letrec
+                                               ([rec ((n 'type
+                                                         (lambda (receiver)
+                                                           (receiver (getter rec) ...))) arg ...)])
                                                rec))))))])))
                   (define-descendant a make-a subname x x? y z)
                   (write ((a-mapper (make-a 3 4)) list)))
@@ -69651,7 +69792,8 @@ evaluating module init
                '(2 3)))
 
      ;; An uncached lookup defniitely reports no line:
-     (equal? (call-with-values (lambda () (locate-source sfd-to-cache 8 #f))
+     (equal? (call-with-values
+               (lambda () (locate-source sfd-to-cache 8 #f))
                (lambda () 'none))
              'none)
 

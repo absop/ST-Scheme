@@ -75,7 +75,8 @@
       (syntax-case x ()
         ((key ((arg ...) exp) b1 b2 ...)
          (with-implicit (key fp tb it)
-           #'(call-with-values (lambda () exp)
+           #'(call-with-values
+               (lambda () exp)
                (lambda (fp tb it arg ...) b1 b2 ...)))))))
 
   (define-syntax xvalues

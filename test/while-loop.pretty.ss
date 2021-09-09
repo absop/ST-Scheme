@@ -16,18 +16,23 @@
                      (continue (datum->syntax (syntax while) 'continue)))
          (syntax (call/cc
                    (lambda (break)
-                     (let continue ()
-                       (when condition body ... (continue)))))))))))
+                     (define continue #f)
+                     (call/cc
+                       (lambda (k) (set! continue k)))
+                     (let loop ()
+                       (when condition body ... (loop)))))))))))
 
-(define-syntax while
-  (lambda (x)
-    (syntax-case x ()
-      ((while condition body ...)
-       (with-implicit (break continue)
-         #'(call/cc
-             (lambda (break)
-               (let continue ()
-                 (when condition body ... (continue))))))))))
+
+(let ([v '#(1 2 3 4 5 6 7 8 9 10)])
+  (let-syntax ([get (syntax-rules () [(_ i) (vector-ref v i)])])
+    (printf "(get 3) = ~a\n" (get 3))))
+
+
+(let ([v '#(1 2 3 4 5 6 7 8 9 10)])
+  (define-syntax get
+    (syntax-rules () [(_ v i) (vector-ref v i)]))
+  (printf "(get 3) = ~a\n" (get v 3)))
+
 
 #;#;#;
 (print-gensym #f)

@@ -1,193 +1,214 @@
 ; SYNTAX TEST "Packages/scheme/scheme.sublime-syntax"
 
+
+;###########
+; SYNTAXES #
+;###########
+
+(lambda (x . y) (cons x y))
+;^^^^^^ storage.type.function.inline.scheme keyword.declaration.function.inline.scheme
+;        ^ meta.lambda.scheme variable.parameter.scheme
+;          ^ meta.lambda.scheme keyword.control.scheme
+
+(define name value)
+;^^^^^^ keyword.declaration.scheme
+;       ^^^^ entity.name.function.scheme
+;            ^^^^^ entity.other.scheme
+
+(set! name value)
+;^^^^ keyword.assignment.scheme
+;     ^^^^ entity.name.function.scheme
+;          ^^^^^ entity.other.scheme
+
+(let ([x 0] [y 1]) (+ x y))
+;^^^ meta.let.scheme keyword.control.scheme
+;      ^ meta.let.scheme variable.parameter.scheme
+;                   ^ meta.let.scheme meta.function-call.scheme support.function.scheme
+
+(let f ([x 13] [y 130])
+;    ^ meta.named-let.scheme entity.name.function.scheme
+  (if (< x y)
+;  ^^ meta.named-let.scheme keyword.control.scheme
+      (f (+ x 2) (+ y 1))
+      (list x y)))
+
+(case x
+  [(lambda let) 'keywords]
+;   ^^^^^^ meta.case.scheme constant.symbol.literal.scheme
+  [else 'other])
+;^^^^^^^^^^^^^^ meta.case.scheme
+
+(syntax-case x (quote unquote)
+;^^^^^^^^^^^ meta.syntax-case.scheme keyword.control.syntax.scheme
+;            ^ meta.syntax-case.scheme variable.parameter.scheme
+;               ^^^^^ meta.syntax-case.scheme constant.symbol.literal.scheme
+  [,x #`(let ([x v]) ...)]
+;     ^^ meta.syntax-case.scheme keyword.quasisyntax.scheme
+;                    ^^^ meta.syntax-case.scheme meta.let.scheme keyword.aux.scheme
+  [ x #'(if (equal? v 'x) ... ...)])
+;     ^^ meta.syntax-case.scheme keyword.syntax.scheme
+
+
+;###########
+; COMMENTS #
+;###########
+
  ; comment
-;^ punctuation.definition.comment
-;^^^^^^^^^ comment.line.semicolon
+;^ comment.line.scheme punctuation.definition.comment.scheme
+;^^^^^^^^^^ comment.line.scheme
 
  #|
-;^^ punctuation.definition.comment.begin
+;^^ comment.block.scheme punctuation.definition.comment.begin.scheme
   This is a multi-line comment.
 ; ^^^^^ comment.block
   #|
     They can be nested!
   |#
-; ^^ comment.block comment.block punctuation.definition.comment.end
+; ^^ comment.block.scheme comment.block.scheme punctuation.definition.comment.end.scheme
 |#
 
 (
 ; comments inside lists
-;           ^ comment
+; ^^^^^^^^^^^^^^^^^^^^^^ comment.line.scheme
 
- #|
- even block comments |#
-;       ^ comment
+  #| #| block comments |# |#
+;    ^^ comment.block.scheme comment.block.scheme punctuation.definition.comment.begin.scheme
 )
 
-#|
-  stray comment
-|#|#
-; ^^ invalid.illegal.stray-comment-end
 
-(#|
-  stray comment inside list
-|#|#)
-; ^^ invalid.illegal.stray-comment-end
+(#| stray comment inside list |#)
+;^^ comment.block.scheme punctuation.definition.comment.begin.scheme
 
-( #| stray brace |# ))))
-;                    ^^^ invalid.illegal.stray-bracket-end
+( #| invalid paren |# ))))
+;                      ^^^ invalid.illegal.scheme
 
- (( #| nested |# ))
-;^ meta.group punctuation.definition.group.begin
-; ^ meta.group meta.group punctuation.definition.group.begin
-;         ^ comment
-;                ^ meta.group meta.group punctuation.definition.group.end
-;                 ^ meta.group punctuation.definition.group.end
 
 ;##########
 ; STRINGS #
 ;##########
 
+(format "~s" "Hello, world!")
+;        ^^ string.quoted.double.scheme constant.other.placeholder.scheme
+
 ("string\n")
-;^ punctuation.definition.string.begin
-;^^^^^^^^ string.quoted.double
-;       ^^ constant.character.escape
-;         ^ punctuation.definition.string.end
+;^ string.quoted.double.scheme punctuation.definition.string.begin.scheme
+;^^^^^^^^^^ string.quoted.double.scheme
+;       ^^ string.quoted.double.scheme constant.character.escape.scheme
+;         ^ string.quoted.double.scheme punctuation.definition.string.end.scheme
 
 ("multi-line string
     ends here"
-;            ^ punctuation.definition.string.end
+;            ^ string.quoted.double.scheme punctuation.definition.string.end.scheme
 )
 
 ;##########
 ; NUMBERS #
 ;##########
 
-(setq a 10)
-;       ^^ constant.numeric
+ 10
+;^^ constant.numeric.decimal.scheme
 
-(setq b 1.7)
-;       ^^^ constant.numeric
+ 1.7
+;^^^ constant.numeric.decimal.scheme
 
-(setq c 1.5e+4)
-;       ^^^^^^ constant.numeric
+ 1.5e+4
+;^^^^^^ constant.numeric.decimal.scheme
 
-(setq c 0xF0A)
-;       ^^^^^ constant.numeric
+ #xF0A
+;^^ constant.numeric.hex.scheme storage.modifier.numeric.scheme
+;^^^^^ constant.numeric.hex.scheme
+
+ #e#b0
+;^^^^ constant.numeric.binary.scheme storage.modifier.numeric.scheme
+;    ^ constant.numeric.binary.scheme
+
+
+;#############
+; CHARACTERS #
+;#############
+
+ #\ x
+;^^ storage.modifier.character.scheme
+;   ^ invalid.illegal.delimiter.scheme
+
+ #\xaf
+;^^^ storage.modifier.character.scheme
+;   ^^ constant.character.numeric.scheme
+
+ #\x
+;  ^ constant.character.scheme
+
+ #\newline
+;  ^^^^^^^ constant.character.scheme
+
+ #\000
+;^^^ storage.modifier.character.scheme
+;   ^^ constant.character.scheme
+
+
+;################
+; TYPE STORAGES #
+;################
+
+ #0=()
+;^^^ storage.modifier.pair.scheme
+
+ #0()
+;^^ storage.modifier.vector.scheme
+; ^ storage.modifier.vector.scheme constant.numeric.scheme
+;  ^^ punctuation.paren.scheme
+
+ #[]
+;^ storage.modifier.record-name.scheme
+
+ #{x y}
+;^^ storage.modifier.gensym.begin.scheme
+;  ^ string.gensym.pretty-name.scheme
+;    ^ string.gensym.unique-name.scheme
+;     ^ storage.modifier.gensym.end.scheme
+
+ #&()
+;^^ storage.modifier.boxes.scheme
+
 
 ;#####################
 ; LANGUAGE CONSTANTS #
 ;#####################
 
-(format t "Hello, world!")
-;       ^ constant.language
+ #fx
+;^^ constant.boolean.scheme
+;  ^ invalid.illegal.delimiter.scheme
 
-(NULL)
-;^^^^ constant.language
+ #t
+;^^ constant.boolean.scheme
 
-(nil)
-;^^^ constant.language
+'()
+;^^ constant.language.scheme
 
-;#######################
-; ARITHMETIC OPERATORS #
-;#######################
+
+;####################
+; SUPPORT FUNCTIONS #
+;####################
+
+(1+ a b)
+;^^ meta.function-call.scheme support.function.scheme
 
 (+ a b)
-;^ keyword.operator.arithmetic
+;^ meta.function-call.scheme support.function.scheme
 
 (- a b)
-;^ keyword.operator.arithmetic
-
-(* a b)
-;^ keyword.operator.arithmetic
-
-(/ a b)
-;^ keyword.operator.arithmetic
+;^ meta.function-call.scheme support.function.scheme
 
 (mod a b)
-;^^^ keyword.operator.arithmetic
+;^^^ meta.function-call.scheme support.function.scheme
 
-(rem a b)
-;^^^ keyword.operator.arithmetic
+ list
+;^^^^ support.function.scheme
 
-(INCF a b)
-;^^^^ keyword.operator.arithmetic
 
-(decf a b)
-;^^^^ keyword.operator.arithmetic
+;##############
+; APPLICATION #
+;##############
 
-;#######################
-; COMPARISON OPERATORS #
-;#######################
-
-(= a b)
-;^ keyword.operator.comparison
-
-(/= a b)
-;^^ keyword.operator.comparison
-
-(> a b)
-;^ keyword.operator.comparison
-
-(< a b)
-;^ keyword.operator.comparison
-
-(>= a b)
-;^^ keyword.operator.comparison
-
-(<= a b)
-;^^ keyword.operator.comparison
-
-(max a b)
-;^^^ keyword.operator.comparison
-
-(min a b)
-;^^^ keyword.operator.comparison
-
-(EQ a b)
-;^^ keyword.operator.comparison
-
-(neq a b)
-;^^^ keyword.operator.comparison
-
-;####################
-; LOGICAL OPERATORS #
-;####################
-
-(and a b)
-;^^^ keyword.operator.logical
-
-(OR a b)
-;^^ keyword.operator.logical
-
-(not a b)
-;^^^ keyword.operator.logical
-
-;####################
-; BITWISE OPERATORS #
-;####################
-
-(logand a b)
-;^^^^^^ keyword.operator.bitwise
-
-(logior a b)
-;^^^^^^ keyword.operator.bitwise
-
-(logor a b)
-;^^^^^^ keyword.operator.bitwise
-
-(logxor a b)
-;^^^^^^ keyword.operator.bitwise
-
-;############
-; VARIABLES #
-;############
-
-(*package*)
-;^ punctuation.definition.variable.begin
-;^^^^^^^^^ variable.language
-;        ^ punctuation.definition.variable.end
-
-(*user-var*)
-;^ punctuation.definition.variable.begin
-;^^^^^^^^^^ variable.other.global
-;         ^ punctuation.definition.variable.end
+(f x y)
+;^ meta.function-call.scheme variable.function.scheme
