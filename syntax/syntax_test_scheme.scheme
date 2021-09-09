@@ -183,6 +183,76 @@
 ;  ^^^^^ comment.expression.scheme
 ;    ^ comment.expression.scheme invalid.illegal.close-paren.scheme
 
+ #; x #; #; (+ 1 3) 98 99
+;^^^^ comment.expression.scheme
+;^^ punctuation.definition.comment.expression.scheme
+;    ^ - comment
+;     ^^^^^^^^^^^^^^^^ comment.expression.scheme
+;     ^^ punctuation.definition.comment.expression.scheme
+;        ^^ punctuation.definition.comment.expression.scheme
+;                      ^^ - comment
+
+ #;
+;^^ punctuation.definition.comment.expression.scheme
+ 1 #; #;
+;^ comment.expression.scheme
+;  ^^^^^ comment.expression.scheme
+;  ^^ punctuation.definition.comment.expression.scheme
+;     ^^ punctuation.definition.comment.expression.scheme
+ 2 3 4
+;^^^ comment.expression.scheme
+;    ^ - comment
+
+ #;
+;^^ punctuation.definition.comment.expression.scheme
+ 1 #; #;
+;^ comment.expression.scheme
+;  ^^^^^ comment.expression.scheme
+;  ^^ punctuation.definition.comment.expression.scheme
+;     ^^ punctuation.definition.comment.expression.scheme
+ 2 3 #; 4
+;^^^ comment.expression.scheme
+;    ^^^^ comment.expression.scheme
+;    ^^ punctuation.definition.comment.expression.scheme
+ 5
+;^ - comment
+
+ #;#;#;#;1 2 3 4 5
+;^^^^^^^^ punctuation.definition.comment.expression.scheme
+;^^^^^^^^^^^^^^^ comment.expression.scheme
+;                ^ - comment
+
+ #;#;#;#; ; 1 2 3 4 5
+;^^^^^^^^ punctuation.definition.comment.expression.scheme
+;^^^^^^^^ comment.expression.scheme
+;         ^^^^^^^^^^^ comment.line.scheme
+ 6 7 8 9 10
+;^^^^^^^  comment.expression.scheme
+;        ^^ - comment
+
+ #;"x" y
+;^^^^^ comment.expression.scheme
+;      ^ - comment
+
+ #;()()
+;^^^^ comment.expression.scheme
+;    ^^ - comment
+
+ #;("Hello World)))))") 1
+;^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+;                       ^ - comment
+
+ #;#{x y} 1
+;^^^^^^^^ comment.expression.scheme
+;^^ punctuation.definition.comment.expression.scheme
+;         ^ - comment
+
+ #;(define-syntax alias ; already built-in
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+   (lambda (x)
+;^^^^^^^^^^^^^ comment.expression.scheme
+     syntax-error x "misplaced aux keyword"))
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
 
 ;##########
 ; STRINGS #

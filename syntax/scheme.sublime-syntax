@@ -620,48 +620,76 @@ contexts:
       scope: punctuation.definition.comment.expression.scheme
       push:
         - meta_scope: comment.expression.scheme
-        - include: commented-expression
+        - include: comments
+        - include: expression-in-comment
+        # orphan?
+        - match: (?=[\])])
+          pop: 1
 
-  commented-expression:
+  expression-in-comment:
     - match: \(
       push:
         - match: \)
           pop: 2
-        - match: \]
-          scope: invalid.illegal.close-bracket.scheme
-        - match: ''
-          push: commented-expression
+        - include: balanced-paren-in-comment
+        - include: string-literal-in-comment
     - match: \[
       push:
         - match: \]
           pop: 2
-        - match: \)
-          scope: invalid.illegal.close-paren.scheme
-        - match: ''
-          push: commented-expression
-    - match: '{{identifier}}'
-      pop: 1
-    - include: commented-string-literal
-    - include: commented-gensym-literal
-    - include: comments
-    - match: (?=[\])])
-      pop: true
-
-  commented-string-literal:
+        - include: balanced-bracket-in-comment
+        - include: string-literal-in-comment
     - match: '"'
       push:
         - match: '"'
           pop: 2
-        - match: '(\\)$\n'
-        - match: '{{valid_escaped_chars}}'
-        - match: \\.
-          scope: invalid.illegal.unknown-escape.scheme
-
-  commented-gensym-literal:
+        - include: string-escaped-char-in-comment
     - match: '#\{'
       push:
         - match: \}
           pop: 2
+    - match: |-
+        (?x)
+        {{identifier}}
+        | {{definition_keywords}}
+        | {{keywords}}
+        | {{primitives}}
+      pop: 1
+
+  balanced-paren-in-comment:
+    - match: \(
+      push:
+        - include: balanced-paren-in-comment
+        - include: string-literal-in-comment
+        - match: \)
+          pop: 1
+
+  balanced-bracket-in-comment:
+    - match: \[
+      push:
+        - include: balanced-bracket-in-comment
+        - include: string-literal-in-comment
+        - match: \]
+          pop: 1
+
+  string-literal-in-comment:
+    - match: '"'
+      push:
+        - match: '"'
+          pop: 1
+        - include: string-escaped-char-in-comment
+
+  string-escaped-char-in-comment:
+    - match: '(\\)$\n'
+    - match: |-
+        (?x)\\
+        (?:[\\abefnrtv\'"?]
+          |[0-3][0-9]{0,2}
+          |[4-7][0-9]?
+          |x[a-fA-F0-9]+
+          |u[a-fA-F0-9]{4}
+          |U[a-fA-F0-9]{8})
+    - match: \\.
 
   comment-line:
     - match: (;+).*$\n?
@@ -702,6 +730,10 @@ contexts:
     - match: \S+
       scope: invalid.illegal.delimiter.scheme
       pop: 1
+
+  always-pop-2:
+    - match: ''
+      pop: 2
 
 
 variables:
