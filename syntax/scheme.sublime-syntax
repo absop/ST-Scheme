@@ -411,6 +411,7 @@ contexts:
             primitive.function.scheme
           push: form-tail
           pop: true
+    - include: constants
     - match: (?:{{primitives}})(?={{delimiters}})
       scope:
         meta.function-call.scheme
@@ -492,10 +493,10 @@ contexts:
         1: constant.numeric.scheme
 
   quote-constants:
-    # match a constant or an identifier
-    # - match: (?:{{identifier}})
-    #   scope: constant.symbol.quoted.scheme
-    #   pop: true
+    - include: constants
+    - match: (?:{{identifier}})
+      scope: symbol.quoted.scheme
+      pop: true
     - match: \(\)
       scope: constant.language.scheme
       pop: true
