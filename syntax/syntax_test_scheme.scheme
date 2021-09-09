@@ -191,6 +191,9 @@
 'null?
 ;^^^^^ symbol.quoted.scheme
 
+'|\|
+;^^^ symbol.quoted.scheme
+
 '1000
 ;^^^^ constant.numeric.decimal.scheme
 
@@ -227,3 +230,9 @@
 
 '(1+1 100 100)
 ; ^^^ meta.function-call.scheme variable.function.scheme
+
+ (define |x| 0)
+;        ^^^ entity.name.function.scheme
+
+(|x| 1 2 3)
+;^^^ meta.function-call.scheme variable.function.scheme

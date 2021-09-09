@@ -428,13 +428,6 @@ contexts:
       scope: keyword.aux.scheme
 
   other-variable:
-    - match: \|
-      scope: punctuation.definition.variable.begin.scheme
-      push:
-        - meta_scope: entity.other.scheme
-        - match: \|
-          scope: punctuation.definition.variable.end.scheme
-          pop: true
     - match: ({{identifier}}|[{}])
       scope: entity.other.scheme
 
@@ -688,7 +681,12 @@ contexts:
 
 variables:
   delimiters: (?:[{(\[\s"'`,;#\])}])
-  identifier: (?:[^({\[#"'`,;\\\s\]})]|\\[({\[#"'`,;\\\s\]})]|\\x\h*;)+
+  identifier: |-
+    (?x)
+    (?:[^({\[#"'`,;|\\\s\]})]
+      |\\[({\[#"'`,;|\\\s\]})]
+      |\\x[0-9a-fA-F]*;
+      |\|[^|]*\|)+
   definition_keywords: |-
     (?x)
     (?:define(?:-(?:condition-type
