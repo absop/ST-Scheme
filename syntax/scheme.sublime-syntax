@@ -72,7 +72,7 @@ contexts:
         keyword.declaration.function.inline.scheme
       push: lambda-form
 
-    - match: ({{definition_keywords}})(?={{delimiters}})
+    - match: '{{definition_keywords}}(?={{delimiters}})'
       scope: keyword.declaration.scheme
       push: define-form
 
@@ -172,7 +172,7 @@ contexts:
         - meta_scope: meta.fluid-let-syntax.scheme
         - include: let-form
 
-    - match: (?:{{keywords}})(?={{delimiters}})
+    - match: '{{keywords}}(?={{delimiters}})'
       scope: keyword.control.scheme
       push: form-tail
 
@@ -182,7 +182,7 @@ contexts:
     - include: form-fail
 
   named-let-form:
-    - match: (?:{{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
       set:
         - meta_scope: meta.named-let.scheme
@@ -203,24 +203,24 @@ contexts:
         - include: form-tail
 
   let-bindings:
-    - match: (\[)
+    - match: \[
       scope: punctuation.bracket.scheme
       push:
-        - match: (\])
+        - match: \]
           scope: punctuation.bracket.scheme
           pop: 1
         - include: let-var-exp
-    - match: (\()
+    - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: (\))
+        - match: \)
           scope: punctuation.paren.scheme
           pop: 1
         - include: let-var-exp
     - include: form-tail
 
   let-var-exp:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       push: form-tail
     - match: \(
@@ -232,17 +232,17 @@ contexts:
     - include: form-tail
 
   case-clause:
-    - match: (\[)
+    - match: \[
       scope: punctuation.bracket.scheme
       push:
-        - match: (\])
+        - match: \]
           scope: punctuation.bracket.scheme
           pop: 1
         - include: pattern-begin
-    - match: (\()
+    - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: (\))
+        - match: \)
           scope: punctuation.paren.scheme
           pop: 1
         - include: pattern-begin
@@ -255,10 +255,10 @@ contexts:
     - match: \[
       scope: punctuation.bracket.scheme
       push: [form-tail, pattern-tail-bracket]
-    - match: (else|_)
+    - match: else|_
       scope: keyword.control.scheme
       push: form-tail
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       push: form-tail
     - include: form-tail
@@ -269,7 +269,7 @@ contexts:
       pop: 1
     - include: constants
     - include: aux-keywords
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: constant.symbol.literal.scheme
     - include: expressions
 
@@ -279,7 +279,7 @@ contexts:
       pop: 1
     - include: constants
     - include: aux-keywords
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: constant.symbol.literal.scheme
     - include: expressions
 
@@ -287,7 +287,7 @@ contexts:
     - match: \(
       scope: punctuation.paren.scheme
       set: [lambda-body, parameters-paren]
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       set: lambda-body
     - include: form-fail
@@ -298,13 +298,13 @@ contexts:
 
   define-form:
     # - meta_scope: meta.define.scheme
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
       set: define-body
     - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: ({{identifier}})
+        - match: '{{identifier}}'
           scope: entity.name.function.scheme
           push: [define-body, parameters-paren]
           pop: 2
@@ -321,7 +321,7 @@ contexts:
     - include: form-tail
 
   set-form:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
       set: form-tail
     - include: form-tail
@@ -332,7 +332,7 @@ contexts:
 
   syntax-case-form:
     - meta_scope: meta.syntax-case.scheme
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       set: syntax-case-literal-list
     - include: form-tail
@@ -345,7 +345,7 @@ contexts:
         - match: \)
           scope: punctuation.paren.scheme
           push: syntax-case-clauses
-        - match: ({{identifier}})
+        - match: '{{identifier}}'
           scope: constant.symbol.literal.scheme
     - include: form-tail
 
@@ -364,7 +364,7 @@ contexts:
     - include: expressions
 
   parameters-paren:
-    - match: (?:\.|\.{3})
+    - match: \.|\.{3}
       scope: keyword.control.scheme
     - include: parameter
     - match: \)
@@ -373,7 +373,7 @@ contexts:
     - include: expressions
 
   parameters-bracket:
-    - match: (?:\.|\.{3})
+    - match: \.|\.{3}
       scope: keyword.control.scheme
     - include: parameter
     - match: \]
@@ -382,103 +382,100 @@ contexts:
     - include: expressions
 
   parameter:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
 
   application:
-    - match: '#(%|2%|3%)'
+    - match: '#[23]?%'
       scope:
         keyword.control.optimize-level.scheme
         prefix.primitive.scheme
       push:
-        - match: (?:{{primitives}})(?={{delimiters}})
+        - match: '{{primitives}}(?={{delimiters}})'
           scope:
             meta.function-call.scheme
             support.function.scheme
             primitive.function.scheme
           set: form-tail
-        - match: (?:{{identifier}})(?={{delimiters}})
+        - match: '{{identifier}}(?={{delimiters}})'
           scope:
             meta.function-call.scheme
             primitive.function.scheme
           set: form-tail
     - include: constants
-    - match: (?:{{primitives}})(?={{delimiters}})
+    - match: '{{primitives}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         support.function.scheme
       push: form-tail
-    - match: (?:{{identifier}})(?={{delimiters}})
+    - match: '{{identifier}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         variable.function.scheme
       push: form-tail
 
   aux-keywords:
-    - match: (\.{3}|\.|_|=>)(?={{delimiters}})
+    - match: (?:\.{3}|\.|_|=>)(?={{delimiters}})
       scope: keyword.aux.scheme
 
   other-variable:
-    - match: ({{identifier}}|[{}])
+    - match: '{{identifier}}|[{}]'
       scope: entity.other.scheme
 
   primitive:
-    - match: (?:{{primitives}})(?={{delimiters}})
+    - match: '{{primitives}}(?={{delimiters}})'
       scope: support.function.scheme
     - match: '#(%|2%|3%)'
       scope:
         keyword.control.optimize-level.scheme
         prefix.primitive.scheme
       push:
-        - match: (?:{{primitives}})(?={{delimiters}})
+        - match: '{{primitives}}(?={{delimiters}})'
           scope:
             support.function.scheme
             primitive.function.scheme
           pop: 1
-        - match: (?:{{identifier}})(?={{delimiters}})
+        - match: '{{identifier}}(?={{delimiters}})'
           scope: primitive.function.scheme
           pop: 1
 
   macro-keywords:
-    - match: (?:#')
+    - match: "#'"
       scope: keyword.syntax.scheme
-    - match: (?:#`)
+    - match: '#`'
       scope: keyword.quasisyntax.scheme
-    - match: (?:#,@)
+    - match: '#,@'
       scope: keyword.unsyntax-splicing.scheme
-    - match: (?:#,)
+    - match: '#,'
       scope: keyword.unsyntax.scheme
-    - match: (?:')
+    - match: "'"
       scope: keyword.quote.scheme
       push: quote-constants
-    - match: (?:`)
+    - match: '`'
       scope: keyword.quasiquote.scheme
       push: quote-constants
-    - match: (?:,@)
+    - match: ',@'
       scope: keyword.unquote-splicing.scheme
-    - match: (?:,)
+    - match: ','
       scope: keyword.unquote.scheme
-
-    - match: (?:#&)
+    - match: '#&'
       scope: storage.modifier.boxes.scheme
-    - match: (?:#@)
+    - match: '#@'
       scope: storage.modifier.fasl.scheme
-    - match: (?:#([0-9]+)=)
+    - match: '#([0-9]+)='
       scope: storage.modifier.pair.scheme
       captures:
         1: constant.numeric.scheme
-
-    - match: (?:#)(?=\[)
+    - match: '#(?=\[)'
       scope: storage.modifier.record-name.scheme
-
-    - match: (?:#([0-9]*)(vu8|vfx)?)(?=\()
+    - match: '#([0-9]*)(vu8|vfx)?(?=\()'
       scope: storage.modifier.vector.scheme
       captures:
         1: constant.numeric.scheme
 
   quote-constants:
     - include: constants
-    - match: (?:{{identifier}})
+    - match: '{{identifier}}'
       scope: symbol.quoted.scheme
       pop: 1
     - match: \(\)
@@ -507,7 +504,7 @@ contexts:
       scope: constant.language.scheme
 
   boolean:
-    - match: (#[tf])
+    - match: '#[tf]'
       scope: constant.boolean.scheme
       push: delimiter
 
@@ -567,7 +564,7 @@ contexts:
       captures:
         1: storage.modifier.character.scheme
         2: constant.character.scheme
-    - match: (#\\)
+    - match: '#\\'
       scope: storage.modifier.character.scheme
       push:
         - match: |-
