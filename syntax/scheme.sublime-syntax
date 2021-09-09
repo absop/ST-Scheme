@@ -184,11 +184,10 @@ contexts:
   named-let-form:
     - match: (?:{{identifier}})
       scope: entity.name.function.scheme
-      push:
+      set:
         - meta_scope: meta.named-let.scheme
         - include: let-binding-list
         - include: form-tail
-      pop: 1
 
   let-binding-list:
     - match: \(
@@ -287,12 +286,10 @@ contexts:
   lambda-form:
     - match: \(
       scope: punctuation.paren.scheme
-      push: [lambda-body, parameters-paren]
-      pop: 1
+      set: [lambda-body, parameters-paren]
     - match: ({{identifier}})
       scope: variable.parameter.scheme
-      push: lambda-body
-      pop: 1
+      set: lambda-body
     - include: form-fail
 
   lambda-body:
@@ -303,8 +300,7 @@ contexts:
     # - meta_scope: meta.define.scheme
     - match: ({{identifier}})
       scope: entity.name.function.scheme
-      push: define-body
-      pop: 1
+      set: define-body
     - match: \(
       scope: punctuation.paren.scheme
       push:
@@ -327,8 +323,7 @@ contexts:
   set-form:
     - match: ({{identifier}})
       scope: entity.name.function.scheme
-      push: form-tail
-      pop: 1
+      set: form-tail
     - include: form-tail
 
   syntax-rules-form:
@@ -339,8 +334,7 @@ contexts:
     - meta_scope: meta.syntax-case.scheme
     - match: ({{identifier}})
       scope: variable.parameter.scheme
-      push: syntax-case-literal-list
-      pop: 1
+      set: syntax-case-literal-list
     - include: form-tail
 
   syntax-case-literal-list:
@@ -362,8 +356,7 @@ contexts:
 
   form-fail:
     - match: (?=\S)
-      push: form-tail
-      pop: 1
+      set: form-tail
 
   form-tail:
     - match: (?=[\])])
@@ -403,14 +396,12 @@ contexts:
             meta.function-call.scheme
             support.function.scheme
             primitive.function.scheme
-          push: form-tail
-          pop: 1
+          set: form-tail
         - match: (?:{{identifier}})(?={{delimiters}})
           scope:
             meta.function-call.scheme
             primitive.function.scheme
-          push: form-tail
-          pop: 1
+          set: form-tail
     - include: constants
     - match: (?:{{primitives}})(?={{delimiters}})
       scope:
@@ -584,8 +575,7 @@ contexts:
             (?:alarm|backspace|delete|esc|linefeed|newline|page
               |return|space|tab|bel|ls|nel|nul|rubout|vtab|vt|[ \S])
           scope: constant.character.scheme
-          push: delimiter
-          pop: 1
+          set: delimiter
 
   string-literal:
     - match: '"'
