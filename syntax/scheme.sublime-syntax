@@ -46,7 +46,7 @@ contexts:
   paren:
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: special-forms
     - include: application
     - include: expressions
@@ -54,7 +54,7 @@ contexts:
   bracket:
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: special-forms
     - include: application
     - include: expressions
@@ -85,7 +85,7 @@ contexts:
       push:
         - meta_scope: meta.case.scheme
         - match: (?=[\])])
-          pop: true
+          pop: 1
         - include: case-clause
         - include: expressions
 
@@ -132,7 +132,7 @@ contexts:
       push:
         - meta_scope: meta.case-lambda.scheme
         - match: (?=[\])])
-          pop: true
+          pop: 1
         - include: case-clause
         - include: expressions
 
@@ -188,7 +188,7 @@ contexts:
         - meta_scope: meta.named-let.scheme
         - include: let-binding-list
         - include: form-tail
-      pop: true
+      pop: 1
 
   let-binding-list:
     - match: \(
@@ -209,14 +209,14 @@ contexts:
       push:
         - match: (\])
           scope: punctuation.bracket.scheme
-          pop: true
+          pop: 1
         - include: let-var-exp
     - match: (\()
       scope: punctuation.paren.scheme
       push:
         - match: (\))
           scope: punctuation.paren.scheme
-          pop: true
+          pop: 1
         - include: let-var-exp
     - include: form-tail
 
@@ -238,14 +238,14 @@ contexts:
       push:
         - match: (\])
           scope: punctuation.bracket.scheme
-          pop: true
+          pop: 1
         - include: pattern-begin
     - match: (\()
       scope: punctuation.paren.scheme
       push:
         - match: (\))
           scope: punctuation.paren.scheme
-          pop: true
+          pop: 1
         - include: pattern-begin
     - include: form-tail
 
@@ -267,7 +267,7 @@ contexts:
   pattern-tail-paren:
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: constants
     - include: aux-keywords
     - match: ({{identifier}})
@@ -277,7 +277,7 @@ contexts:
   pattern-tail-bracket:
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: constants
     - include: aux-keywords
     - match: ({{identifier}})
@@ -288,11 +288,11 @@ contexts:
     - match: \(
       scope: punctuation.paren.scheme
       push: [lambda-body, parameters-paren]
-      pop: true
+      pop: 1
     - match: ({{identifier}})
       scope: variable.parameter.scheme
       push: lambda-body
-      pop: true
+      pop: 1
     - include: form-fail
 
   lambda-body:
@@ -328,7 +328,7 @@ contexts:
     - match: ({{identifier}})
       scope: entity.name.function.scheme
       push: form-tail
-      pop: true
+      pop: 1
     - include: form-tail
 
   syntax-rules-form:
@@ -340,7 +340,7 @@ contexts:
     - match: ({{identifier}})
       scope: variable.parameter.scheme
       push: syntax-case-literal-list
-      pop: true
+      pop: 1
     - include: form-tail
 
   syntax-case-literal-list:
@@ -363,11 +363,11 @@ contexts:
   form-fail:
     - match: (?=\S)
       push: form-tail
-      pop: true
+      pop: 1
 
   form-tail:
     - match: (?=[\])])
-      pop: true
+      pop: 1
     - include: expressions
 
   parameters-paren:
@@ -376,7 +376,7 @@ contexts:
     - include: parameter
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: expressions
 
   parameters-bracket:
@@ -385,7 +385,7 @@ contexts:
     - include: parameter
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: expressions
 
   parameter:
@@ -404,13 +404,13 @@ contexts:
             support.function.scheme
             primitive.function.scheme
           push: form-tail
-          pop: true
+          pop: 1
         - match: (?:{{identifier}})(?={{delimiters}})
           scope:
             meta.function-call.scheme
             primitive.function.scheme
           push: form-tail
-          pop: true
+          pop: 1
     - include: constants
     - match: (?:{{primitives}})(?={{delimiters}})
       scope:
@@ -443,10 +443,10 @@ contexts:
           scope:
             support.function.scheme
             primitive.function.scheme
-          pop: true
+          pop: 1
         - match: (?:{{identifier}})(?={{delimiters}})
           scope: primitive.function.scheme
-          pop: true
+          pop: 1
 
   macro-keywords:
     - match: (?:#')
@@ -489,12 +489,12 @@ contexts:
     - include: constants
     - match: (?:{{identifier}})
       scope: symbol.quoted.scheme
-      pop: true
+      pop: 1
     - match: \(\)
       scope: constant.language.scheme
-      pop: true
+      pop: 1
     - match: (?=\S)
-      pop: true
+      pop: 1
 
   gensym-literal:
     - match: (#\{)({{identifier}})\s+({{identifier}})(\})
@@ -585,7 +585,7 @@ contexts:
               |return|space|tab|bel|ls|nel|nul|rubout|vtab|vt|[ \S])
           scope: constant.character.scheme
           push: delimiter
-          pop: true
+          pop: 1
 
   string-literal:
     - match: '"'
@@ -594,7 +594,7 @@ contexts:
         - meta_scope: string.quoted.double.scheme
         - match: '"'
           scope: punctuation.definition.string.end.scheme
-          pop: true
+          pop: 1
         - include: string-escaped-char
         - include: string-placeholder
 
@@ -685,10 +685,10 @@ contexts:
       push:
         - match: /([^/]+/)*(scheme|petite)\s+--script$
           scope: comment.line.scheme
-          pop: true
+          pop: 1
         - match: \S+(?=\s*$)
           scope: invalid.deprecated.scheme
-          pop: true
+          pop: 1
 
   comment-block:
     - match: '#\|'
@@ -698,7 +698,7 @@ contexts:
         - include: comment-block
         - match: '\|#'
           scope: punctuation.definition.comment.end.scheme
-          pop: true
+          pop: 1
 
   comment-eof:
     - match: ^\s*#!eof\b
@@ -710,10 +710,10 @@ contexts:
 
   delimiter:
     - match: (?={{delimiters}})
-      pop: true
+      pop: 1
     - match: \S+
       scope: invalid.illegal.delimiter.scheme
-      pop: true
+      pop: 1
 
 
 variables:
