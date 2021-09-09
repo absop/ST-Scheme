@@ -426,7 +426,7 @@ contexts:
   primitive:
     - match: '{{primitives}}(?={{delimiters}})'
       scope: support.function.scheme
-    - match: '#(%|2%|3%)'
+    - match: '#(?:[23]?%)'
       scope:
         keyword.control.optimize-level.scheme
         prefix.primitive.scheme
