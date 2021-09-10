@@ -270,7 +270,7 @@
  #0()
 ;^^ storage.modifier.vector.scheme
 ; ^ storage.modifier.vector.scheme constant.numeric.scheme
-;  ^^ punctuation.paren.scheme
+;  ^^ punctuation.paren
 
  #[]
 ;^ storage.modifier.record-name.scheme
