@@ -1,11 +1,12 @@
 %YAML 1.2
 ---
-# http://www.sublimetext.com/docs/3/syntax.html
+# https://www.sublimetext.com/docs/syntax.html
 #
 # `Scheme` Language Reference:
 #
 
 name: Scheme
+version: 2
 file_extensions:
   - ms
   - rkt
@@ -46,7 +47,7 @@ contexts:
   paren:
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: special-forms
     - include: application
     - include: expressions
@@ -54,7 +55,7 @@ contexts:
   bracket:
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: special-forms
     - include: application
     - include: expressions
@@ -72,7 +73,7 @@ contexts:
         keyword.declaration.function.inline.scheme
       push: lambda-form
 
-    - match: ({{definition_keywords}})(?={{delimiters}})
+    - match: '{{definition_keywords}}(?={{delimiters}})'
       scope: keyword.declaration.scheme
       push: define-form
 
@@ -85,7 +86,7 @@ contexts:
       push:
         - meta_scope: meta.case.scheme
         - match: (?=[\])])
-          pop: true
+          pop: 1
         - include: case-clause
         - include: expressions
 
@@ -132,7 +133,7 @@ contexts:
       push:
         - meta_scope: meta.case-lambda.scheme
         - match: (?=[\])])
-          pop: true
+          pop: 1
         - include: case-clause
         - include: expressions
 
@@ -172,7 +173,7 @@ contexts:
         - meta_scope: meta.fluid-let-syntax.scheme
         - include: let-form
 
-    - match: (?:{{keywords}})(?={{delimiters}})
+    - match: '{{keywords}}(?={{delimiters}})'
       scope: keyword.control.scheme
       push: form-tail
 
@@ -182,13 +183,12 @@ contexts:
     - include: form-fail
 
   named-let-form:
-    - match: (?:{{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
-      push:
+      set:
         - meta_scope: meta.named-let.scheme
         - include: let-binding-list
         - include: form-tail
-      pop: true
 
   let-binding-list:
     - match: \(
@@ -204,24 +204,24 @@ contexts:
         - include: form-tail
 
   let-bindings:
-    - match: (\[)
+    - match: \[
       scope: punctuation.bracket.scheme
       push:
-        - match: (\])
+        - match: \]
           scope: punctuation.bracket.scheme
-          pop: true
+          pop: 1
         - include: let-var-exp
-    - match: (\()
+    - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: (\))
+        - match: \)
           scope: punctuation.paren.scheme
-          pop: true
+          pop: 1
         - include: let-var-exp
     - include: form-tail
 
   let-var-exp:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       push: form-tail
     - match: \(
@@ -233,19 +233,19 @@ contexts:
     - include: form-tail
 
   case-clause:
-    - match: (\[)
+    - match: \[
       scope: punctuation.bracket.scheme
       push:
-        - match: (\])
+        - match: \]
           scope: punctuation.bracket.scheme
-          pop: true
+          pop: 1
         - include: pattern-begin
-    - match: (\()
+    - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: (\))
+        - match: \)
           scope: punctuation.paren.scheme
-          pop: true
+          pop: 1
         - include: pattern-begin
     - include: form-tail
 
@@ -256,10 +256,10 @@ contexts:
     - match: \[
       scope: punctuation.bracket.scheme
       push: [form-tail, pattern-tail-bracket]
-    - match: (else|_)
+    - match: else|_
       scope: keyword.control.scheme
       push: form-tail
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
       push: form-tail
     - include: form-tail
@@ -267,32 +267,30 @@ contexts:
   pattern-tail-paren:
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: constants
     - include: aux-keywords
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: constant.symbol.literal.scheme
     - include: expressions
 
   pattern-tail-bracket:
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: constants
     - include: aux-keywords
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: constant.symbol.literal.scheme
     - include: expressions
 
   lambda-form:
     - match: \(
       scope: punctuation.paren.scheme
-      push: [lambda-body, parameters-paren]
-      pop: true
-    - match: ({{identifier}})
+      set: [lambda-body, parameters-paren]
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
-      push: lambda-body
-      pop: true
+      set: lambda-body
     - include: form-fail
 
   lambda-body:
@@ -301,14 +299,13 @@ contexts:
 
   define-form:
     # - meta_scope: meta.define.scheme
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
-      push: define-body
-      pop: 1
+      set: define-body
     - match: \(
       scope: punctuation.paren.scheme
       push:
-        - match: ({{identifier}})
+        - match: '{{identifier}}'
           scope: entity.name.function.scheme
           push: [define-body, parameters-paren]
           pop: 2
@@ -325,10 +322,9 @@ contexts:
     - include: form-tail
 
   set-form:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: entity.name.function.scheme
-      push: form-tail
-      pop: true
+      set: form-tail
     - include: form-tail
 
   syntax-rules-form:
@@ -337,10 +333,9 @@ contexts:
 
   syntax-case-form:
     - meta_scope: meta.syntax-case.scheme
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
-      push: syntax-case-literal-list
-      pop: true
+      set: syntax-case-literal-list
     - include: form-tail
 
   syntax-case-literal-list:
@@ -351,7 +346,7 @@ contexts:
         - match: \)
           scope: punctuation.paren.scheme
           push: syntax-case-clauses
-        - match: ({{identifier}})
+        - match: '{{identifier}}'
           scope: constant.symbol.literal.scheme
     - include: form-tail
 
@@ -362,139 +357,133 @@ contexts:
 
   form-fail:
     - match: (?=\S)
-      push: form-tail
-      pop: true
+      set: form-tail
 
   form-tail:
     - match: (?=[\])])
-      pop: true
+      pop: 1
     - include: expressions
 
   parameters-paren:
-    - match: (?:\.|\.{3})
+    - match: \.|\.{3}
       scope: keyword.control.scheme
     - include: parameter
     - match: \)
       scope: punctuation.paren.scheme
-      pop: true
+      pop: 1
     - include: expressions
 
   parameters-bracket:
-    - match: (?:\.|\.{3})
+    - match: \.|\.{3}
       scope: keyword.control.scheme
     - include: parameter
     - match: \]
       scope: punctuation.bracket.scheme
-      pop: true
+      pop: 1
     - include: expressions
 
   parameter:
-    - match: ({{identifier}})
+    - match: '{{identifier}}'
       scope: variable.parameter.scheme
 
   application:
-    - match: '#(%|2%|3%)'
+    - match: '#[23]?%'
       scope:
         keyword.control.optimize-level.scheme
         prefix.primitive.scheme
       push:
-        - match: (?:{{primitives}})(?={{delimiters}})
+        - match: '{{primitives}}(?={{delimiters}})'
           scope:
             meta.function-call.scheme
             support.function.scheme
             primitive.function.scheme
-          push: form-tail
-          pop: true
-        - match: (?:{{identifier}})(?={{delimiters}})
+          set: form-tail
+        - match: '{{identifier}}(?={{delimiters}})'
           scope:
             meta.function-call.scheme
             primitive.function.scheme
-          push: form-tail
-          pop: true
+          set: form-tail
     - include: constants
-    - match: (?:{{primitives}})(?={{delimiters}})
+    - match: '{{primitives}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         support.function.scheme
       push: form-tail
-    - match: (?:{{identifier}})(?={{delimiters}})
+    - match: '{{identifier}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         variable.function.scheme
       push: form-tail
 
   aux-keywords:
-    - match: (\.{3}|\.|_|=>)(?={{delimiters}})
+    - match: (?:\.{3}|\.|_|=>)(?={{delimiters}})
       scope: keyword.aux.scheme
 
   other-variable:
-    - match: ({{identifier}}|[{}])
+    - match: '{{identifier}}|[{}]'
       scope: entity.other.scheme
 
   primitive:
-    - match: (?:{{primitives}})(?={{delimiters}})
+    - match: '{{primitives}}(?={{delimiters}})'
       scope: support.function.scheme
-    - match: '#(%|2%|3%)'
+    - match: '#(?:[23]?%)'
       scope:
         keyword.control.optimize-level.scheme
         prefix.primitive.scheme
       push:
-        - match: (?:{{primitives}})(?={{delimiters}})
+        - match: '{{primitives}}(?={{delimiters}})'
           scope:
             support.function.scheme
             primitive.function.scheme
-          pop: true
-        - match: (?:{{identifier}})(?={{delimiters}})
+          pop: 1
+        - match: '{{identifier}}(?={{delimiters}})'
           scope: primitive.function.scheme
-          pop: true
+          pop: 1
 
   macro-keywords:
-    - match: (?:#')
+    - match: "#'"
       scope: keyword.syntax.scheme
-    - match: (?:#`)
+    - match: '#`'
       scope: keyword.quasisyntax.scheme
-    - match: (?:#,@)
+    - match: '#,@'
       scope: keyword.unsyntax-splicing.scheme
-    - match: (?:#,)
+    - match: '#,'
       scope: keyword.unsyntax.scheme
-    - match: (?:')
+    - match: "'"
       scope: keyword.quote.scheme
       push: quote-constants
-    - match: (?:`)
+    - match: '`'
       scope: keyword.quasiquote.scheme
       push: quote-constants
-    - match: (?:,@)
+    - match: ',@'
       scope: keyword.unquote-splicing.scheme
-    - match: (?:,)
+    - match: ','
       scope: keyword.unquote.scheme
-
-    - match: (?:#&)
+    - match: '#&'
       scope: storage.modifier.boxes.scheme
-    - match: (?:#@)
+    - match: '#@'
       scope: storage.modifier.fasl.scheme
-    - match: (?:#([0-9]+)=)
+    - match: '#([0-9]+)='
       scope: storage.modifier.pair.scheme
       captures:
         1: constant.numeric.scheme
-
-    - match: (?:#)(?=\[)
+    - match: '#(?=\[)'
       scope: storage.modifier.record-name.scheme
-
-    - match: (?:#([0-9]*)(vu8|vfx)?)(?=\()
+    - match: '#([0-9]*)(vu8|vfx)?(?=\()'
       scope: storage.modifier.vector.scheme
       captures:
         1: constant.numeric.scheme
 
   quote-constants:
     - include: constants
-    - match: (?:{{identifier}})
+    - match: '{{identifier}}'
       scope: symbol.quoted.scheme
-      pop: true
+      pop: 1
     - match: \(\)
       scope: constant.language.scheme
-      pop: true
+      pop: 1
     - match: (?=\S)
-      pop: true
+      pop: 1
 
   gensym-literal:
     - match: (#\{)({{identifier}})\s+({{identifier}})(\})
@@ -516,7 +505,7 @@ contexts:
       scope: constant.language.scheme
 
   boolean:
-    - match: (#[tf])
+    - match: '#[tf]'
       scope: constant.boolean.scheme
       push: delimiter
 
@@ -576,7 +565,7 @@ contexts:
       captures:
         1: storage.modifier.character.scheme
         2: constant.character.scheme
-    - match: (#\\)
+    - match: '#\\'
       scope: storage.modifier.character.scheme
       push:
         - match: |-
@@ -584,8 +573,7 @@ contexts:
             (?:alarm|backspace|delete|esc|linefeed|newline|page
               |return|space|tab|bel|ls|nel|nul|rubout|vtab|vt|[ \S])
           scope: constant.character.scheme
-          push: delimiter
-          pop: true
+          set: delimiter
 
   string-literal:
     - match: '"'
@@ -594,7 +582,7 @@ contexts:
         - meta_scope: string.quoted.double.scheme
         - match: '"'
           scope: punctuation.definition.string.end.scheme
-          pop: true
+          pop: 1
         - include: string-escaped-char
         - include: string-placeholder
 
@@ -632,48 +620,76 @@ contexts:
       scope: punctuation.definition.comment.expression.scheme
       push:
         - meta_scope: comment.expression.scheme
-        - include: commented-expression
+        - include: comments
+        - include: expression-in-comment
+        # orphan?
+        - match: (?=[\])])
+          pop: 1
 
-  commented-expression:
+  expression-in-comment:
     - match: \(
       push:
         - match: \)
           pop: 2
-        - match: \]
-          scope: invalid.illegal.close-bracket.scheme
-        - match: ''
-          push: commented-expression
+        - include: balanced-paren-in-comment
+        - include: string-literal-in-comment
     - match: \[
       push:
         - match: \]
           pop: 2
-        - match: \)
-          scope: invalid.illegal.close-paren.scheme
-        - match: ''
-          push: commented-expression
-    - match: '{{identifier}}'
-      pop: 1
-    - include: commented-string-literal
-    - include: commented-gensym-literal
-    - include: comments
-    - match: (?=[\])])
-      pop: true
-
-  commented-string-literal:
+        - include: balanced-bracket-in-comment
+        - include: string-literal-in-comment
     - match: '"'
       push:
         - match: '"'
           pop: 2
-        - match: '(\\)$\n'
-        - match: '{{valid_escaped_chars}}'
-        - match: \\.
-          scope: invalid.illegal.unknown-escape.scheme
-
-  commented-gensym-literal:
+        - include: string-escaped-char-in-comment
     - match: '#\{'
       push:
         - match: \}
           pop: 2
+    - match: |-
+        (?x)
+        {{identifier}}
+        | {{definition_keywords}}
+        | {{keywords}}
+        | {{primitives}}
+      pop: 1
+
+  balanced-paren-in-comment:
+    - match: \(
+      push:
+        - include: balanced-paren-in-comment
+        - include: string-literal-in-comment
+        - match: \)
+          pop: 1
+
+  balanced-bracket-in-comment:
+    - match: \[
+      push:
+        - include: balanced-bracket-in-comment
+        - include: string-literal-in-comment
+        - match: \]
+          pop: 1
+
+  string-literal-in-comment:
+    - match: '"'
+      push:
+        - match: '"'
+          pop: 1
+        - include: string-escaped-char-in-comment
+
+  string-escaped-char-in-comment:
+    - match: '(\\)$\n'
+    - match: |-
+        (?x)\\
+        (?:[\\abefnrtv\'"?]
+          |[0-3][0-9]{0,2}
+          |[4-7][0-9]?
+          |x[a-fA-F0-9]+
+          |u[a-fA-F0-9]{4}
+          |U[a-fA-F0-9]{8})
+    - match: \\.
 
   comment-line:
     - match: (;+).*$\n?
@@ -685,10 +701,10 @@ contexts:
       push:
         - match: /([^/]+/)*(scheme|petite)\s+--script$
           scope: comment.line.scheme
-          pop: true
+          pop: 1
         - match: \S+(?=\s*$)
           scope: invalid.deprecated.scheme
-          pop: true
+          pop: 1
 
   comment-block:
     - match: '#\|'
@@ -698,7 +714,7 @@ contexts:
         - include: comment-block
         - match: '\|#'
           scope: punctuation.definition.comment.end.scheme
-          pop: true
+          pop: 1
 
   comment-eof:
     - match: ^\s*#!eof\b
@@ -710,10 +726,14 @@ contexts:
 
   delimiter:
     - match: (?={{delimiters}})
-      pop: true
+      pop: 1
     - match: \S+
       scope: invalid.illegal.delimiter.scheme
-      pop: true
+      pop: 1
+
+  always-pop-2:
+    - match: ''
+      pop: 2
 
 
 variables:
