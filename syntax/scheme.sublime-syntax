@@ -598,7 +598,7 @@ contexts:
   string-placeholder:
     - match: |-
         (?x)~
-          ([~nN%^&*;]
+        (?:[~nN%^&*;]
           |@?[?]
           |,?(?:\d+)?@?[eEfFgGtT]
           |,?(?:@:|:@|@|:)?[bBoOdDxX$]
@@ -620,76 +620,48 @@ contexts:
       scope: punctuation.definition.comment.expression.scheme
       push:
         - meta_scope: comment.expression.scheme
-        - include: comments
-        - include: expression-in-comment
-        # orphan?
-        - match: (?=[\])])
-          pop: 1
+        - include: commented-expression
 
-  expression-in-comment:
+  commented-expression:
     - match: \(
       push:
         - match: \)
           pop: 2
-        - include: balanced-paren-in-comment
-        - include: string-literal-in-comment
+        - match: \]
+          scope: invalid.illegal.close-bracket.scheme
+        - match: ''
+          push: commented-expression
     - match: \[
       push:
         - match: \]
           pop: 2
-        - include: balanced-bracket-in-comment
-        - include: string-literal-in-comment
+        - match: \)
+          scope: invalid.illegal.close-paren.scheme
+        - match: ''
+          push: commented-expression
+    - match: '{{identifier}}'
+      pop: 1
+    - include: commented-string-literal
+    - include: commented-gensym-literal
+    - include: comments
+    - match: (?=[\])])
+      pop: 1
+
+  commented-string-literal:
     - match: '"'
       push:
         - match: '"'
           pop: 2
-        - include: string-escaped-char-in-comment
+        - match: '(\\)$\n'
+        - match: '{{valid_escaped_chars}}'
+        - match: \\.
+          scope: invalid.illegal.unknown-escape.scheme
+
+  commented-gensym-literal:
     - match: '#\{'
       push:
         - match: \}
           pop: 2
-    - match: |-
-        (?x)
-        {{identifier}}
-        | {{definition_keywords}}
-        | {{keywords}}
-        | {{primitives}}
-      pop: 1
-
-  balanced-paren-in-comment:
-    - match: \(
-      push:
-        - include: balanced-paren-in-comment
-        - include: string-literal-in-comment
-        - match: \)
-          pop: 1
-
-  balanced-bracket-in-comment:
-    - match: \[
-      push:
-        - include: balanced-bracket-in-comment
-        - include: string-literal-in-comment
-        - match: \]
-          pop: 1
-
-  string-literal-in-comment:
-    - match: '"'
-      push:
-        - match: '"'
-          pop: 1
-        - include: string-escaped-char-in-comment
-
-  string-escaped-char-in-comment:
-    - match: '(\\)$\n'
-    - match: |-
-        (?x)\\
-        (?:[\\abefnrtv\'"?]
-          |[0-3][0-9]{0,2}
-          |[4-7][0-9]?
-          |x[a-fA-F0-9]+
-          |u[a-fA-F0-9]{4}
-          |U[a-fA-F0-9]{8})
-    - match: \\.
 
   comment-line:
     - match: (;+).*$\n?
