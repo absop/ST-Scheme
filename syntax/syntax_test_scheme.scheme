@@ -80,7 +80,108 @@
 ;^^ comment.block.scheme punctuation.definition.comment.begin.scheme
 
 ( #| invalid paren |# ))))
-;                      ^^^ invalid.illegal.scheme
+;                      ^^^ invalid.illegal.close-paren.scheme
+
+
+;###########;##########
+; EXPRESSION COMMENTS #
+;###########;##########
+
+ #; #'()
+;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+;   ^^^^ comment.expression.scheme
+
+ #; #'x
+;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+;   ^^^ comment.expression.scheme
+
+ #; #'1
+;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+;   ^^^ comment.expression.scheme
+
+ #;
+;^^ punctuation.definition.comment.expression.scheme
+ 1 #; #;
+;^ comment.expression.scheme
+;  ^^^^^ comment.expression.scheme
+;  ^^ punctuation.definition.comment.expression.scheme
+;     ^^ punctuation.definition.comment.expression.scheme
+ 2 3 4
+;^^^ comment.expression.scheme
+;    ^ - comment
+
+ #;#;#;#;1 2 3 4 5
+;^^^^^^^^ punctuation.definition.comment.expression.scheme
+;^^^^^^^^^^^^^^^ comment.expression.scheme
+;                ^ - comment
+
+ #;#;#;#; ; 1 2 3 4 5
+;^^^^^^^^ punctuation.definition.comment.expression.scheme
+;^^^^^^^^ comment.expression.scheme
+;         ^^^^^^^^^^^ comment.line.scheme
+ 6 7 8 9 10
+;^^^^^^^  comment.expression.scheme
+;        ^^ - comment
+
+ #;
+;^^ punctuation.definition.comment.expression.scheme
+ 1 #; #;
+;^ comment.expression.scheme
+;  ^^^^^ comment.expression.scheme
+;  ^^ punctuation.definition.comment.expression.scheme
+;     ^^ punctuation.definition.comment.expression.scheme
+ 2 3 #; 4
+;^^^ comment.expression.scheme
+;    ^^^^ comment.expression.scheme
+;    ^^ punctuation.definition.comment.expression.scheme
+ 5
+;^ - comment
+
+ #;
+;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+ #| balabala |#  1 2
+;^^ comment.expression.scheme comment.block.scheme punctuation.definition.comment.begin.scheme
+;            ^^ comment.expression.scheme comment.block.scheme punctuation.definition.comment.end.scheme
+;                ^ comment.expression.scheme
+;                  ^ constant.numeric.decimal.scheme
+
+#; ; line-comment
+;  ^ comment.expression.scheme comment.line.scheme punctuation.definition.comment.scheme
+ 2
+;^ comment.expression.scheme
+ 3
+;^ constant.numeric.decimal.scheme
+
+ #;"x" y
+;^^^^^ comment.expression.scheme
+;      ^ - comment
+
+ #;"\x\n\"" y
+;^^^^^ comment.expression.scheme
+;   ^^ comment.expression.scheme invalid.illegal.unknown-escape.scheme
+;     ^^^^^ comment.expression.scheme
+;           ^ - comment
+
+ #;("Hello World)))))") 1
+;^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+;                       ^ - comment
+
+ #;#{x y} 1
+;^^^^^^^^ comment.expression.scheme
+;^^ punctuation.definition.comment.expression.scheme
+;         ^ - comment
+
+ #;(define-syntax alias ; already built-in
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+   (lambda (x)
+;^^^^^^^^^^^^^ comment.expression.scheme
+     syntax-error x "misplaced aux keyword"))
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+
+ #;([)])
+;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+;  ^^^^^ comment.expression.scheme
+;    ^ comment.expression.scheme invalid.illegal.close-paren.scheme
 
 
 ;##########

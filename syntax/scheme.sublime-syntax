@@ -39,9 +39,9 @@ contexts:
       push: bracket
 
     - match: \)
-      scope: invalid.illegal.scheme
+      scope: invalid.illegal.close-paren.scheme
     - match: \]
-      scope: invalid.illegal.scheme
+      scope: invalid.illegal.close-bracket.scheme
 
   paren:
     - match: \)
@@ -602,14 +602,7 @@ contexts:
     - match: '(\\)$\n'
       captures:
         1: punctuation.separator.continuation.scheme
-    - match: |-
-        (?x)\\
-        (?:[\\abefnrtv\'"?]
-          |[0-3][0-9]{0,2}
-          |[4-7][0-9]?
-          |x[a-fA-F0-9]+
-          |u[a-fA-F0-9]{4}
-          |U[a-fA-F0-9]{8})
+    - match: '{{valid_escaped_chars}}'
       scope: constant.character.escape.scheme
     - match: \\.
       scope: invalid.illegal.unknown-escape.scheme
@@ -637,6 +630,50 @@ contexts:
   comment-expression:
     - match: '#;'
       scope: punctuation.definition.comment.expression.scheme
+      push:
+        - meta_scope: comment.expression.scheme
+        - include: commented-expression
+
+  commented-expression:
+    - match: \(
+      push:
+        - match: \)
+          pop: 2
+        - match: \]
+          scope: invalid.illegal.close-bracket.scheme
+        - match: ''
+          push: commented-expression
+    - match: \[
+      push:
+        - match: \]
+          pop: 2
+        - match: \)
+          scope: invalid.illegal.close-paren.scheme
+        - match: ''
+          push: commented-expression
+    - match: '{{identifier}}'
+      pop: 1
+    - include: commented-string-literal
+    - include: commented-gensym-literal
+    - include: comments
+    - match: (?=[\])])
+      pop: true
+
+  commented-string-literal:
+    - match: '"'
+      push:
+        - match: '"'
+          pop: 2
+        - match: '(\\)$\n'
+        - match: '{{valid_escaped_chars}}'
+        - match: \\.
+          scope: invalid.illegal.unknown-escape.scheme
+
+  commented-gensym-literal:
+    - match: '#\{'
+      push:
+        - match: \}
+          pop: 2
 
   comment-line:
     - match: (;+).*$\n?
@@ -680,6 +717,15 @@ contexts:
 
 
 variables:
+  valid_escaped_chars: |-
+    (?x)\\
+    (?:[\\abefnrtv\'"?]
+      |[0-3][0-9]{0,2}
+      |[4-7][0-9]?
+      |x[a-fA-F0-9]+
+      |u[a-fA-F0-9]{4}
+      |U[a-fA-F0-9]{8})
+
   delimiters: (?:[{(\[\s"'`,;#\])}])
   identifier: |-
     (?x)
