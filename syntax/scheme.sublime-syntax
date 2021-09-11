@@ -334,6 +334,8 @@ contexts:
     - include: syntax-case-body
 
   syntax-case-form:
+    # - match: expression
+    #   do: syntax-case-body
     - meta_scope: meta.syntax-case.scheme
     - match: '{{identifier}}'
       scope: variable.parameter.scheme
@@ -345,7 +347,7 @@ contexts:
     - match: \(
       scope: punctuation.paren.begin.scheme
       push: [syntax-case-clauses, syntax-case-literals]
-    - include: form-tail
+    - include: form-fail
 
   syntax-case-literals:
     - match: \)
