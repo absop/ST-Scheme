@@ -331,30 +331,34 @@ contexts:
 
   syntax-rules-form:
     - meta_scope: meta.syntax-rules.scheme
-    - include: syntax-case-literal-list
+    - include: syntax-case-body
 
   syntax-case-form:
     - meta_scope: meta.syntax-case.scheme
     - match: '{{identifier}}'
       scope: variable.parameter.scheme
-      set: syntax-case-literal-list
+      set: syntax-case-body
     - include: form-tail
 
-  syntax-case-literal-list:
+  syntax-case-body:
     - meta_scope: meta.syntax-case.scheme
     - match: \(
       scope: punctuation.paren.begin.scheme
-      push:
-        - match: \)
-          scope: punctuation.paren.end.scheme
-          push: syntax-case-clauses
-        - match: '{{identifier}}'
-          scope: constant.symbol.literal.scheme
+      push: [syntax-case-clauses, syntax-case-literals]
     - include: form-tail
+
+  syntax-case-literals:
+    - match: \)
+      scope: punctuation.paren.end.scheme
+      pop: 1
+    - match: \.|\.{3}
+      scope: keyword.control.scheme
+    - match: '{{identifier}}'
+      scope: constant.symbol.literal.scheme
 
   syntax-case-clauses:
     - match: (?=[\])])
-      pop: 3
+      pop: 2
     - include: expression
 
   form-fail:
