@@ -2,7 +2,7 @@
 ---
 # https://www.sublimetext.com/docs/syntax.html
 #
-# `Scheme` Language Reference:
+# `Scheme` Language Reference: http://www.r6rs.org/final/r6rs.pdf
 #
 
 name: Scheme
@@ -48,20 +48,23 @@ contexts:
     - match: \)
       scope: punctuation.paren.end.scheme
       pop: 1
-    - include: expressions
+    - include: special-forms
+    - include: constants
+    - include: application
+    - match: ''
+      push: expressions
 
   open-bracket:
     - match: \]
       scope: punctuation.bracket.end.scheme
       pop: 1
+    - include: special-forms
     - include: expressions
 
   expressions:
-    - include: special-forms
-    - include: constants
-    - include: application
-    - match: ''
-      push: form-tail
+    - match: (?=[\])])
+      pop: 1
+    - include: expression
 
   special-forms:
     - match: let(?={{delimiters}})
@@ -178,7 +181,7 @@ contexts:
 
     - match: '{{keywords}}(?={{delimiters}})'
       scope: keyword.control.scheme
-      push: form-tail
+      push: expressions
 
   let-form:
     - include: let-binding-list
@@ -191,7 +194,7 @@ contexts:
       set:
         - meta_scope: meta.named-let.scheme
         - include: let-binding-list
-        - include: form-tail
+        - include: expressions
 
   let-binding-list:
     - match: \(
@@ -204,7 +207,7 @@ contexts:
               pop: 3
             - include: expression
         - include: let-bindings
-        - include: form-tail
+        - include: expressions
 
   let-bindings:
     - match: \[
@@ -221,19 +224,18 @@ contexts:
           scope: punctuation.paren.end.scheme
           pop: 1
         - include: let-var-exp
-    - include: form-tail
 
   let-var-exp:
     - match: '{{identifier}}'
       scope: variable.parameter.scheme
-      push: form-tail
+      push: expressions
     - match: \(
       scope: punctuation.paren.begin.scheme
-      push: [form-tail, parameters-paren]
+      push: [expressions, parameters-paren]
     - match: \[
       scope: punctuation.bracket.begin.scheme
-      push: [form-tail, parameters-bracket]
-    - include: form-tail
+      push: [expressions, parameters-bracket]
+    - include: expressions
 
   case-clause:
     - match: \[
@@ -250,22 +252,22 @@ contexts:
           scope: punctuation.paren.end.scheme
           pop: 1
         - include: pattern-begin
-    - include: form-tail
+    - include: expressions
 
   pattern-begin:
     - match: \(
       scope: punctuation.paren.begin.scheme
-      push: [form-tail, pattern-tail-paren]
+      push: [expressions, pattern-tail-paren]
     - match: \[
       scope: punctuation.bracket.begin.scheme
-      push: [form-tail, pattern-tail-bracket]
+      push: [expressions, pattern-tail-bracket]
     - match: else|_
       scope: keyword.control.scheme
-      push: form-tail
+      push: expressions
     - match: '{{identifier}}'
       scope: variable.parameter.scheme
-      push: form-tail
-    - include: form-tail
+      push: expressions
+    - include: expressions
 
   pattern-tail-paren:
     - match: \)
@@ -297,7 +299,7 @@ contexts:
 
   lambda-body:
     - meta_scope: meta.lambda.scheme
-    - include: form-tail
+    - include: expressions
 
   define-form:
     # - meta_scope: meta.define.scheme
@@ -316,18 +318,18 @@ contexts:
             punctuation.paren.scheme
             invalid.illegal.scheme
           pop: 2
-        - include: form-tail
-    - include: form-tail
+        - include: expressions
+    - include: expressions
 
   define-body:
     # - meta_scope: meta.define.scheme
-    - include: form-tail
+    - include: expressions
 
   set-form:
     - match: '{{identifier}}'
       scope: entity.name.function.scheme
-      set: form-tail
-    - include: form-tail
+      set: expressions
+    - include: expressions
 
   syntax-rules-form:
     - meta_scope: meta.syntax-rules.scheme
@@ -340,7 +342,7 @@ contexts:
     - match: '{{identifier}}'
       scope: variable.parameter.scheme
       set: syntax-case-body
-    - include: form-tail
+    - include: expressions
 
   syntax-case-body:
     - meta_scope: meta.syntax-case.scheme
@@ -365,12 +367,7 @@ contexts:
 
   form-fail:
     - match: (?=\S)
-      set: form-tail
-
-  form-tail:
-    - match: (?=[\])])
-      pop: 1
-    - include: expression
+      set: expressions
 
   parameters-paren:
     - match: \.|\.{3}
@@ -405,22 +402,22 @@ contexts:
             meta.function-call.scheme
             support.function.scheme
             primitive.function.scheme
-          set: form-tail
+          set: expressions
         - match: '{{identifier}}(?={{delimiters}})'
           scope:
             meta.function-call.scheme
             primitive.function.scheme
-          set: form-tail
+          set: expressions
     - match: '{{primitives}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         support.function.scheme
-      push: form-tail
+      push: expressions
     - match: '{{identifier}}(?={{delimiters}})'
       scope:
         meta.function-call.scheme
         variable.function.scheme
-      push: form-tail
+      push: expressions
 
   aux-keywords:
     - match: (?:\.{3}|\.|_|=>)(?={{delimiters}})
