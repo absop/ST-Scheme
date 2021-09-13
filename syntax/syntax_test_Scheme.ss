@@ -1,4 +1,4 @@
-; SYNTAX TEST "scheme.sublime-syntax"
+; SYNTAX TEST "Packages/Scheme/syntax/Scheme.sublime-syntax"
 
 
 ;###########
@@ -40,7 +40,7 @@
 
 (syntax-case x (quote unquote)
 ;^^^^^^^^^^^ meta.syntax-case.scheme keyword.control.syntax.scheme
-;            ^ meta.syntax-case.scheme variable.parameter.scheme
+;            ^ entity.other.scheme
 ;               ^^^^^ meta.syntax-case.scheme constant.symbol.literal.scheme
   [,x #`(let ([x v]) ...)]
 ;     ^^ meta.syntax-case.scheme keyword.quasisyntax.scheme
@@ -79,122 +79,105 @@
 (#| stray comment inside list |#)
 ;^^ comment.block.scheme punctuation.definition.comment.begin.scheme
 
-( #| invalid paren |# ))))
-;                      ^^^ invalid.illegal.close-paren.scheme
+( #| invalid paren |#
+ ([)])
+;  ^ invalid.illegal.close-paren.scheme
+ (])
+; ^ invalid.illegal.close-bracket.scheme
+ ))))
+; ^^^ invalid.illegal.close-paren.scheme
 
 
 ;###########;##########
 ; EXPRESSION COMMENTS #
 ;###########;##########
 
- #; #'()
-;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
-;   ^^^^ comment.expression.scheme
+ #; #'() 1
+;^^ meta.comment.expression.scheme punctuation.definition.comment.expression.scheme
+;   ^^^^ meta.comment.expression.scheme meta.syntax.scheme
+;        ^ - meta.comment
 
- #; #'x
-;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
-;   ^^^ comment.expression.scheme
+ #; '#'() 1
+;^^ meta.comment.expression.scheme punctuation.definition.comment.expression.scheme
+;   ^^^^^ meta.comment.expression.scheme meta.quote.scheme
+;        ^^ - meta.comment
 
- #; #'1
-;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
-;   ^^^ comment.expression.scheme
+ #; #'x 1
+;   ^^^ meta.comment.expression.scheme meta.syntax.scheme
+;       ^ - meta.comment
+
+ #; #'1 1
+;   ^^^ meta.comment.expression.scheme meta.syntax.scheme
+;       ^ - meta.comment
 
  #;
-;^^ punctuation.definition.comment.expression.scheme
+;^^ meta.comment.expression.scheme punctuation.definition.comment.expression.scheme
  1 #; #;
-;^ comment.expression.scheme
-;  ^^^^^ comment.expression.scheme
+;^ meta.comment.expression.scheme constant.numeric.decimal.scheme
 ;  ^^ punctuation.definition.comment.expression.scheme
 ;     ^^ punctuation.definition.comment.expression.scheme
  2 3 4
-;^^^ comment.expression.scheme
-;    ^ - comment
+;^^^ meta.comment.expression.scheme
+;    ^ - meta.comment
 
  #;#;#;#;1 2 3 4 5
 ;^^^^^^^^ punctuation.definition.comment.expression.scheme
-;^^^^^^^^^^^^^^^ comment.expression.scheme
-;                ^ - comment
+;^^^^^^^^^^^^^^^ meta.comment.expression.scheme
+;                ^ - meta.comment
 
  #;#;#;#; ; 1 2 3 4 5
 ;^^^^^^^^ punctuation.definition.comment.expression.scheme
-;^^^^^^^^ comment.expression.scheme
 ;         ^^^^^^^^^^^ comment.line.scheme
  6 7 8 9 10
-;^^^^^^^  comment.expression.scheme
-;        ^^ - comment
+;^^^^^^^ meta.comment.expression.scheme
+;        ^^ - meta.comment
 
  #; x #; #; (+ 1 3) 98 99
-;^^^^ comment.expression.scheme
-;^^ punctuation.definition.comment.expression.scheme
-;    ^ - comment
-;     ^^^^^^^^^^^^^^^^ comment.expression.scheme
+;   ^ meta.comment.expression.scheme entity.other.scheme
+;    ^ - meta.comment
+;     ^^^^^^^^^^^^^^^^ meta.comment.expression.scheme
 ;     ^^ punctuation.definition.comment.expression.scheme
 ;        ^^ punctuation.definition.comment.expression.scheme
-;                      ^^ - comment
+;                      ^^ - meta.comment
 
  #;()()
-;^^^^ comment.expression.scheme
-;    ^^ - comment
+;^^^^ meta.comment.expression.scheme
+;    ^^ - meta.comment
 
  #;
-;^^ punctuation.definition.comment.expression.scheme
- 1 #; #;
-;^ comment.expression.scheme
-;  ^^^^^ comment.expression.scheme
-;  ^^ punctuation.definition.comment.expression.scheme
-;     ^^ punctuation.definition.comment.expression.scheme
- 2 3 #; 4
-;^^^ comment.expression.scheme
-;    ^^^^ comment.expression.scheme
-;    ^^ punctuation.definition.comment.expression.scheme
- 5
-;^ - comment
-
- #;
-;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
+;^^ meta.comment.expression.scheme punctuation.definition.comment.expression.scheme
  #| balabala |#  1 2
-;^^ comment.expression.scheme comment.block.scheme punctuation.definition.comment.begin.scheme
-;            ^^ comment.expression.scheme comment.block.scheme punctuation.definition.comment.end.scheme
-;                ^ comment.expression.scheme
-;                  ^ constant.numeric.decimal.scheme
-
-#; ; line-comment
-;  ^ comment.expression.scheme comment.line.scheme punctuation.definition.comment.scheme
- 2
-;^ comment.expression.scheme
- 3
-;^ constant.numeric.decimal.scheme
+;^^ comment.block.scheme punctuation.definition.comment.begin.scheme
+;   ^^^^^^^^^^^ meta.comment.expression.scheme comment.block.scheme
+;                ^ meta.comment.expression.scheme constant.numeric.decimal.scheme
+;                  ^ - meta.comment
 
  #;"x" y
-;^^^^^ comment.expression.scheme
-;      ^ - comment
+;^^^^^ meta.comment.expression.scheme
+;      ^ - meta.comment
 
  #;"\x\n\"" y
-;^^^^^ comment.expression.scheme
-;   ^^ comment.expression.scheme invalid.illegal.unknown-escape.scheme
-;     ^^^^^ comment.expression.scheme
-;           ^ - comment
+;^^^^^^^^^^ meta.comment.expression.scheme
+;  ^^^^^^^^ meta.comment.expression.scheme string.quoted.double.scheme
+;           ^ - meta.comment
 
  #;("Hello World)))))") 1
-;^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
-;                       ^ - comment
+;^^^^^^^^^^^^^^^^^^^^^^ meta.comment.expression.scheme
+;   ^^^^^^^^^^^^^^^^^^ string.quoted.double.scheme
+;                       ^ - meta.comment
 
  #;#{x y} 1
-;^^^^^^^^ comment.expression.scheme
-;^^ punctuation.definition.comment.expression.scheme
-;         ^ - comment
+;^^^^^^^^ meta.comment.expression.scheme
+;         ^ - meta.comment
 
  #;(define-syntax alias ; already built-in
-;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
-   (lambda (x)
-;^^^^^^^^^^^^^ comment.expression.scheme
-     syntax-error x "misplaced aux keyword"))
-;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.expression.scheme
+     (lambda (x) syntax-error x "misplaced aux keyword"))
+;     ^^^^^^ meta.comment.expression.scheme storage.type.function.inline.scheme
+;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.comment.expression.scheme
 
  #;([)])
-;^^ comment.expression.scheme punctuation.definition.comment.expression.scheme
-;  ^^^^^ comment.expression.scheme
-;    ^ comment.expression.scheme invalid.illegal.close-paren.scheme
+;  ^^^^^ meta.comment.expression.scheme
+;    ^ meta.comment.expression.scheme invalid.illegal.close-paren.scheme
 
 
 ;##########
@@ -342,8 +325,21 @@
 '(100 100 100)
 ; ^^^ constant.numeric.decimal.scheme
 
+'(100 . 100)
+; ^^^ constant.numeric.decimal.scheme
+;     ^ keyword.aux.scheme
+;       ^^^ constant.numeric.decimal.scheme
+
+'(100 x 100)
+; ^^^ constant.numeric.decimal.scheme
+;     ^ entity.other.scheme
+;       ^^^ constant.numeric.decimal.scheme
+
 '(1+1 100 100)
 ; ^^^ meta.function-call.scheme variable.function.scheme
+
+'( 1+1 100 100)
+;  ^^^ meta.function-call.scheme variable.function.scheme
 
  (define |x| 0)
 ;        ^^^ entity.name.function.scheme

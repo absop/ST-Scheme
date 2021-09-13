@@ -1,0 +1,12 @@
+{
+    "target": "profile_scheme_syntax",
+    "file_patterns": ["Scheme.sublime-syntax"],
+    "times": 1,
+    "variants": [
+        {
+            "name": "Profile",
+            "target": "profile_scheme_syntax",
+            "times": 10
+        }
+    ]
+}
