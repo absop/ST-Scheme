@@ -608,12 +608,17 @@ contexts:
     - match: (#\\x)([0-9a-fA-F]+)\b
       captures:
         1: storage.modifier.character.scheme
-        2: constant.character.numeric.scheme
+        2: constant.character.numeric.hex.scheme
       pop: 1
     - match: (#\\0)([0-7]{2})\b
       captures:
         1: storage.modifier.character.scheme
-        2: constant.character.scheme
+        2: constant.character.numeric.octal.scheme
+      pop: 1
+    - match: (#\\)([0-9]{2,})\b
+      captures:
+        1: storage.modifier.character.scheme
+        2: constant.character.numeric.decimal.scheme
       pop: 1
     - match: '#\\'
       scope: storage.modifier.character.scheme
