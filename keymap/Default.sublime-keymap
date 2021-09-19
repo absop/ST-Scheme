@@ -6,10 +6,12 @@
         "args": {
             "characters": "'"
         },
-        "context": [{
-            "key": "selector",
-            "operator": "equal",
-            "operand": "source.scheme"
-        }]
+        "context": [
+            {
+                "key": "selector",
+                "operator": "equal",
+                "operand": "source.scheme"
+            }
+        ]
     }
 ]
