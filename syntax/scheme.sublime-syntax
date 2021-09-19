@@ -55,9 +55,7 @@ contexts:
       pop: 2
     - include: invalid-paren
     - match: (?=\S)
-      push:
-        - include: special-forms
-        - include: expressions
+      push: [expressions, form-of-bracket]
 
   open-paren:
     - match: \)
@@ -65,11 +63,17 @@ contexts:
       pop: 2
     - include: invalid-bracket
     - match: (?=\S)
-      push:
-        - include: special-forms
-        - include: constants
-        - include: application
-        - include: expressions
+      push: [expressions, form-of-paren]
+
+  form-of-bracket:
+    - include: special-forms
+    - include: expression-popper
+
+  form-of-paren:
+    - include: special-forms
+    - include: constants
+    - include: application
+    - include: expression-popper
 
   expressions:
     - match: (?=\S)
