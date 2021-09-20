@@ -1,4 +1,4 @@
-; SYNTAX TEST "Scheme.sublime-syntax"
+; SYNTAX TEST "Packages/Scheme/syntax/Scheme.sublime-syntax"
 
 
 ;###########
