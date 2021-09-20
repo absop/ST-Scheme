@@ -228,19 +228,23 @@
 ;^^ storage.modifier.character.scheme
 ;   ^ invalid.illegal.delimiter.scheme
 
- #\xaf
-;^^^ storage.modifier.character.scheme
-;   ^^ constant.character.numeric.scheme
-
  #\x
 ;  ^ constant.character.scheme
 
  #\newline
 ;  ^^^^^^^ constant.character.scheme
 
+ #\xaf
+;^^^ storage.modifier.character.scheme
+;   ^^ constant.character.numeric.hex.scheme
+
  #\000
 ;^^^ storage.modifier.character.scheme
-;   ^^ constant.character.scheme
+;   ^^ constant.character.numeric.octal.scheme
+
+ #\377
+;^^ storage.modifier.character.scheme
+;  ^^^ constant.character.numeric.decimal.scheme
 
 
 ;################

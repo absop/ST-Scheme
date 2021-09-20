@@ -6,7 +6,6 @@ from subprocess import Popen, PIPE
 import sublime
 import sublime_plugin
 
-from . import encode
 
 os_is_windows = os.name == 'nt'
 chez_scheme_proc = None
