@@ -28,8 +28,8 @@ contexts:
       push: pop-on-expression
 
   pop-on-expression:
-    - include: push-after-wrapper
     - include: pop-before-wrapper
+    - include: push-after-wrapper
     - include: macro-keywords
     - include: aux-keywords
     - include: primitive
