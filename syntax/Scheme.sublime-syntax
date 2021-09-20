@@ -131,16 +131,22 @@ contexts:
         - meta_scope: meta.letrec.scheme
         - include: let-form
 
+    - match: let-values(?={{delimiters}})
+      scope: keyword.control.scheme
+      push:
+        - meta_scope: meta.let-values.scheme
+        - include: let-form
+
     - match: do(?={{delimiters}})
       scope: keyword.control.scheme
       push:
         - meta_scope: meta.do.scheme
         - include: let-form
 
-    - match: let-values(?={{delimiters}})
+    - match: fluid-let(?={{delimiters}})
       scope: keyword.control.scheme
       push:
-        - meta_scope: meta.let-values.scheme
+        - meta_scope: meta.fluid-let.scheme
         - include: let-form
 
     - match: letrec\*(?={{delimiters}})
@@ -165,12 +171,6 @@ contexts:
       scope: keyword.control.scheme
       push:
         - meta_scope: meta.let*-values.scheme
-        - include: let-form
-
-    - match: fluid-let(?={{delimiters}})
-      scope: keyword.control.scheme
-      push:
-        - meta_scope: meta.fluid-let.scheme
         - include: let-form
 
     - match: fluid-let-syntax(?={{delimiters}})
