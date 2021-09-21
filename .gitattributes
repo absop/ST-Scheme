@@ -2,4 +2,4 @@
 .scheme export-ignore
 TODO export-ignore
 scheme_syntax_test.py export-ignore
-Scheme\ Syntax\ Test.sublime-build export-ignore
+Scheme[[:space:]]Syntax[[:space:]]Test.sublime-build export-ignore
