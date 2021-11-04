@@ -7,7 +7,12 @@
     "variants": [
         {
             "name": "Petite",
-            "shell_cmd": "petite --script $file",
+            "shell_cmd": "petite --script \"$file\"",
+        },
+        {
+            "name": "Racket",
+            "shell_cmd": "racket \"$file\"",
+            "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
         },
         {
             "name": "Compile",

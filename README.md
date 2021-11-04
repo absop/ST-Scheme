@@ -34,3 +34,9 @@ To distinguish expression commented regions from normal regions, exec the comman
 |           key           | Command            | Context       |
 | :---------------------: | ------------------ | ------------- |
 | <kbd> ctrl+alt+f </kbd> | Format Scheme Code | source.scheme |
+
+#### Before Formatting
+![original](images/original.png)
+
+#### After Formatting
+![formatted](images/formatted.png)
