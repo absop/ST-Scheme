@@ -1,4 +1,5 @@
 # Scheme
+[Repository URL](https://github.com/absop/Scheme)
 
 Scheme syntax highlighting and code formatter for Sublime Text 4.
 
@@ -31,6 +32,7 @@ To distinguish expression commented regions from normal regions, exec the comman
 
 ### Code Formatting
 
+#### Key bindings
 |           key           | Command            | Context       |
 | :---------------------: | ------------------ | ------------- |
 | <kbd> ctrl+alt+f </kbd> | Format Scheme Code | source.scheme |
@@ -40,3 +42,11 @@ To distinguish expression commented regions from normal regions, exec the comman
 
 #### After Formatting
 ![formatted](images/formatted.png)
+
+#### How to Use
+Select a region of code (with some expressions in it), and then press down the shortcuts (<kbd> ctrl+alt+f </kbd>).
+
+
+### Code Editing
+
+In order to get a better Scheme code editor experience, you will need to install another plugin: [RainbowBrackets] (https://github.com/absop/RainbowBrackets), it gives you rainbow brackets and the ability to quickly edit brackets.
