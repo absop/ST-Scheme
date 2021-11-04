@@ -49,4 +49,4 @@ Select a region of code (with some expressions in it), and then press down the s
 
 ### Code Editing
 
-In order to get a better Scheme code editor experience, you will need to install another plugin: [RainbowBrackets] (https://github.com/absop/RainbowBrackets), it gives you rainbow brackets and the ability to quickly edit brackets.
+In order to get a better Scheme code editor experience, you will need to install another plugin: [RainbowBrackets](https://github.com/absop/RainbowBrackets), it gives you rainbow brackets and the ability to quickly edit brackets.
