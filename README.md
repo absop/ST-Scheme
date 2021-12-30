@@ -1,7 +1,12 @@
 # Scheme
 [Repository URL](https://github.com/absop/Scheme)
 
-Scheme syntax highlighting and code formatter for Sublime Text 4.
+A Sublime Text 4 plugin for the [Scheme](http://www.r6rs.org/final/r6rs.pdf) language, with the following features:
+- syntactic code highlighting
+- code formatting
+- goto definition
+
+For more information about the **Scheme** language, see the r6rs spec: <http://www.r6rs.org/final/r6rs.pdf>
 
 
 ## Screenshots
