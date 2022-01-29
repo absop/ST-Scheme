@@ -536,7 +536,7 @@ contexts:
       set: delimiter
 
   boolean:
-    - match: '#[tf]'
+    - match: '#(?:false|f|true|t)'
       scope: constant.boolean.scheme
       set: delimiter
 

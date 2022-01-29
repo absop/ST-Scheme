@@ -280,8 +280,16 @@
 ;^^ constant.boolean.scheme
 ;  ^ invalid.illegal.delimiter.scheme
 
+ #falsex
+;^^^^^^ constant.boolean.scheme
+;      ^ invalid.illegal.delimiter.scheme
+
  #t
 ;^^ constant.boolean.scheme
+
+ #truex
+;^^^^^ constant.boolean.scheme
+;     ^ invalid.illegal.delimiter.scheme
 
 '()
 ;^^ constant.language.scheme
