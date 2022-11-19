@@ -8,14 +8,14 @@
                 "mnemonic": "P",
                 "children": [
                     {
-                        "caption": "Schemer",
+                        "caption": "Scheme",
                         "mnemonic": "S",
                         "children": [
                             {
                                 "caption": "README",
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/Schemer/README.md"
+                                    "file": "${packages}/Scheme/README.md"
                                 }
                             },
                             {
@@ -25,7 +25,7 @@
                                 "caption": "Key Bindings",
                                 "command": "edit_settings",
                                 "mnemonic": "K",
-                                "args": {"base_file": "${packages}/Schemer/keymap/Default ($platform).sublime-keymap", "default": "[\n\t$0\n]\n"}
+                                "args": {"base_file": "${packages}/Scheme/keymap/Default ($platform).sublime-keymap", "default": "[\n\t$0\n]\n"}
                             }
                         ]
                     }
